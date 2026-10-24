@@ -24,12 +24,12 @@ Open <http://127.0.0.1:5173>, then choose **Explore sample appeals**. No key is 
 - Explicit officer choices, editable response drafts, save-and-next, response downloads and a persistent case history.
 - Evidence attachments, JSON import, feedback approval, example retrieval and evaluation tools under Admin.
 - Insights calculated from saved decisions; no invented accuracy or savings claims.
-- Optional shared-password demo access, SQLite persistence and a single-container deployment.
+- Shared-password demo access, Neon/PostgreSQL persistence on Render, and SQLite for offline use.
 
 ```mermaid
 flowchart LR
   Officer[Officer in React UI] --> API[FastAPI]
-  API --> DB[(SQLite + evidence files)]
+  API --> DB[(Neon: records + small attachments)]
   API --> Agent[Bounded investigation]
   Agent --> Checks[Rules + supplied records + policy]
   Agent --> Model[Mubit gateway or offline stub]
@@ -50,7 +50,9 @@ cp .env.example .env
 docker compose up -d --build
 ```
 
-Open <http://localhost:8000>. React is served by FastAPI; one persistent volume holds the database and evidence. For a hosted private demo, use one VM, HTTPS and a reverse proxy. See [deployment instructions](docs/DEPLOYMENT.md) and [implemented architecture](docs/ARCHITECTURE.md).
+Open <http://localhost:8000>. React is served by FastAPI. Set `DATABASE_URL` to use Neon; leave it blank for SQLite in the persistent Docker volume. The same Neon URL locally and on Render means both apps share the same cases.
+
+For hosting, the existing Render service runs the Docker image and Neon stores records and small attachments. No separate file bucket is required for this MVP. See [deployment instructions](docs/DEPLOYMENT.md) for the existing service settings, SQLite migration and backup guidance, and [implemented architecture](docs/ARCHITECTURE.md).
 
 ## Focused verification
 
@@ -59,7 +61,7 @@ Open <http://localhost:8000>. React is served by FastAPI; one persistent volume 
 npm run build --prefix frontend
 ```
 
-The 40 existing tests are retained. Four additional workflow tests cover review-to-decision persistence, reasons and stale reviews, agent boundaries, and the private demo session. A browser smoke check covers the main user flow. There is no extra test framework.
+The 40 original tests and four workspace tests are retained. Four focused persistence tests cover shared attachments, review ownership, competing decisions and SQLite migration. SQLite runs 46 tests with two PostgreSQL-only skips; CI also runs the 17 relevant API/workspace/persistence checks against PostgreSQL. There is no extra test framework.
 
 ## Scope
 

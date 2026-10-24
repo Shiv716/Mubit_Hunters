@@ -43,14 +43,14 @@ def session(request: Request):
 
 @router.post("")
 def login(body: Login, response: Response):
-    if not secret() or not hmac.compare_digest(body.password, secret()):
+    if not secret() or not hmac.compare_digest(body.password.encode(), secret().encode()):
         raise HTTPException(401, "Incorrect workspace password.")
     if not body.name.strip():
         raise HTTPException(422, "Enter your reviewer name.")
     payload = base64.urlsafe_b64encode(json.dumps({"name": body.name.strip(), "exp": time.time() + 43200}).encode()).decode()
     sig = hmac.new(secret().encode(), payload.encode(), hashlib.sha256).hexdigest()
     response.set_cookie(COOKIE, f"{payload}.{sig}", httponly=True, samesite="strict", max_age=43200,
-                        secure=os.getenv("PCN_COOKIE_SECURE", "false").lower() == "true")
+                        secure=os.getenv("PCN_COOKIE_SECURE", "true" if os.getenv("RENDER") else "false").lower() == "true")
     return {"authenticated": True, "reviewer": body.name.strip()}
 
 

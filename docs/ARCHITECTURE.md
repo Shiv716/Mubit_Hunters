@@ -16,10 +16,10 @@ The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investi
 | Model transport | Existing Mubit adapter | OpenAI-compatible or Anthropic-compatible Mubit route; explicit offline stub |
 | Checks | Versioned rules and synthetic council policy | Payment, grace, permit, badge, loading, mitigation and case consistency |
 | Recommendation guard | JSON schema + reference and rule validation | Invalid references, missing data or vulnerability require human review |
-| Persistence | SQLite WAL, one process | Cases, checks, model responses, investigation trace, decisions, feedback and audit |
-| Evidence | Files on persistent disk; metadata and hashes in SQLite | Store/download attachments; contents are not interpreted by AI |
+| Persistence | Neon/PostgreSQL when `DATABASE_URL` is set; SQLite WAL offline | Cases, checks, model responses, investigation trace, decisions, feedback and audit |
+| Evidence | Database blobs on Render; local disk optionally offline | Store/download attachments up to 10 MiB each, with metadata and hashes; contents are not interpreted by AI |
 | Learning | Human-approved examples + lexical retrieval | Context for similar later cases; no automatic training claim |
-| Hosting | One non-root Docker container + persistent volume | FastAPI serves API and built frontend on the same origin |
+| Hosting | Existing Render service running one non-root Docker container | FastAPI serves API and built frontend on the same HTTPS origin; Neon persists data across deploys |
 
 ## A review request
 
@@ -31,7 +31,11 @@ The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investi
 6. Re-open a short write transaction. Confirm the case has not changed during inference, persist the checks, response, trace and audit, and return the result.
 7. An officer explicitly chooses the outcome. Generate an outcome-specific template, let the officer edit, then save the final response and decision transactionally.
 
-Evidence changes invalidate the displayed review. The API rejects superseded review IDs and checks that changed after inference. The review request does not hold a SQLite write lock during network calls. Keep one application worker: the per-case in-flight registry is process-local.
+Evidence changes invalidate the displayed review. The API rejects superseded review IDs and checks that changed after inference. The officer-facing review request does not hold a database write lock during network calls. A database lease prevents duplicate reviews across processes; expired claims can be replaced, and only their current owner can save the result or release them. PostgreSQL row locks serialize case mutations and prevent competing final decisions. SQLite uses an immediate transaction for case writes.
+
+The default remains one web service and one Uvicorn worker. PostgreSQL removes the local-disk dependency and coordinates case writes across instances, but long reviews still use synchronous HTTP requests. A durable job queue, cancellation and retry handling would be the next step for heavier traffic. The older `/ai-review` endpoint holds its case lock during inference; the main UI uses `/review`.
+
+Startup runs versioned PostgreSQL schema creation under a transaction-level advisory lock. Application tables live in the `civic` schema by default. Immutable review, decision, investigation and audit rows reject updates and deletes. Uploaded bytes and their metadata commit together in database-storage mode. The migration command copies an existing SQLite workspace only into an empty destination, verifies attachment hashes and preserves IDs and history.
 
 ## Mubit’s role
 
@@ -43,13 +47,13 @@ No live Mubit credential was needed for implementation or the offline tests. Aut
 
 ## Access and data
 
-For private demos, `PCN_ACCESS_KEY` enables a 12-hour signed, HTTP-only session. Reviewer names are self-declared. Everyone with the shared password has the same capabilities; Admin is navigation separation, not a permission boundary. Production-mode startup requires a password of at least 16 characters. Use HTTPS, secure cookies and private network/reverse-proxy access when hosted.
+For private demos, `PCN_ACCESS_KEY` enables a 12-hour signed, HTTP-only session. Reviewer names are self-declared. Everyone with the shared password has the same capabilities; Admin is navigation separation, not a permission boundary. Production mode and Render require a password of at least 16 characters. Render defaults to secure cookies and accepts its supplied external URL as the application origin. `/api/health` reports configuration; `/api/ready` checks database connectivity without exposing credentials.
 
 Only synthetic cases are accepted by intake. This flag is an assertion, not a personal-data detector. Upload only synthetic attachments. Mubit calls can contain appeal text, evidence descriptions and rule findings; masking an explicit registration field does not guarantee anonymisation of free text. `MUBIT_RECORD=full` permits provider-side recording, subject to the provider account settings.
 
 ## Before a real council rollout
 
-This MVP deliberately stays one service. A live pilot would first require approved council policies, validated statutory-stage/deadline logic, SSO and roles, independent security/privacy review, retention and backup policies, OCR/image handling if needed, and authorised case-system integrations. Add PostgreSQL, object storage and a background job queue when concurrent or long-running workloads justify them. These are future changes, not services already running.
+This MVP deliberately stays one web service plus Neon. A live pilot would first require approved council policies, validated statutory-stage/deadline logic, SSO and roles, independent security/privacy review, retention and backup policies, OCR/image handling if needed, and authorised case-system integrations. Move large or numerous files to object storage and add a background job queue when workloads justify them. Database attachments count toward Neon storage and backup usage; replaced blobs are retained, with no automatic retention cleanup.
 
 ## Design
 

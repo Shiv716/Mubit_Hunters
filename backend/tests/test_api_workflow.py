@@ -1,8 +1,6 @@
-import sqlite3
-
 import pytest
 
-from app.config import get_settings
+from app.db import transaction, INTEGRITY_ERRORS
 
 
 def _seed(client):
@@ -104,12 +102,10 @@ def test_audit_and_ai_reviews_are_immutable(client):
     cases = _seed(client)
     case_id = next(iter(cases.values()))["id"]
     client.post(f"/api/cases/{case_id}/ai-review")
-    conn = sqlite3.connect(get_settings().db_path)
-    with pytest.raises(sqlite3.IntegrityError):
-        conn.execute("UPDATE ai_reviews SET effective_recommendation='reject'")
-    with pytest.raises(sqlite3.IntegrityError):
-        conn.execute("DELETE FROM audit_events")
-    conn.close()
+    for query in ("UPDATE ai_reviews SET effective_recommendation='reject'", "DELETE FROM audit_events"):
+        with pytest.raises(INTEGRITY_ERRORS):
+            with transaction() as conn:
+                conn.execute(query)
 
 
 def test_feedback_curation_feeds_precedent_retrieval(client, demo_cases):

@@ -6,19 +6,21 @@ import json
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
+from urllib.parse import quote
 from typing import Literal
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
 from .workspace import router as workspace_router
 from .access import router as access_router, identity, secret
 
 from .ai.adapters import get_adapter
 from .config import DATA_DIR, get_settings
-from .db import audit, init_db, now_iso, row_to_dict, transaction
+from .db import audit, init_db, now_iso, row_to_dict, transaction, lock_case
+from .storage import put_evidence, read_evidence
 from .mubit_capabilities import CAPABILITIES
 from .models import CaseIn, CurateIn, DecisionIn
 from .policy import load_policy
@@ -27,8 +29,12 @@ from .service import (WorkflowError, case_detail, create_case, curate_feedback, 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
-    if os.getenv("PCN_ENV") == "production" and len(secret()) < 16:
+    if (os.getenv("PCN_ENV") == "production" or os.getenv("RENDER")) and len(secret()) < 16:
         raise RuntimeError("Production requires PCN_ACCESS_KEY with at least 16 characters.")
+    if os.getenv("RENDER") and not get_settings().database_url:
+        raise RuntimeError("Render requires DATABASE_URL so cases survive redeploys.")
+    if os.getenv("RENDER") and get_settings().evidence_storage != "database":
+        raise RuntimeError("Use PCN_EVIDENCE_STORAGE=database on Render so attachments survive redeploys.")
     init_db()
     yield
 
@@ -43,7 +49,7 @@ app.include_router(workspace_router)
 @app.middleware("http")
 async def access_gate(request: Request, call_next):
     path = request.url.path
-    if secret() and path.startswith("/api/") and path not in ("/api/session", "/api/health"):
+    if secret() and path.startswith("/api/") and path not in ("/api/session", "/api/health", "/api/ready"):
         name = identity(request)
         if not name:
             return JSONResponse({"detail": "Sign in to the workspace."}, status_code=401)
@@ -54,6 +60,8 @@ async def access_gate(request: Request, call_next):
         configured = os.getenv("PCN_PUBLIC_ORIGIN")
         if configured:
             allowed.add(configured.rstrip("/"))
+        if os.getenv("RENDER_EXTERNAL_URL"):
+            allowed.add(os.environ["RENDER_EXTERNAL_URL"].rstrip("/"))
         if origin and origin not in allowed:
             return JSONResponse({"detail": "Origin is not allowed."}, status_code=403)
     response = await call_next(request)
@@ -87,6 +95,8 @@ def health():
     s = get_settings()
     return {
         "ok": True,
+        "database": "postgresql" if s.database_url else "sqlite",
+        "evidence_storage": s.evidence_storage,
         "ai_provider": s.ai_provider,
         "model": s.mubit_model if s.ai_provider == "mubit" else "offline-stub-v1",
         "mubit_configured": bool(s.mubit_api_key),
@@ -96,6 +106,16 @@ def health():
         "policy_version": load_policy()["policy_version"],
         "ruleset_version": load_policy()["ruleset_version"],
     }
+
+
+@app.get("/api/ready")
+def ready():
+    try:
+        with transaction() as conn:
+            conn.execute("SELECT 1").fetchone()
+        return {"ok": True, "database": "postgresql" if get_settings().database_url else "sqlite"}
+    except Exception:
+        return JSONResponse({"ok": False, "detail": "Database unavailable"}, status_code=503)
 
 
 @app.get("/api/policy")
@@ -185,6 +205,7 @@ def decide(case_id: int, decision: DecisionIn, conn=Depends(get_conn)):
 @app.post("/api/cases/{case_id}/evidence/{evidence_id}/file")
 async def upload_evidence(case_id: int, evidence_id: str, file: UploadFile = File(...),
                           actor: str = Query("intake-officer"), conn=Depends(get_conn)):
+    lock_case(conn, case_id)
     row, case = _wf(load_case, conn, case_id)
     if row["status"] == "decided":
         raise HTTPException(409, "Evidence cannot change after a final decision.")
@@ -197,11 +218,7 @@ async def upload_evidence(case_id: int, evidence_id: str, file: UploadFile = Fil
     if len(data) > MAX_UPLOAD_BYTES:
         raise HTTPException(413, "File too large")
     digest = hashlib.sha256(data).hexdigest()
-    # Store under a content hash, never the client filename, inside the controlled evidence directory.
-    folder = get_settings().evidence_dir / str(case_id)
-    folder.mkdir(parents=True, exist_ok=True)
-    stored = folder / f"{digest}{Path(file.filename or '').suffix.lower()[:8]}"
-    stored.write_bytes(data)
+    stored = put_evidence(conn, case_id, data, file.filename or "upload")
     conn.execute(
         """INSERT INTO evidence_files (case_id, evidence_id, filename, stored_path, sha256, size_bytes, content_type, uploaded_at)
            VALUES (?,?,?,?,?,?,?,?) ON CONFLICT(case_id, evidence_id) DO UPDATE SET filename=excluded.filename,
@@ -224,10 +241,12 @@ def evidence_file(case_id: int, evidence_id: str, conn=Depends(get_conn)):
     row = conn.execute("SELECT * FROM evidence_files WHERE case_id=? AND evidence_id=?", (case_id, evidence_id)).fetchone()
     if not row:
         raise HTTPException(404, "No file attached. This item contains a description only.")
-    path = Path(row["stored_path"]).resolve()
-    if not path.is_relative_to(get_settings().evidence_dir.resolve()) or not path.is_file():
+    try:
+        content = read_evidence(conn, row["stored_path"])
+    except FileNotFoundError:
         raise HTTPException(404, "Evidence file unavailable.")
-    return FileResponse(path, media_type=row["content_type"], filename=row["filename"])
+    return Response(content, media_type=row["content_type"],
+                    headers={"Content-Disposition": f"attachment; filename*=UTF-8''{quote(row['filename'], safe='')}"})
 
 
 @app.get("/api/feedback")

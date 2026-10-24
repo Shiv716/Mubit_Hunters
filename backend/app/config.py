@@ -45,10 +45,20 @@ class Settings:
     mubit_record: str = field(default_factory=lambda: os.getenv("MUBIT_RECORD", "full"))
     mubit_timeout_s: float = field(default_factory=lambda: float(os.getenv("MUBIT_TIMEOUT_S", "60")))
     db_path: Path = field(default_factory=lambda: Path(os.getenv("PCN_DB_PATH", str(BACKEND_DIR / "pcn_copilot.db"))))
+    database_url: str = field(default_factory=lambda: os.getenv("DATABASE_URL", ""))
+    db_schema: str = field(default_factory=lambda: os.getenv("PCN_DB_SCHEMA", "civic"))
+    evidence_storage: str = field(default_factory=lambda: os.getenv("PCN_EVIDENCE_STORAGE", "database" if os.getenv("DATABASE_URL") else "local"))
     evidence_dir: Path = field(default_factory=lambda: Path(os.getenv("PCN_EVIDENCE_DIR", str(BACKEND_DIR / "evidence_store"))))
     precedent_top_k: int = field(default_factory=lambda: int(os.getenv("PRECEDENT_TOP_K", "3")))
 
     def __post_init__(self) -> None:
+        import re
+        if self.database_url and not self.database_url.startswith(("postgres://", "postgresql://")):
+            raise ValueError("DATABASE_URL must be a PostgreSQL connection URL.")
+        if not re.fullmatch(r"[a-z][a-z0-9_]{0,62}", self.db_schema):
+            raise ValueError("PCN_DB_SCHEMA must be a lowercase SQL schema name.")
+        if self.evidence_storage not in ("local", "database"):
+            raise ValueError("PCN_EVIDENCE_STORAGE must be local or database.")
         if self.mubit_route not in ROUTE_DEFAULTS:
             raise ValueError(f"MUBIT_ROUTE must be one of {sorted(ROUTE_DEFAULTS)}, got {self.mubit_route!r}")
         base, model = ROUTE_DEFAULTS[self.mubit_route]

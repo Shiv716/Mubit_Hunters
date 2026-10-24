@@ -6,7 +6,7 @@ model as guidance. Similarity is a transparent lexical score (no vector database
 from __future__ import annotations
 
 import re
-import sqlite3
+from .db import Connection
 
 _STOP = set("""a an the and or but if of to in on at by for with from as is was were be been it its this that
 i me my we our you your he she they them their there here have has had do did not no so very just also
@@ -53,7 +53,7 @@ def retrieve(query: dict, examples: list[dict], top_k: int = 3, min_score: float
     ]
 
 
-def load_eligible(conn: sqlite3.Connection, sources: tuple[str, ...] = ("review",)) -> list[dict]:
+def load_eligible(conn: Connection, sources: tuple[str, ...] = ("review",)) -> list[dict]:
     placeholders = ",".join("?" * len(sources))
     rows = conn.execute(
         f"SELECT * FROM feedback_examples WHERE curation_status='eligible' AND source IN ({placeholders})",

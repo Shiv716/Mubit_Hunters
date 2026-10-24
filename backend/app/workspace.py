@@ -1,6 +1,5 @@
 """Officer-facing API. Slow model calls run outside database write transactions."""
 import json
-import threading
 from datetime import date
 from zoneinfo import ZoneInfo
 from datetime import datetime
@@ -10,7 +9,7 @@ from fastapi.responses import PlainTextResponse
 
 from .ai.adapters import get_adapter
 from .config import get_settings
-from .db import transaction, audit, now_iso
+from .db import transaction, audit, now_iso, lock_case, claim_review, release_review
 from .investigator import investigate
 from .models import DecisionIn, ResolutionIn
 from .precedents import load_eligible
@@ -18,8 +17,6 @@ from .service import (WorkflowError, case_detail, load_case, persist_review, rec
                       review_core, run_checks)
 
 router = APIRouter(prefix="/api")
-_inflight = set()
-_lock = threading.Lock()
 
 
 def queue_rows(conn):
@@ -52,10 +49,7 @@ def queue():
 
 @router.post("/cases/{case_id}/review")
 def review(case_id: int, request: Request):
-    with _lock:
-        if case_id in _inflight:
-            raise HTTPException(409, "This case is already being reviewed.")
-        _inflight.add(case_id)
+    token = None
     try:
         with transaction() as conn:
             snapshot, case = load_case(conn, case_id)
@@ -65,6 +59,9 @@ def review(case_id: int, request: Request):
                 raise HTTPException(422, "This demo accepts synthetic cases only.")
             examples = [e for e in load_eligible(conn) if e.get("case_id") != case_id]
         settings = get_settings()
+        token = claim_review(case_id, max(600, int(settings.mubit_timeout_s * 16 + 120)))
+        if not token:
+            raise HTTPException(409, "This case is already being reviewed.")
         adapter = get_adapter(settings)
         try:
             steps, precedents = investigate(case, adapter, examples, settings.precedent_top_k)
@@ -77,7 +74,10 @@ def review(case_id: int, request: Request):
                       "source": core.result.provider, "request_id": core.result.request_id,
                       "model": core.result.model, "latency_ms": core.result.latency_ms, "usage": core.result.usage})
         with transaction() as conn:
-            conn.execute("BEGIN IMMEDIATE")
+            lock_case(conn, case_id)
+            lease = conn.execute("SELECT token FROM review_leases WHERE case_id=?", (case_id,)).fetchone()
+            if not lease or lease[0] != token:
+                raise HTTPException(409, "The review expired. Refresh and try again.")
             current, _ = load_case(conn, case_id)
             if current["updated_at"] != snapshot["updated_at"] or current["status"] == "decided":
                 raise HTTPException(409, "The case changed during review. Refresh and review the latest evidence.")
@@ -92,8 +92,8 @@ def review(case_id: int, request: Request):
     except RuntimeError as e:
         raise HTTPException(503, str(e))
     finally:
-        with _lock:
-            _inflight.discard(case_id)
+        if token:
+            release_review(case_id, token)
 
 
 def letter_text(case, outcome, explanation=""):
@@ -119,7 +119,7 @@ def draft(case_id: int, outcome: str, reason: str = ""):
 def resolve(case_id: int, body: ResolutionIn, request: Request):
     try:
         with transaction() as conn:
-            conn.execute("BEGIN IMMEDIATE")
+            lock_case(conn, case_id)
             detail = case_detail(conn, case_id)
             latest = detail["ai_reviews"][0] if detail["ai_reviews"] else None
             if latest and detail["checks"] and latest["check_id"] != detail["checks"]["id"]:

@@ -25,7 +25,7 @@ Under **Environment**, save:
 | `PCN_DB_SCHEMA` | `civic` |
 | `PCN_EVIDENCE_STORAGE` | `database` |
 | `PCN_PUBLIC_ORIGIN` | `https://mubit-hunters.onrender.com` |
-| `AI_PROVIDER` | `stub`, or `mubit` with your provider settings below |
+| `AI_PROVIDER` | `mubit`; hosted AI reviews refuse the offline stub |
 
 Keep credentials in Render Environment and local ignored `.env`, never in Git or chat. Render supplies `PORT` and its external URL; the app uses them automatically. Startup refuses Render deployments without a database or a password of at least 16 characters, and refuses local-file evidence storage on Render.
 
@@ -123,7 +123,7 @@ Any records in an older Render deployment's local SQLite file must be exported b
 
 Set `AI_PROVIDER=mubit` and your private `MUBIT_API_KEY` in the environment where the app runs. Choose the route, model and base URL shown by your Mubit account. The example uses the Anthropic route; leave model/base URL blank to use adapter defaults. Credentials stay server-side.
 
-`MUBIT_RECORD=full` requests provider recording; `metadata` or `off` reduces it where supported. Use synthetic data. Run one review and inspect its provider metadata to verify live inference. The automated tests use the offline provider and mocked gateway responses; they do not exercise paid inference or model training.
+`MUBIT_RECORD=full` requests provider recording; `metadata` or `off` reduces it where supported. Use synthetic data. Run one review and inspect its provider metadata to verify live inference. Production never falls back to the offline provider. Without valid Mubit configuration, the app stays available but AI reviews are unavailable. The automated tests use the offline provider and mocked gateway responses; they do not exercise paid inference or model training.
 
 ## Backups and scaling
 
@@ -143,3 +143,7 @@ docker build -t civic-check .
 The suite includes focused approval, verified-identity, revocation, mail-failure and migration checks alongside the existing case workflow checks. A separate PostgreSQL run covers concurrent approval and the managed-auth schema contract. CI provisions a disposable PostgreSQL service; tests use randomly named schemas and never use `DATABASE_URL` from `.env`. Set `PCN_TEST_DATABASE_URL` only to an expendable test database when running that suite yourself.
 
 Deployment configuration follows the [Render Blueprint specification](https://render.com/docs/blueprint-spec), [health-check guidance](https://render.com/docs/health-checks) and [Neon's Python connection guidance](https://neon.com/docs/guides/python). See [ARCHITECTURE.md](ARCHITECTURE.md) for the implemented product and its current limits.
+
+## Council exchange
+
+The new Council connection page explains and tests the full exchange. Set `PCN_COUNCIL_ID`, `PCN_COUNCIL_NAME` and `PCN_CASE_SYSTEM` before importing the first package. Set a separate random `PCN_INTEGRATION_KEY` (at least 32 characters) only when a connector is ready; leave it unset to keep machine access disabled. Never reuse the workspace signing key for this purpose. Existing Render services must have `AI_PROVIDER=mubit` and `MUBIT_API_KEY` added in Environment, then redeployed. The default council/policy and exchange remain synthetic. See [COUNCIL-INTEGRATION.md](COUNCIL-INTEGRATION.md) for the contract, receipts and council-specific rollout work.

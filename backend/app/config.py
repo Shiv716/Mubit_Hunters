@@ -26,11 +26,15 @@ def _load_dotenv() -> None:
 _load_dotenv()
 
 
+def production():
+    return os.getenv("PCN_ENV") == "production" or bool(os.getenv("RENDER"))
+
+
 @dataclass(frozen=True)
 class Settings:
     # "mubit" calls the live Mubit gateway; "stub" is an offline deterministic stand-in for tests/demo
     # without credentials. The stub is NOT Mubit and is labelled as such everywhere it appears.
-    ai_provider: str = field(default_factory=lambda: os.getenv("AI_PROVIDER", "mubit" if os.getenv("MUBIT_API_KEY") else "stub"))
+    ai_provider: str = field(default_factory=lambda: os.getenv("AI_PROVIDER", "mubit" if production() or os.getenv("MUBIT_API_KEY") else "stub"))
     mubit_api_key: str | None = field(default_factory=lambda: os.getenv("MUBIT_API_KEY"))
     # openai -> {base}/chat/completions ; anthropic -> {base}/v1/messages. Both are Mubit gateway routes.
     mubit_route: str = field(default_factory=lambda: os.getenv("MUBIT_ROUTE", "openai").lower())
@@ -53,6 +57,9 @@ class Settings:
 
     def __post_init__(self) -> None:
         import re
+        # This setting is reported by health/UI. Never echo an accidentally pasted key.
+        provider = self.ai_provider.strip().lower()
+        object.__setattr__(self, "ai_provider", provider if provider in ("mubit", "stub") else "unconfigured")
         if self.database_url and not self.database_url.startswith(("postgres://", "postgresql://")):
             raise ValueError("DATABASE_URL must be a PostgreSQL connection URL.")
         if not re.fullmatch(r"[a-z][a-z0-9_]{0,62}", self.db_schema):
@@ -60,7 +67,7 @@ class Settings:
         if self.evidence_storage not in ("local", "database"):
             raise ValueError("PCN_EVIDENCE_STORAGE must be local or database.")
         if self.mubit_route not in ROUTE_DEFAULTS:
-            raise ValueError(f"MUBIT_ROUTE must be one of {sorted(ROUTE_DEFAULTS)}, got {self.mubit_route!r}")
+            raise ValueError("MUBIT_ROUTE must be openai or anthropic.")
         base, model = ROUTE_DEFAULTS[self.mubit_route]
         if not self.mubit_base_url:
             object.__setattr__(self, "mubit_base_url", base)

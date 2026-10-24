@@ -20,19 +20,23 @@ Open <http://127.0.0.1:5173>, then choose **Explore sample appeals**. No key is 
 
 - Searchable queue with explicit response dates; evidence and council records beside the copilot.
 - A bounded agent that selects read-only checks, plus mandatory deterministic rules.
-- Mubit gateway adapter or offline simulation; validated recommendations and visible investigation steps.
+- Mubit for hosted AI reviews; an explicit offline simulation only for local development/tests. Validated recommendations and visible investigation steps.
 - Explicit officer choices, editable response drafts, save-and-next, response downloads and a persistent case history.
 - Evidence attachments, JSON import, feedback approval, example retrieval and evaluation tools under Admin.
-- Insights calculated from saved decisions; no invented accuracy or savings claims.
+- Insights show case activity and saved outcomes; no invented accuracy or savings claims.
+- Council connection page and versioned case/evidence exchange with source references, safe retries and acknowledged results; [contract and user flow](docs/COUNCIL-INTEGRATION.md).
 - Owner-approved access requests with Neon Better Auth email sign-in, Neon/PostgreSQL persistence on Render, and SQLite for offline use.
 
 ```mermaid
 flowchart LR
   Officer[Officer in React UI] --> API[FastAPI]
+  Connector[Council connector: supplier mapping required] -->|Case and evidence| API
+  API -->|Officer-approved result| Connector
+  Connector -->|Receipt| API
   API --> DB[(Neon: records + small attachments)]
   API --> Agent[Bounded investigation]
   Agent --> Checks[Rules + supplied records + policy]
-  Agent --> Model[Mubit gateway or offline stub]
+  Agent --> Model[Mubit gateway]
   Agent --> Past[Approved past examples]
   API --> Guard[Validate references and safety]
   Guard --> Officer
@@ -61,11 +65,11 @@ For hosting, the existing Render service runs the Docker image and Neon stores r
 npm run build --prefix frontend
 ```
 
-The 40 original tests and four workspace tests are retained. Four focused persistence tests cover shared attachments, review ownership, competing decisions and SQLite migration. SQLite runs 46 tests with two PostgreSQL-only skips; CI also runs the 17 relevant API/workspace/persistence checks against PostgreSQL. There is no extra test framework.
+Checks cover the officer workflow, auth, Mubit transport, integration import/review/approval/receipt, evidence changes and persistence. CI repeats the relevant database checks on PostgreSQL and builds the frontend. No new test framework is added.
 
 ## Scope
 
-This is a **synthetic-data MVP**, not a live council system. The agent reads supplied records and evidence descriptions; it does not fetch council records, interpret uploaded image/PDF contents, send letters or cancel PCNs. Response dates are imported or entered, not calculated as legal advice. Membership approval has an owner boundary; detailed council roles and enterprise SSO are not implemented. Audit rows are append-only in the application, not independently tamper-proof.
+This is a **synthetic-data MVP**, not a live council system. The agent reads supplied records and evidence descriptions; it receives source snapshots through the common exchange API but has no supplier-specific fetch/write connector. It does not interpret uploaded image/PDF contents, send letters or cancel PCNs. Response dates are imported or entered, not calculated as legal advice. Membership approval has an owner boundary; detailed council roles and enterprise SSO are not implemented. Audit rows are append-only in the application, not independently tamper-proof.
 
 Approved examples already inform later reviews. Mubit model training, deployment and measured model improvement remain unverified until exercised with account credentials. The older [design notes](docs/03-architecture.md) describe future scope; `docs/ARCHITECTURE.md` is the implementation reference.
 

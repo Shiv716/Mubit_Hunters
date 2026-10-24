@@ -58,11 +58,12 @@ def review(case_id: int, request: Request):
             if not case.synthetic:
                 raise HTTPException(422, "This demo accepts synthetic cases only.")
             examples = [e for e in load_eligible(conn) if e.get("case_id") != case_id]
+            linked = conn.execute("SELECT 1 FROM integration_cases WHERE case_id=?", (case_id,)).fetchone()
         settings = get_settings()
         token = claim_review(case_id, max(600, int(settings.mubit_timeout_s * 16 + 120)))
         if not token:
             raise HTTPException(409, "This case is already being reviewed.")
-        adapter = get_adapter(settings)
+        adapter = get_adapter(settings, require_mubit=bool(linked))
         try:
             steps, precedents = investigate(case, adapter, examples, settings.precedent_top_k)
             core = review_core(case, adapter, precedents)

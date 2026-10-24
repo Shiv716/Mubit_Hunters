@@ -2,9 +2,9 @@
 
 ## Product and user flow
 
-The daily user is a council representations / notice processing officer. The officer opens a case, checks the evidence, asks the copilot to investigate, explicitly chooses an outcome, edits the response and saves. The next case opens automatically. Nothing is sent to the driver or an external enforcement system.
+The daily user is a council representations / notice processing officer. The officer opens a case, checks the evidence, asks the copilot to investigate, explicitly chooses an outcome, edits the response and saves. The next case opens automatically. Civic does not send a letter or cancel a PCN. The council exchange API can provide an officer-approved result to an authorised connector; its receipt is tracked separately.
 
-The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investigation**. No outcome is preselected. Changing the recommendation or deciding manually requires a reason. Investigation is reversible by recording a later decision; final decisions remain in the case history. Reviewers can still decide manually if inference fails.
+The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investigation**. No outcome is preselected. Changing the recommendation or deciding manually requires a reason. Investigation is reversible by recording a later decision; final decisions remain in the case history. Ordinary synthetic cases retain manual review. Council-connected cases require a successful current Mubit review before a final decision; investigation is still available when inference fails.
 
 ## Components
 
@@ -13,7 +13,7 @@ The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investi
 | Web interface | React 18, Vite 8, plain CSS | Cases, evidence, copilot, replies, insights and admin |
 | API | FastAPI + Pydantic | Validated intake, review orchestration, decisions, exports and sessions |
 | Agent | `backend/app/investigator.py` | Up to three planning turns; allowlisted, read-only tool dispatch |
-| Model transport | Existing Mubit adapter | OpenAI-compatible or Anthropic-compatible Mubit route; explicit offline stub |
+| Model transport | Existing Mubit adapter | OpenAI-compatible or Anthropic-compatible Mubit route; stub restricted to local development/tests |
 | Checks | Versioned rules and synthetic council policy | Payment, grace, permit, badge, loading, mitigation and case consistency |
 | Recommendation guard | JSON schema + reference and rule validation | Invalid references, missing data or vulnerability require human review |
 | Persistence | Neon/PostgreSQL when `DATABASE_URL` is set; SQLite WAL offline | Cases, checks, model responses, investigation trace, decisions, feedback and audit |
@@ -26,7 +26,7 @@ The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investi
 1. Read a snapshot of the case and approved examples. Reject duplicate in-flight reviews or already-decided cases.
 2. Run mandatory deterministic checks independently of the planner.
 3. Ask the configured model which allowlisted tools to use. Validate its JSON; reject unknown tools and repeats. Supply tool results for the next turn.
-4. Tools inspect supplied payment/permit/badge records, evidence descriptions, synthetic policy and approved examples. There are no external council credentials or write-capable agent tools.
+4. Tools inspect supplied payment/permit/badge records, evidence descriptions, synthetic policy and approved examples. The agent has no council credentials or write-capable tools. The separate council exchange API accepts supplier-mapped snapshots and exposes only human-approved results.
 5. Ask the reviewer model for a structured recommendation. Validate schema, evidence IDs, policy IDs and consistency. Escalate uncertainty and vulnerability.
 6. Re-open a short write transaction. Confirm the case has not changed during inference, persist the checks, response, trace and audit, and return the result.
 7. An officer explicitly chooses the outcome. Generate an outcome-specific template, let the officer edit, then save the final response and decision transactionally.
@@ -41,7 +41,7 @@ Startup runs versioned PostgreSQL schema creation under a transaction-level advi
 
 ## Mubit’s role
 
-Mubit is the optional inference gateway for the planner and reviewer. The two tasks have separate stable system prompts and JSON schemas. Request IDs, provider/model, latency and usage are recorded where supplied. Account configuration is visible separately from successful inference.
+Mubit is the required hosted inference gateway for the planner and reviewer. Production does not fall back to a simulated provider. Connected cases also require Mubit in local development. The two tasks have separate stable system prompts and JSON schemas. Request IDs, provider/model, latency and usage are recorded where supplied. Account configuration is visible separately from successful inference.
 
 The application already collects officer feedback, requires human approval before examples are reused, and supports baseline-versus-precedent evaluation from the older branch. The existing evaluation labels predate the stricter mitigation guard: those scores are a historical fixture check, not proof of legal correctness or improvement. Real savings require a timed pilot and independent quality review.
 
@@ -69,3 +69,7 @@ React offers Request access and email-code sign-in, including direct entry of a 
 Neon's managed Better Auth issues and verifies sign-in codes. FastAPI calls the fixed Auth Base URL server-side, obtains the authenticated session token, and resolves it against the same branch's read-only managed `neon_auth` tables. The raw token is neither returned to the browser nor saved by Civic. A signed, first-party HttpOnly cookie references the Neon session/user IDs for up to 12 hours, bounded by the Neon session expiry. Every API request rechecks the live session, email verification, ban status and Civic approval, so revoked access is enforced immediately. No custom OTP generator or email-password provisioning remains.
 
 Owner email links carry a single-use approval credential in the fragment (removed from browser history when opened). Reading a link has no approval side effect; an explicit POST approves it. Approval and Neon mailbox verification are distinct gates. The app still has one shared workspace; multi-tenant subscriptions and verified organization domains remain future work.
+
+## Council exchange
+
+The Council connection page identifies the configured council and source system and labels the current exchange as a synthetic sandbox. The versioned API imports complete case/evidence packages transactionally, rejects stale/conflicting versions, invalidates old reviews on source updates, and refuses to overwrite officer-modified evidence or final decisions. Final Mubit-reviewed, officer-approved decisions remain pending until the connector confirms storage in its source system. Dedicated machine credentials cannot approve decisions or access workspace sessions. The first import binds the schema to one council/system. No supplier-specific connector is built; one isolated deployment/schema is needed per council. See [contract and user flow](COUNCIL-INTEGRATION.md).

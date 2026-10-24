@@ -16,7 +16,7 @@ def _isolated_env(tmp_path, monkeypatch):
     monkeypatch.setenv("PCN_EVIDENCE_DIR", str(tmp_path / "evidence"))
     monkeypatch.setenv("AI_PROVIDER", "stub")
     for name in list(os.environ):
-        if name.startswith("MUBIT_"):
+        if name.startswith(("MUBIT_", "PCN_COUNCIL_", "PCN_INTEGRATION_")) or name == "PCN_CASE_SYSTEM":
             monkeypatch.delenv(name, raising=False)
     monkeypatch.delenv("PCN_ACCESS_KEY", raising=False)
     monkeypatch.delenv("PCN_ENV", raising=False)

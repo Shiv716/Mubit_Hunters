@@ -190,6 +190,13 @@ def record_decision(conn: Connection, case_id: int, d: DecisionIn) -> int:
     if final_response is None and review and review["parsed_json"] and d.action == "accept":
         final_response = json.loads(review["parsed_json"]).get("draft_response")
 
+    linked = conn.execute("SELECT 1 FROM integration_cases WHERE case_id=?", (case_id,)).fetchone()
+    if linked and final_outcome != "escalated":
+        if not review or review["provider"] != "mubit" or review["status"] == "failed":
+            raise WorkflowError("Council-connected cases require a successful Mubit review before a final decision. You can refer the case for investigation while Mubit is unavailable.")
+        if not final_response or not final_response.strip():
+            raise WorkflowError("An approved response is required before returning a council decision.")
+
     cur = conn.execute(
         """INSERT INTO decisions (case_id, ai_review_id, action, final_outcome, ai_recommendation, reason_code, reason,
            final_response, reviewer, created_at) VALUES (?,?,?,?,?,?,?,?,?,?) RETURNING id""",
@@ -248,10 +255,19 @@ def case_detail(conn: Connection, case_id: int) -> dict:
         trace = conn.execute("SELECT steps_json FROM investigations WHERE ai_review_id=?", (review["id"],)).fetchone()
         review["steps"] = json.loads(trace[0]) if trace else []
     policy = load_policy()
+    integration = conn.execute("""SELECT i.source_case_id,i.source_version,i.imported_at,
+        w.council_id,w.source_system FROM integration_cases i CROSS JOIN integration_identity w
+        WHERE i.case_id=? AND w.id=1""", (case_id,)).fetchone()
+    connection = dict(integration) if integration else None
+    if connection:
+        final = next((d for d in decisions if d["final_outcome"] != "escalated"), None)
+        receipt = conn.execute("SELECT received_at FROM integration_receipts WHERE decision_id=?", (final["id"],)).fetchone() if final else None
+        connection["delivery_status"] = "received" if receipt else "awaiting_receipt" if final else "awaiting_decision"
+        connection["received_at"] = receipt[0] if receipt else None
     return {
         "id": row["id"], "status": row["status"], "created_at": row["created_at"], "updated_at": row["updated_at"],
         "case": case.model_dump(mode="json"),
         "contravention_description": policy["contraventions"].get(case.contravention_code, {}).get("description"),
         "checks": check, "ai_reviews": reviews, "decisions": decisions, "audit": events,
-        "evidence_files": files, "feedback": feedback,
+        "evidence_files": files, "feedback": feedback, "integration": connection,
     }

@@ -18,11 +18,12 @@ from starlette.concurrency import run_in_threadpool
 from .workspace import router as workspace_router
 from .access import router as access_router, identity, secret, required
 from .email_access import router as email_access_router
+from .integration import router as integration_router, check_machine_key, configuration, verify_identity
 from .neon_auth import auth_url, auth_url_error, owner_email, public_origin
 from pydantic import EmailStr, TypeAdapter
 
 from .ai.adapters import get_adapter
-from .config import DATA_DIR, get_settings
+from .config import DATA_DIR, get_settings, production
 from .db import audit, init_db, now_iso, row_to_dict, transaction, lock_case, open_pool, close_pool
 from .storage import put_evidence, read_evidence
 from .mubit_capabilities import CAPABILITIES
@@ -52,6 +53,10 @@ async def lifespan(_: FastAPI):
     try:
         await run_in_threadpool(open_pool)
         await run_in_threadpool(init_db)
+        def check_workspace():
+            with transaction() as conn:
+                verify_identity(conn)
+        await run_in_threadpool(check_workspace)
         yield
     finally:
         await run_in_threadpool(close_pool)
@@ -63,6 +68,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http
 app.include_router(access_router)
 app.include_router(email_access_router)
 app.include_router(workspace_router)
+app.include_router(integration_router)
 
 
 @app.middleware("http")
@@ -72,7 +78,12 @@ async def access_gate(request: Request, call_next):
     if path == "/api/access-requests" and request.method == "POST":
         public_paths.add(path)
     public_paths.update({"/api/access-requests/inspect", "/api/access-requests/approve"})
-    if required() and path.startswith("/api/") and path not in public_paths:
+    if path.startswith("/api/integration/v1/"):
+        try:
+            check_machine_key(request)
+        except HTTPException as exc:
+            return JSONResponse({"detail": exc.detail}, status_code=exc.status_code, headers={"Cache-Control": "no-store"})
+    elif required() and path.startswith("/api/") and path not in public_paths:
         name = await run_in_threadpool(identity, request)
         if not name:
             return JSONResponse({"detail": "Sign in to the workspace."}, status_code=401)
@@ -121,8 +132,12 @@ def health():
         "database": "postgresql" if s.database_url else "sqlite",
         "evidence_storage": s.evidence_storage,
         "ai_provider": s.ai_provider,
-        "model": s.mubit_model if s.ai_provider == "mubit" else "offline-stub-v1",
+        "model": s.mubit_model if s.ai_provider == "mubit" else "offline-stub-v1" if s.ai_provider == "stub" and not production() else None,
         "mubit_configured": bool(s.mubit_api_key),
+        "ai_available": (s.ai_provider == "mubit" and bool(s.mubit_api_key)) or (s.ai_provider == "stub" and not production()),
+        "council_name": configuration()["council_name"],
+        "council_id": configuration()["council_id"],
+        "integration_mode": "sandbox",
         "mubit_route": s.mubit_route if s.ai_provider == "mubit" else None,
         "mubit_base_url": s.mubit_base_url if s.ai_provider == "mubit" else None,
         "mubit_record": s.mubit_record if s.ai_provider == "mubit" else None,
@@ -212,7 +227,8 @@ def ai_review(case_id: int, mode: Literal["baseline", "precedent"] = "precedent"
               actor: str = Query("reviewer"), conn=Depends(get_conn)):
     s = get_settings()
     try:
-        adapter = get_adapter(s)
+        linked = conn.execute("SELECT 1 FROM integration_cases WHERE case_id=?", (case_id,)).fetchone()
+        adapter = get_adapter(s, require_mubit=bool(linked))
     except RuntimeError as exc:
         raise HTTPException(503, str(exc))
     _wf(run_ai_review, conn, case_id, adapter, mode, actor, s.precedent_top_k)

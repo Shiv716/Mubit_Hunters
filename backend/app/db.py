@@ -189,6 +189,27 @@ CREATE TABLE IF NOT EXISTS auth_rate_limits (
 );
 """
 
+INTEGRATION_SCHEMA = """
+CREATE TABLE IF NOT EXISTS integration_identity (
+    id INTEGER PRIMARY KEY CHECK (id=1),
+    council_id TEXT NOT NULL,
+    source_system TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS integration_cases (
+    case_id INTEGER PRIMARY KEY REFERENCES cases(id),
+    source_case_id TEXT NOT NULL UNIQUE,
+    source_version INTEGER NOT NULL,
+    payload_hash TEXT NOT NULL,
+    case_hash TEXT NOT NULL,
+    imported_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS integration_receipts (
+    decision_id INTEGER PRIMARY KEY REFERENCES decisions(id),
+    receipt_id TEXT NOT NULL,
+    received_at TEXT NOT NULL
+);
+"""
+
 INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.IntegrityError)
 
 
@@ -298,9 +319,12 @@ def init_db(db_path: Path | None = None) -> None:
             if not conn.execute("SELECT 1 FROM schema_migrations WHERE version=2").fetchone():
                 conn.raw.execute(AUTH_SCHEMA)
                 conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (2,?)", (now_iso(),))
+            if not conn.execute("SELECT 1 FROM schema_migrations WHERE version=3").fetchone():
+                conn.raw.execute(INTEGRATION_SCHEMA)
+                conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (3,?)", (now_iso(),))
         else:
             conn.execute("PRAGMA journal_mode = WAL")
-            conn.executescript(SCHEMA + AUTH_SCHEMA)
+            conn.executescript(SCHEMA + AUTH_SCHEMA + INTEGRATION_SCHEMA)
 
 
 @contextmanager

@@ -30,6 +30,16 @@ services:
       - key: PCN_EVIDENCE_STORAGE
         value: database
       - key: AI_PROVIDER
-        value: stub
+        value: mubit
+      - key: MUBIT_API_KEY
+        sync: false
+      - key: MUBIT_ROUTE
+        value: anthropic
+      - key: PCN_COUNCIL_ID
+        value: northgate-sandbox
+      - key: PCN_COUNCIL_NAME
+        value: Northgate Borough
+      - key: PCN_CASE_SYSTEM
+        value: generic
       - key: PCN_PUBLIC_ORIGIN
         value: https://mubit-hunters.onrender.com

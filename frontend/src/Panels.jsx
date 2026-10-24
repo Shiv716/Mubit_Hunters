@@ -92,11 +92,11 @@ export function MubitView({ health }) {
       <Card title="Connection">
         {health && (
           <p>
-            Provider: <strong>{health.ai_provider === "mubit" ? "Mubit (configured)" : "Offline stub — not Mubit"}</strong>
+            Provider: <strong>{health.ai_provider === "mubit" && health.mubit_configured ? "Mubit configured — verify with a case review" : health.ai_available ? "Local offline simulation" : "Mubit setup required — AI reviews unavailable"}</strong>
             {health.mubit_route && <> · route <span className="mono">{health.mubit_route}</span> · model <span className="mono">{health.model}</span></>}
             {health.mubit_base_url && <> · <span className="mono">{health.mubit_base_url}</span></>}
             {health.mubit_record && <> · recording: <span className="mono">{health.mubit_record}</span></>}
-            {!health.mubit_configured && <span className="muted"> · set MUBIT_API_KEY in backend/.env to enable</span>}
+            {!health.mubit_configured && <span className="muted"> · set AI_PROVIDER=mubit and MUBIT_API_KEY in the server environment</span>}
           </p>
         )}
       </Card>

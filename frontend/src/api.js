@@ -73,6 +73,8 @@ export const api = {
   resolve: (id, body) => post(`/cases/${id}/resolve`, body),
   draft: (id, outcome, reason = "") => request(`/cases/${id}/draft?${new URLSearchParams({outcome, reason})}`),
   health: () => request("/health"),
+  integrationStatus: () => request("/integration/status"),
+  integrationImport: body => post("/integration/test-import", body),
   policy: () => cachedGet("/policy"),
   capabilities: () => cachedGet("/mubit/capabilities"),
   cases: () => request("/cases"),

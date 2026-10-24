@@ -83,3 +83,24 @@
 .insights-stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .insights-explanation { margin-top: 20px; line-height: 1.6; }
 @media (max-width: 1180px) { .insights-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+
+.connection-page { padding: 0 30px 40px; max-width: 1500px; margin: auto; }
+.connection-summary { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.connection-summary h2 { font-size: 22px; margin: 14px 0 10px; overflow-wrap: anywhere; }
+.connection-summary p { line-height: 1.6; }
+.connection-flow { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin: 24px 0; }
+.connection-flow article { border: 1px solid var(--line); border-radius: 10px; background: var(--surface); padding: 20px; }
+.connection-flow article:nth-child(2) { border-color: var(--blue); }
+.connection-flow h2 { font-size: 17px; margin: 20px 0 12px; }
+.connection-flow p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+.connection-actions { display: flex; gap: 12px; flex-wrap: wrap; margin: 22px 0 12px; }
+.connection-file { position: relative; cursor: pointer; overflow: hidden; }
+.connection-file input { position: absolute; inset: 0; opacity: 0; width: 100%; cursor: pointer; }
+.connection-file:focus-within { outline: 2px solid var(--blue); outline-offset: 3px; }
+.connection-records { margin-top: 28px; }
+.connection-page .admin-import p { margin-top: 15px; font-size: 12px; line-height: 1.8; }
+.connection-page code { overflow-wrap: anywhere; }
+.connection-indicator { margin-top: 8px; display: inline-flex; align-items: center; gap: 5px; }
+.case-connection { margin: 14px 20px; font-size: 11px; line-height: 1.7; }
+@media (max-width: 1100px) { .connection-summary { grid-template-columns: repeat(2,minmax(0,1fr)); } .connection-flow { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (max-width: 680px) { .connection-page { padding: 0 15px 30px; } .connection-flow { grid-template-columns: 1fr; } .topbar { flex-wrap: wrap; height: auto; padding-top: 12px; } .main-nav { order: 3; width: 100%; justify-content: space-between; } .nav-item { min-height: 45px; } .top-right { margin-left: auto; } }

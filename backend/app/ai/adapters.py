@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 
 import httpx
 
-from ..config import Settings
+from ..config import Settings, production
 
 STUB_PROVIDER = "offline-stub"
 MUBIT_PROVIDER = "mubit"
@@ -249,7 +249,9 @@ class StubAdapter:
         return result
 
 
-def get_adapter(settings: Settings):
+def get_adapter(settings: Settings, *, require_mubit=False):
     if settings.ai_provider == "mubit":
         return MubitAdapter(settings)
-    return StubAdapter()
+    if settings.ai_provider == "stub" and not production() and not require_mubit:
+        return StubAdapter()
+    raise RuntimeError("AI reviews require Mubit. Set AI_PROVIDER=mubit and MUBIT_API_KEY in the server environment. Offline simulation is available only in local development and tests.")

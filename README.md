@@ -2,7 +2,7 @@
 
 **Understand your parking ticket. Build a clearer appeal. Find parking for your next trip.**
 
-Civic, built by Mubit-Hunters, helps drivers in England turn a parking notice and supporting evidence into a reviewed appeal pack. Mubit powers ticket reading and appeal guidance; the driver stays in control of what gets submitted.
+Civic, submitted by team **Oz16**, helps drivers in England turn a parking notice and supporting evidence into a reviewed appeal pack. Mubit powers ticket reading and appeal guidance; the driver stays in control of what gets submitted.
 
 **[Open Civic](https://mubit-hunters.onrender.com/) · [Demo video (MP4)](docs/demo/civic-demo.mp4) · [Try the sample ticket](https://mubit-hunters.onrender.com/#demo) · [Explore the London map](https://mubit-hunters.onrender.com/#parking)**
 
@@ -40,7 +40,7 @@ The home page uses sourced industry context: 5.17m London parking PCNs in 2024/2
 
 One Docker image serves the frontend and API on the same HTTPS origin. Schema migrations run at startup. Live demo inference was verified on **24 October 2026** through Mubit's OpenAI-compatible route using **`gpt-6-luna`**; the model remains configurable. [Architecture and source map](docs/ARCHITECTURE.md) · [Mubit integration](docs/04-mubit-integration.md).
 
-**Mubit usage lookup:** account email **cshivang2002@gmail.com**, model **`gpt-6-luna`**. Reference live demo request in Mubit's **Requests** view: `mreq_01a16fcb1c677e91b653a855a6fa319b` (24 October 2026).
+**Mubit usage lookup:** submitted team **Oz16**, account email **cshivang2002@gmail.com**, model **`gpt-6-luna`**. Reference live demo request in Mubit's **Requests** view: `mreq_01a16fcb1c677e91b653a855a6fa319b` (24 October 2026).
 
 ## Hosting and capacity
 

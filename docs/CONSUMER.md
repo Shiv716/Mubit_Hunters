@@ -1,5 +1,7 @@
 # Civic for drivers
 
+Reviewed against the implementation on **24 October 2026**. **[Hosted app](https://mubit-hunters.onrender.com/) · [Architecture](ARCHITECTURE.md) · [Deployment](DEPLOYMENT.md) · [Capacity](CAPACITY.md)**
+
 The default product is now a personal driver application. The existing council workspace remains at `/#workspace`, with its separate approval and authorisation checks.
 
 ## User flow
@@ -40,11 +42,11 @@ The existing Render Docker service follows `main`, builds React and serves it wi
 
 Keep the existing Render variables: `DATABASE_URL`, `PCN_ACCESS_KEY`, `NEON_AUTH_BASE_URL`, `PCN_PUBLIC_ORIGIN`, `PCN_COOKIE_SECURE=true`, `PCN_EVIDENCE_STORAGE=database`, `AI_PROVIDER=mubit`, `MUBIT_API_KEY`, and the configured Mubit route/model. `DATABASE_URL` and Neon Auth must refer to the same Neon branch. A vision-capable model is required for photos; the route defaults are `gpt-6-luna` for OpenAI compatibility and `claude-haiku-4-5` for Anthropic compatibility. The existing Render configuration was observed using the OpenAI route with `gpt-6-luna`; this release preserves it. A configured key is not proof that a live request succeeds.
 
-In Neon Auth, enable email OTP sign-in **and new user sign-up**, and trust the Render origin. Consumer accounts use Neon email delivery; Resend and the owner notification email remain solely for the council approval flow. Existing deployments retain their council owner setting because the legacy workspace is still present.
+In Neon Auth, enable email OTP sign-in **and new user sign-up**, and trust the Render origin. Consumer accounts use Neon email delivery; Resend and the owner notification email remain solely for the council approval flow. A valid `PCN_ACCESS_REQUEST_EMAIL` is currently required by startup validation whenever Neon Auth is configured, even for a driver-focused deployment; Resend itself remains optional.
 
 No production-data copy is required. Startup applies the additive schema migrations; `/api/ready` checks database connectivity. After deployment verify `/api/consumer/public`, then create a fresh driver account, scan a non-sensitive sample notice, confirm its fields and request an assessment. Confirm those requests in Mubit before describing live inference as verified. Local automated tests mock provider responses and do not prove email delivery or model quality.
 
-For local work, use `bash scripts/dev.sh` with a disposable database. **Do not point local tests at the production Neon branch.** The public home/map work without Auth; private accounts require a configured Neon test branch. Consumer AI deliberately has no demo fallback. Existing council sample tools remain at `/#workspace`.
+For local work, use `bash scripts/dev.sh` with a disposable database. **Do not point local tests at the production Neon branch.** The public home/map work without Auth; private accounts require a configured Neon test branch. Real consumer cases never fall back to prewritten answers; the dedicated public sample below offers an explicit labelled fallback. Existing council sample tools remain at `/#workspace`.
 
 ## Repeatable sample ticket
 
@@ -77,11 +79,11 @@ These populations and periods are distinct and must not be added. No verified na
 - Initial challenge preparation for England council parking PCNs and private parking charges. Rejections, debt collection, court papers and uncertain stages are routed to specialist help without an initial-challenge draft.
 - Seven dated primary-source summaries are bundled, including government procedure, England enforcement guidance and conditional private keeper liability. This is a focused starting library, not complete legal knowledge, a live legal search engine or every council's policy. Maintain and revalidate it before expanding coverage.
 - The October 2026 private parking code publication must not be treated as commencement. Its parliamentary and transition conditions are preserved in the source summaries.
-- Facts, dates and portal links are confirmed by the user. No automatic calculation of legal deadlines or promise that discounts are preserved. Calendar downloads use only a confirmed notice date.
+- Facts, dates and portal links are confirmed by the user. No automatic calculation of legal deadlines or promise that discounts are preserved. Calendar downloads use only a user-confirmed deadline and include an alert two days before it; no reminder email is sent by Civic.
 - The driver reviews and approves the text. A ZIP download does not submit an appeal. There is no universal council/private-operator connector or automated cancellation.
 - Outcomes and refunds are self-reported. Only independently verified outcomes may enter the verified-success count; this release has no verification workflow, so that count starts at zero. Assessment counts describe saved consumer cases that received an assessment, not wins. Deleting a case removes it from those counts.
 - Deleting a case removes active application records and images. Provider records, managed Auth accounts and backups have separate retention. The in-app data page explains these boundaries.
 
 ## Focused verification
 
-`backend/tests/test_consumer.py` covers public driver signup without council access, live session revocation, cross-user isolation, consent, provider failure, image validation, assessment/version handling, approved exports, reminders, self-reported outcomes, deletion and the Mubit vision transport contract. The same tests run on SQLite and disposable PostgreSQL in CI. The existing backend suite protects the council flow; frontend tests cover caching and parking helpers. Browser QA uses only isolated synthetic accounts and AI fixtures, outside the repository.
+`backend/tests/test_consumer.py` covers public driver signup without council access, live session revocation, cross-user isolation, consent, provider failure, image validation, assessment/version handling, approved exports, reminders, self-reported outcomes, deletion and the Mubit vision transport contract. The same tests run on SQLite and disposable PostgreSQL in CI. The existing backend suite protects the council flow; frontend tests cover caching and parking helpers. Browser QA used isolated synthetic accounts and AI fixtures. The fixed fictional demo was also verified against live Mubit on the hosted service on 24 October 2026, returning `gpt-6-luna` scan and assessment results. This does not validate all possible tickets, live email delivery or model training.

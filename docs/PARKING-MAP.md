@@ -1,5 +1,7 @@
 # Public parking map
 
+Reviewed **24 October 2026**. **[Open the hosted map](https://mubit-hunters.onrender.com/#parking)** · [Capacity and service limits](CAPACITY.md).
+
 Open `/#parking` from the public consumer home. The existing authenticated council workspace is at `/#workspace`. The surrounding driver signup, ticket reading and appeal flow are documented in [CONSUMER.md](CONSUMER.md).
 
 ## What works

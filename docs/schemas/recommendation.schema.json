@@ -1,68 +1,56 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://mubit-hunters.local/schemas/recommendation.schema.json",
-  "title": "PCN review recommendation",
-  "description": "The only output the AI review task may return. The officer makes the decision.",
   "type": "object",
   "additionalProperties": false,
   "required": [
-    "case_id",
-    "decision",
-    "ground_code",
-    "policy_clause_id",
-    "confidence",
-    "mitigation_flag",
-    "reasons",
-    "evidence_used",
-    "missing_evidence",
-    "tribunal_risk",
-    "letter_fields"
+    "recommendation",
+    "reason_summary",
+    "relevant_rule_references",
+    "evidence_references",
+    "missing_information",
+    "uncertainty_flags",
+    "draft_response"
   ],
   "properties": {
-    "case_id": { "type": "string" },
-    "decision": { "type": "string", "enum": ["accept", "reject"] },
-    "ground_code": {
+    "recommendation": {
       "type": "string",
-      "description": "Ground the driver is relying on. Confirm the exact statutory list against the Representations and Appeals Regulations 2007.",
       "enum": [
-        "CONTRAVENTION_DID_NOT_OCCUR",
-        "NOT_OWNER",
-        "TAKEN_WITHOUT_CONSENT",
-        "HIRE_FIRM",
-        "PENALTY_EXCEEDED_AMOUNT",
-        "PROCEDURAL_IMPROPRIETY",
-        "INVALID_TRAFFIC_ORDER",
-        "ALREADY_PAID",
-        "COMPELLING_REASONS",
-        "NONE_STATED"
+        "accept",
+        "reject",
+        "needs_review"
       ]
     },
-    "policy_clause_id": { "type": "string", "description": "Must exist in this council's discretion policy." },
-    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
-    "mitigation_flag": { "type": "boolean", "description": "True if illness, bereavement, disability, emergency or other vulnerability is raised." },
-    "reasons": {
-      "type": "array",
-      "minItems": 1,
-      "maxItems": 5,
-      "items": { "type": "string" }
+    "reason_summary": {
+      "type": "string"
     },
-    "evidence_used": {
+    "relevant_rule_references": {
       "type": "array",
-      "items": { "type": "string", "description": "Keys from evidence_facts or evidence item IDs." }
-    },
-    "missing_evidence": {
-      "type": "array",
-      "items": { "type": "string" }
-    },
-    "tribunal_risk": { "type": "string", "enum": ["low", "medium", "high"] },
-    "letter_fields": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["outcome_summary", "reason_paragraph"],
-      "properties": {
-        "outcome_summary": { "type": "string" },
-        "reason_paragraph": { "type": "string" }
+      "items": {
+        "type": "string"
       }
+    },
+    "evidence_references": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "missing_information": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "uncertainty_flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "draft_response": {
+      "type": [
+        "string",
+        "null"
+      ]
     }
   }
 }

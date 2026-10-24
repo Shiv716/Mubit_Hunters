@@ -1,44 +1,35 @@
-> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+# Privacy, safety and operational boundaries
 
-# 7. Compliance and risks
+Reviewed **24 October 2026**. This describes implemented controls and remaining work, not a legal compliance certification or security audit.
 
-## Legal position
+## Implemented controls
 
-| Requirement | How we meet it |
-|-------------|----------------|
-| Council must consider each representation and its evidence | Officer decides every case; AI output is advisory (ADR-001) |
-| Discretion must not be fettered; each case on its merits | No blanket rules; Judgement lane; officer can always override |
-| Discretion rests with back-office staff, not wardens or councillors | Role-based access: only officers and team leaders can decide |
-| Formal representations decided within 56 days | Legal clock in rules engine; deadline sort and red flags |
+- Driver records/photos are owner-scoped; Neon sessions are rechecked on private requests. Council access uses a separate session audience and owner-approved membership.
+- First-party HttpOnly cookies, secure cookies on hosted HTTPS, origin checks for mutations, server-side credentials and request quotas reduce common exposure paths.
+- Photos are bounded, decoded, metadata-stripped and resized. Case-level consent is required before real consumer AI processing.
+- Driver AI uses metadata-only recording requests. Inputs and outputs are typed/validated; source/evidence references are restricted to supplied IDs. User confirmation and approval remain required.
+- Unsupported/later stages return specialist help. The driver submits externally; Civic has no tool that automatically cancels a ticket or sends an appeal.
+- Council tools are bounded and read-only. Synthetic policy checks constrain recommendations; officer decisions and audit records are retained. Machine exchange credentials cannot approve decisions.
 
-## Data protection
+## Limits that matter
 
-- **UK GDPR + DPIA:** ship a ready-made DPIA template for councils.
-- **Minimisation:** AI sees references and facts, not names, addresses or full plates (ADR-007).
-- **UK hosting:** all case data stored in UK data centres.
-- **Retention:** follow each council's retention schedule; audit log retained for the life of the case plus appeal window (assumption: confirm per council).
-- **Processor terms:** council = controller, us = processor; Mubit as sub-processor (Mubit offers a DPA; Enterprise supports VPC/self-hosted).
+| Area | Boundary / remaining work |
+|---|---|
+| AI reliability | Validation cannot establish that a ticket, photo, claim or legal conclusion is genuine/correct; no fraud-proof or guaranteed-success claim |
+| Guidance | Seven dated summaries are limited coverage; maintain them, verify rule applicability and obtain specialist review before expanding scope |
+| Provider processing | Consented facts/images leave Civic for Mubit and its configured provider. Metadata recording is not anonymisation or a complete upstream retention guarantee |
+| Deletion | Driver case deletion removes active app records/photos; Auth accounts, provider records and backups have separate lifecycles |
+| Retention | No general automated retention purge. Council history has append-only rules and replaced council blobs can remain stored |
+| Identity/roles | Driver ownership and council owner/member checks exist; enterprise SSO, detailed council roles, subscriptions and multi-council tenancy do not |
+| Infrastructure | Hosting regions, provider terms, backup policies and contractual safeguards must be verified for the actual accounts; no universal UK residency/certification claim |
+| Maps | OSM attributes may be incomplete/outdated; browser tiles and geocoder requests reach external services. The app stores no location history, but service logs can contain queries/coordinates |
+| Outcomes | Self-reported outcomes are unverified. Do not advertise them as audited wins or measured savings |
+| Availability | One instance, synchronous inference and external providers need measured capacity and failure handling; see [capacity](CAPACITY.md) |
 
-## Certifications and trust signals (production)
+## Data flows and real deployments
 
-| Item | What it is | Priority |
-|------|------------|----------|
-| Cyber Essentials Plus | UK government security certificate, externally tested | Before first council |
-| ISO 27001 | Information-security management certificate | Year 1 |
-| WCAG 2.2 AA | Accessibility standard for public-sector software | Before first council |
-| ATRS record | Government AI transparency template; councils adopt it voluntarily for tools that influence public decisions | Provide pre-filled to each council |
-| G-Cloud / ESPO listing | Government buying routes | Year 1 |
-| Mubit Enterprise compliance | SOC 2, ISO 27001, ISO 42001 on Mubit's Enterprise plan | Lean on for the AI layer |
+Real driver uploads are distinct from the retained synthetic council sandbox. A synthetic flag on a council case is only an assertion, not a detector of personal information. Masking a registration field does not anonymise free-text narratives or attachments.
 
-## Risk register
+Before a real council deployment, obtain approved policy/stage rules, authorised supplier access, an appropriate identity model, independent privacy/security review, agreed retention and tested backup restoration. Do not remove the synthetic guard merely because a council name or machine key has been configured.
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|------------|
-| AI wrongly recommends reject; officer rubber-stamps | Medium | High | False-reject metric with hard alert; Fast-confirm only with a proving fact; QA sampling |
-| Officers over-trust Fast-confirm | Medium | Medium | Evidence panel always shown; periodic blind QA |
-| Policy change makes model stale | Medium | Medium | Versioned policy; new task on change; precedents retrieval |
-| Unity5 bundles AI for Chipside councils | High | High | Target non-Chipside councils; partner as add-on; lead with per-council learning |
-| Slow public-sector procurement | High | Medium | Frameworks; pilot with one borough; partner channel |
-| Mubit correction path not available as hoped | Medium | Medium | Precedent-in-context fallback (ADR-012) |
-| Personal-data leak | Low | High | Minimisation, UK hosting, access control, audit |
-| Hackathon: adapter doesn't pass in time | Medium | High (demo) | Generate 200+ synthetic cases; send 60+ calls Friday night; rehearse Try models |
+Consumer expansion likewise needs current source maintenance, documented provider/data arrangements, clear user notices and measurable operational controls. Officer correction export is not permission to train on personal driver data. [Architecture](ARCHITECTURE.md) · [Mubit data handling](04-mubit-integration.md#data-handling) · [Council exchange](COUNCIL-INTEGRATION.md).

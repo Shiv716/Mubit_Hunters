@@ -1,64 +1,33 @@
-> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+# Metrics and evidence
 
-# 5. Metrics
+Reviewed **24 October 2026**. Keep industry context, application activity, self-reports and independently verified outcomes separate.
 
-Every metric below can be computed from the audit log ([03-architecture.md](03-architecture.md#audit-log)). Targets are **assumptions** to be replaced with a council's baseline in the first 4 weeks.
+## What is measured now
 
-## North star
+| Measure | Meaning and limit |
+|---|---|
+| `assessed_cases` | Distinct saved consumer cases with an assessment; not users, wins or demo runs. Deleted cases no longer count |
+| `verified_successes` | Cancelled/refunded cases explicitly marked verified in stored data; current user flows never set that flag, and no independent verification workflow exists |
+| Self-reported outcome/refund | What a driver records about their case; neither proof of cancellation nor bank/payment verification |
+| Parking count | 4,339 mapped locations in the bundled London snapshot; not vacant bays or customers |
+| Guidance count | Seven dated source summaries; not seven full books, all council policies or complete legal coverage |
+| AI metadata | Provider/model, gateway request ID, usage and latency when returned; successful inference does not demonstrate legal accuracy or training |
+| Council Insights | Queue totals, reviewed/pending/final decisions, accepted/rejected/investigating, agreement on comparable recommendations, corrections and curated examples |
 
-**Correct decisions per officer-hour** = decisions made ÷ officer hours, counting only decisions not later overturned (by QA sampling or tribunal).
+Council figures come from the shared synthetic workspace and must not be mixed with real driver outcomes. Empty charts can reflect no corresponding stored decisions. Agreement with an officer is a workflow signal, not an independent correctness measure; the API explicitly reports training status as unverified. [Insights implementation](../backend/app/workspace.py).
 
-Why: it rewards speed and quality together. Speed alone would reward rubber-stamping; quality alone would ignore the backlog.
+## Homepage numbers
 
-## Business metrics (for the Head of Parking Services)
+The homepage presents sourced market context rather than fabricated customer counts: London PCNs, private keeper lookups, POPLA cancellations and Westminster enforcement revenue. Each has a different geography, period and denominator. A £60 saving is a labelled illustration only. [Exact calculations and citations](CONSUMER.md#homepage-figures).
 
-| Metric | Definition | Target (assumption) | Why it matters |
-|--------|------------|---------------------|----------------|
-| Cases per officer per day | Decisions ÷ officer-days | +30% vs baseline | Capacity without hiring |
-| Median time to decision | Received → decided | −40% vs baseline | Backlog and driver experience |
-| Not-contested rate | Tribunal appeals the council drops ÷ appeals | −25% vs baseline | Directly measures wasted rejections |
-| Tribunal loss rate | Appeals allowed ÷ appeals decided | Down vs baseline | Quality of rejections |
-| Deadline breaches | Formal reps decided after day 56 | 0 | Safety net |
-| Cost per case | (Officer cost + software + AI) ÷ cases | Down vs baseline | Buyer's ROI |
-| Hotspots actioned | Signage/bay issues raised to highways and fixed | Count | Fixes causes, not tickets |
+Never convert cancelled charges into refunds, keeper lookups into unique people, an appealed subset's outcome rate into a guaranteed win rate, or revenue into profit. Do not count the fixed public demo or fictional council cases as customers helped.
 
-## Product metrics (is the tool used and trusted?)
+## What a pilot should measure next
 
-| Metric | Definition | Target (assumption) |
-|--------|------------|---------------------|
-| Recommendation coverage | Cases with a valid recommendation ÷ cases | ≥ 98% |
-| Agreement rate | Officer final = AI recommendation, by lane | Fast-confirm ≥ 95%, Review ≥ 80% |
-| Override rate by reason code | Overrides ÷ decisions, split by code | Falling over time |
-| Time on case | Median seconds open per case, by lane | Fast-confirm < 60s (assumption) |
-| QA disagreement | Team-leader sample where QA disagrees with final decision | < 5% |
+- **Usefulness:** completion rate, abandonment point, time to a usable pack and repeat use, with defined denominators.
+- **Quality:** extraction corrections, unsupported claims, missing-evidence detection and independently reviewed draft quality.
+- **Economics:** actual AI cost/case, support effort, storage/case, willingness to pay and confirmed avoided payments/refunds.
+- **Operations:** request latency/errors, provider failures, connection waits and resource saturation under a representative staging workload.
+- **Training:** paired base/candidate results on the same independent holdout, with candidate version IDs and unsafe-decision rates.
 
-## Model safety metrics (watched daily)
-
-| Metric | Definition | Threshold | Action if breached |
-|--------|------------|-----------|--------------------|
-| **False-reject rate** | AI said reject, officer accepted ÷ AI rejects | Hard alert above 10% | Move affected pattern to Judgement lane, retrain |
-| Fast-confirm precision | Fast-confirm cases officers changed ÷ Fast-confirm cases | Above 5% → alert | Tighten lane thresholds |
-| Schema validity | Responses passing JSON schema ÷ responses | ≥ 99.5% | Retry once, then Judgement lane |
-| Citation validity | Cited policy clause exists in council policy ÷ responses | 100% | Block and route to Judgement |
-| Calibration | Agreement rate within each confidence band | Higher band → higher agreement | Recalibrate thresholds |
-
-Why false-reject is the key safety metric: a wrong "accept" loses one fine; a wrong "reject" can unfairly charge a driver and later costs a tribunal case.
-
-## Mubit metrics (is the model getting better and cheaper?)
-
-| Metric | Source | What good looks like |
-|--------|--------|----------------------|
-| Kept examples per task | Mubit console, Tasks | Crosses 25 (first training default) |
-| Adapter versions and results | Mubit console, Adapters → History | Latest version `Passed` |
-| Adapter vs provider match | Version test result ("Matched X% of your provider model's answers") | Rising version on version |
-| Share of calls served by adapter | Our logs (model ID per call) | Rising once a version passes |
-| Cost per 1,000 cases | Provider spend + Mubit runs ($5 per 1,000) | Falls once adapter serves |
-| Latency p50 / p95 | Our logs | Adapter ≤ provider |
-
-## Hackathon demo metrics
-
-Shown side by side on a held-out set of similar cases, before vs after the correction:
-
-1. Agreement with officer decisions on the corrected pattern (e.g. "signage unclear").
-2. Adapter vs frontier model: quality (agreement), cost per 1,000 cases, latency.
-3. Count of officer corrections that became a new adapter version.
+These are proposed measurements, not a claim that analytics, verified outcomes or model evaluation automation are implemented. No measured concurrent-user capacity, conversion rate, customer saving or trained-model improvement is currently claimed. [Capacity](CAPACITY.md) · [Feedback](MUBIT-FEEDBACK.md).

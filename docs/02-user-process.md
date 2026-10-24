@@ -1,106 +1,32 @@
-> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+# User journeys
 
-# 2. User process
+Reviewed **24 October 2026**. [Open Civic](https://mubit-hunters.onrender.com/).
 
-## Users
+## Driver: notice to appeal pack
 
-| Persona | Role | What they do in the product |
-|---------|------|-----------------------------|
-| **Priya, Representations Officer** (primary) | Decides challenges | Works the queue, confirms or overrides recommendations, sends letters |
-| **Team leader** | QA and allocation | Samples decisions, reviews overrides, reassigns cases |
-| **Head of Parking Services** (buyer) | Owns budget and targets | Watches the metrics dashboard and hotspots |
-| **Policy owner** | Maintains the discretion policy | Updates policy clauses the AI cites |
-| Driver (indirect) | Makes the challenge | Never logs in; receives the officer's letter |
-| Highways team (indirect) | Fixes streets | Receives signage/bay hotspot reports |
+**Sign up → scan or type → confirm → add evidence → assess → edit and approve → download → submit externally → track the response.**
 
-## Ground rules (non-negotiable)
+1. The driver receives a notice through the issuer's normal process. Civic does not assume it arrived by post: the user can photograph a paper notice, use a screenshot or type the facts.
+2. Sign up/sign in with a Neon email code. Driver access does not need council-owner approval.
+3. Create a private case. Upload a JPEG/PNG/WebP or enter the notice manually; PDF pages currently need screenshots.
+4. Consent to AI processing before scanning or assessment. Check the extracted issuer, reference, vehicle, dates, amount, stage and portal link. Correct omissions or mistakes; do not assume extraction authenticates the ticket.
+5. Explain what happened and attach relevant evidence. Mubit assesses the supplied information with a dated source library, identifying potential grounds, missing evidence and risks. Weak cases can receive limited grounds; later/uncertain stages receive specialist help without an initial-challenge draft.
+6. Edit the draft and explicitly approve it. Changed facts/evidence invalidate approval and require a current assessment before export.
+7. Download the ZIP containing the draft, guidance/read-me and evidence images. **The driver submits it through the issuer's own website or postal route.** Civic does not submit or cancel the notice.
+8. Optionally download an `.ics` reminder using a confirmed date. After submission, record the reference and later outcome/refund. These reports are not independently verified successes.
 
-1. **The AI recommends; the officer decides.** Nothing is sent without an officer's action. (Legal duty to consider each representation.)
-2. **Every case is judged on its merits.** No blanket auto-reject rules. (Councils must not fetter discretion.)
-3. **Mitigation and vulnerability always go to a human lane**, whatever the confidence.
-4. **Every recommendation cites a ground and a policy clause**, or it is not shown.
-5. **Every override needs a reason code.** That code is the learning signal.
+The stored lifecycle is `preparing → assessed → submitted → closed`; editing an assessed case can return it to preparation. Case versions and approval checks govern exports, not just the displayed status. Each case can be deleted by its owner; Auth accounts, backups and provider records have separate retention.
 
-## End-to-end flow
+## No-account demo
 
-```mermaid
-flowchart LR
-  A[Challenge received<br/>portal / email / post] --> B[Case assembled<br/>PCN + evidence + policy]
-  B --> C[Deterministic checks<br/>payment, permit, badge, clock]
-  C --> D[AI review via Mubit<br/>structured recommendation]
-  D --> E{Guardrails}
-  E -->|valid, high confidence,<br/>no mitigation| F[Fast-confirm lane]
-  E -->|valid, medium confidence| G[Review lane]
-  E -->|mitigation, low confidence,<br/>invalid output| H[Judgement lane]
-  F --> I[Officer decides]
-  G --> I
-  H --> I
-  I -->|agrees| J[Letter sent]
-  I -->|overrides + reason code| K[Correction logged] --> L[Mubit learning]
-  J --> M{Driver appeals?}
-  M -->|yes| N[Tribunal outcome<br/>won / lost / not contested] --> L
-  M -->|no| O[Closed]
-```
+Open [Demo ticket](https://mubit-hunters.onrender.com/#demo), inspect the fictional notice, run live extraction, confirm the result and request an assessment with the sample receipt. Review, edit, approve and download a watermarked example. If live AI is unavailable, explicitly choose the labelled sample walkthrough. Reload or start again to reset. Demo runs do not create customer cases or inflate metrics. [Runbook](08-hackathon-plan.md).
 
-## Case lifecycle states
+## Parking discovery
 
-| State | Entered when | Owner |
-|-------|--------------|-------|
-| `RECEIVED` | Challenge arrives | System |
-| `ASSEMBLED` | PCN record, evidence and policy attached | System |
-| `CHECKED` | Deterministic checks complete | System |
-| `RECOMMENDED` | AI output passes guardrails | System |
-| `QUEUED` | Placed in a lane, sorted by deadline | System |
-| `DECIDED` | Officer accepts or rejects | Officer |
-| `LETTER_SENT` | Letter generated and sent | Officer |
-| `APPEALED` | Driver appeals to tribunal | System (import) |
-| `CLOSED` | Paid, cancelled, or tribunal outcome recorded | System |
+Open [Parking](https://mubit-hunters.onrender.com/#parking), search a London destination or request location access, inspect matching pins/list entries, filter recorded attributes and open directions. Check current signs and tariffs on arrival. Pins are mapped parking locations, not live vacancies or reservations. [Map coverage](PARKING-MAP.md).
 
-## Lanes
+## Council officer: separate workspace
 
-| Lane | Entry rule (initial thresholds, assumption) | Officer action | Target time |
-|------|---------------------------------------------|----------------|-------------|
-| **Fast-confirm** | Deterministic check proves the claim (e.g. valid payment covers the time) **and** AI confidence ≥ 0.90 **and** no mitigation | Check evidence panel, confirm | < 1 min |
-| **Review** | Valid recommendation, confidence 0.60–0.90, no mitigation | Read summary and evidence, decide | Few minutes |
-| **Judgement** | Mitigation or vulnerability flagged, confidence < 0.60, conflicting evidence, invalid output, or procedural-impropriety claim | Full read, decide with care | As needed |
+At `/#workspace`, request membership, receive owner approval and verify a Neon email code. Open a synthetic case, examine supplied records/descriptions, request Mubit review, choose accept/reject/investigate, edit the response and save. Connected cases require a successful current Mubit review before a final decision; ordinary synthetic cases retain manual review.
 
-Within every lane the queue is sorted by **days left** on the legal clock (56 days for formal representations), with red under 10 days.
-
-## Officer's day (SOP)
-
-1. **Open queue.** See counts per lane and red-deadline cases first.
-2. **Fast-confirm batch.** For each case: evidence panel shows the proof (e.g. "RingGo session 13:58–15:58 covers 14:05"). Confirm, or open if anything looks wrong.
-3. **Review lane.** Read the AI summary, the ground claimed, the cited clause and the draft letter. Confirm or override.
-4. **Judgement lane.** Read the full challenge and evidence. The AI file is a starting point only.
-5. **Override when needed.** Pick a reason code, add a one-line note. The draft letter regenerates for the new outcome.
-6. **Send.** Officer sends the letter. Case moves to `LETTER_SENT`.
-7. **Flag a hotspot** if a location keeps producing accepted signage or marking challenges.
-
-## Override reason codes
-
-| Code | Meaning |
-|------|---------|
-| `OVR_EVIDENCE_MISSED` | AI missed or misread evidence (permit, receipt, badge) |
-| `OVR_SIGNAGE` | Signs or markings unclear, missing or wrong |
-| `OVR_MITIGATION` | Compelling circumstances justify cancelling |
-| `OVR_POLICY_MISAPPLIED` | Wrong discretion clause applied |
-| `OVR_PROCEDURAL` | Council made a process or legal error |
-| `OVR_FACT_ERROR` | Wrong facts (time, place, vehicle) |
-| `OVR_TOO_LENIENT` | AI recommended accept; evidence does not support it |
-| `OVR_OTHER` | Anything else, note required |
-
-## Team leader routine
-
-- Sample ~5% of Fast-confirm and ~10% of Review decisions weekly (assumption).
-- Review all overrides with `OVR_POLICY_MISAPPLIED` or `OVR_TOO_LENIENT`.
-- Watch the false-reject rate ([05-metrics.md](05-metrics.md)); pause Fast-confirm for a pattern if it breaches.
-
-## What changes for the officer
-
-| Today | With the copilot |
-|-------|------------------|
-| Reads every letter from scratch | Reads a summary with the claimed ground pre-identified |
-| Opens 3–5 systems for evidence | Sees one evidence panel |
-| Writes each letter | Edits a draft built from approved templates |
-| Same mistake repeats across officers | Corrections retrain the council's model |
-| No view of patterns | Hotspots and tribunal-risk flags |
+An authorised connector can collect the human-approved result and acknowledge saving it in its source system. No real supplier connector is included, and Civic does not send the council's letter. CEO photos are optional unless selected council policy requires them. [Workspace](COUNCIL-WORKSPACE.md) · [Exchange](COUNCIL-INTEGRATION.md).

@@ -1,79 +1,62 @@
-# Implemented architecture
+# Product architecture
 
-The default product is now the **driver application**: public accounts, private ticket/evidence records, Mubit vision and appeal preparation, approved downloads, reminders, outcomes and parking discovery. Its current architecture, access boundaries and deployment are specified in [CONSUMER.md](CONSUMER.md).
+Reviewed against the implementation on **24 October 2026**. [Hosted Civic](https://mubit-hunters.onrender.com/) is a consumer parking appeal preparation app with a separate retained council workspace. This is the canonical system overview; [deployment](DEPLOYMENT.md), [capacity](CAPACITY.md) and [driver behaviour](CONSUMER.md) provide the operational detail.
 
-The sections below describe the **retained council workspace** at `/#workspace`. Its synthetic-only intake, officer approval and description-only evidence handling do not describe the separate consumer API. Both run on the same Render service, with separate tables and session audiences.
+![Civic system architecture](assets/architecture.svg)
 
-## Product and user flow
+## Runtime
 
-The daily user is a council representations / notice processing officer. The officer opens a case, checks the evidence, asks the copilot to investigate, explicitly chooses an outcome, edits the response and saves. The next case opens automatically. Civic does not send a letter or cancel a PCN. The council exchange API can provide an officer-approved result to an authorised connector; its receipt is tracked separately.
+Civic is a modular monolith: one non-root Docker container on Render serves the compiled React frontend and FastAPI API over one origin. `backend/start.py` starts one Uvicorn worker. Render supplies HTTPS and `PORT`; the application does not require a separate frontend service.
 
-The three outcomes are **Accept appeal**, **Reject appeal**, and **Needs investigation**. No outcome is preselected. Changing the recommendation or deciding manually requires a reason. Investigation is reversible by recording a later decision; final decisions remain in the case history. Ordinary synthetic cases retain manual review. Council-connected cases require a successful current Mubit review before a final decision; investigation is still available when inference fails.
+Neon PostgreSQL stores application records and image bytes. Managed Neon Auth (Better Auth) owns users and sessions in the same database branch. Civic stores its tables in the `civic` schema by default; startup applies migrations 1–5 under a PostgreSQL advisory lock. Offline development can use SQLite. The database pool is 1–8 connections per web worker; external AI requests are synchronous, with no durable job queue.
 
-## Components
+## Responsibilities and code
 
-| Component | Implementation | Responsibility |
+| Area | Implementation | Responsibility |
 |---|---|---|
-| Web interface | React 18, Vite 8, plain CSS | Cases, evidence, copilot, replies, insights and admin |
-| API | FastAPI + Pydantic | Validated intake, review orchestration, decisions, exports and sessions |
-| Agent | `backend/app/investigator.py` | Up to three planning turns; allowlisted, read-only tool dispatch |
-| Model transport | Existing Mubit adapter | OpenAI-compatible or Anthropic-compatible Mubit route; stub restricted to local development/tests |
-| Checks | Versioned rules and synthetic council policy | Payment, grace, permit, badge, loading, mitigation and case consistency |
-| Recommendation guard | JSON schema + reference and rule validation | Invalid references, missing data or vulnerability require human review |
-| Persistence | Neon/PostgreSQL when `DATABASE_URL` is set; SQLite WAL offline | Cases, checks, model responses, investigation trace, decisions, feedback and audit |
-| Evidence | Database blobs on Render; local disk optionally offline | Store/download attachments up to 10 MiB each, with metadata and hashes; contents are not interpreted by AI |
-| Learning | Human-approved examples + lexical retrieval | Context for similar later cases; no automatic training claim |
-| Hosting | Existing Render service running one non-root Docker container | FastAPI serves API and built frontend on the same HTTPS origin; Neon persists data across deploys |
+| Routing and presentation | [ProductRoot.jsx](../frontend/src/ProductRoot.jsx), [ConsumerApp.jsx](../frontend/src/ConsumerApp.jsx) | Public home/demo, account flow and private appeals; lazy-load map/council UI |
+| Driver cases | [consumer.py](../backend/app/consumer.py), [DriverCase.jsx](../frontend/src/DriverCase.jsx) | Owner-scoped facts, photos, consent, assessment, draft, export and outcome |
+| Driver identity | [consumer_auth.py](../backend/app/consumer_auth.py), [neon_auth.py](../backend/app/neon_auth.py) | Email OTP, live Neon session verification and a separate signed driver cookie |
+| Consumer AI | [consumer_ai.py](../backend/app/consumer_ai.py), [adapters.py](../backend/app/ai/adapters.py) | Image processing, typed extraction/assessment and Mubit HTTP transport |
+| Public sample | [consumer_demo.py](../backend/app/consumer_demo.py), [DemoTicket.jsx](../frontend/src/DemoTicket.jsx) | Fixed fictional inputs, bounded live inference and explicit sample fallback |
+| Parking | [parking.py](../backend/app/parking.py), [ParkingMap.jsx](../frontend/src/ParkingMap.jsx) | Bundled OSM search, Photon geocoding, MapLibre/OpenFreeMap UI |
+| Persistence | [db.py](../backend/app/db.py), [consumer_schema.py](../backend/app/consumer_schema.py) | Transactions, migrations, connection pool, quotas and per-case AI leases |
+| Council workflow | [workspace.py](../backend/app/workspace.py), [investigator.py](../backend/app/investigator.py) | Shared officer queue, bounded read-only planning, checks and human decisions |
+| Council exchange/learning | [integration.py](../backend/app/integration.py), [learning.py](../backend/app/learning.py) | Versioned synthetic intake/receipts and approved correction export |
 
-## A review request
+## A driver case, end to end
 
-1. Read a snapshot of the case and approved examples. Reject duplicate in-flight reviews or already-decided cases.
-2. Run mandatory deterministic checks independently of the planner.
-3. Ask the configured model which allowlisted tools to use. Validate its JSON; reject unknown tools and repeats. Supply tool results for the next turn.
-4. Tools inspect supplied payment/permit/badge records, evidence descriptions, synthetic policy and approved examples. The agent has no council credentials or write-capable tools. The separate council exchange API accepts supplier-mapped snapshots and exposes only human-approved results.
-5. Ask the reviewer model for a structured recommendation. Validate schema, evidence IDs, policy IDs and consistency. Escalate uncertainty and vulnerability.
-6. Re-open a short write transaction. Confirm the case has not changed during inference, persist the checks, response, trace and audit, and return the result.
-7. An officer explicitly chooses the outcome. Generate an outcome-specific template, let the officer edit, then save the final response and decision transactionally.
+1. Neon sends and verifies an email code. FastAPI sets an HttpOnly first-party cookie referencing the Neon user/session. Private requests recheck session validity, verification and ban status.
+2. The driver creates a private case and uploads photos or types notice details. Images are decoded, EXIF metadata removed, resized and stored in `driver_evidence`. Input limits are eight photos/case, 8 MiB/photo and 24 megapixels; PDFs require page screenshots.
+3. After consent, the ticket reader sends selected images to Mubit. A typed extraction response is validated and presented for the driver to correct and confirm. Unknown facts stay unknown; dates are not inferred from statutory periods.
+4. The adviser receives confirmed facts, narrative, attached images and relevant entries from the seven-source bundled guidance library. It returns grounds, missing evidence, risks, next steps and a draft. Source/evidence references are checked; this does not establish legal correctness.
+5. A database lease prevents overlapping AI work on the same case while valid. Network inference runs outside the case transaction; changed case versions cannot accept a stale response. There is no automatic retry queue after a process restart.
+6. The driver edits and approves the current draft. Only an approved, current assessment can produce the ZIP evidence pack. Edits/evidence changes clear approval and require reassessment. Later or uncertain notice stages return specialist help without an initial-challenge draft.
+7. The driver submits externally, then records the response. An `.ics` download uses a user-confirmed date and includes a two-day alert; Civic does not send deadline reminder emails. Outcomes/refunds remain self-reported.
 
-Evidence changes invalidate the displayed review. The API rejects superseded review IDs and checks that changed after inference. The officer-facing review request does not hold a database write lock during network calls. A database lease prevents duplicate reviews across processes; expired claims can be replaced, and only their current owner can save the result or release them. PostgreSQL row locks serialize case mutations and prevent competing final decisions. SQLite uses an immediate transaction for case writes.
+## Data and access boundaries
 
-The default remains one web service and one Uvicorn worker. PostgreSQL removes the local-disk dependency and coordinates case writes across instances, but long reviews still use synchronous HTTP requests. A durable job queue, cancellation and retry handling would be the next step for heavier traffic. The older `/ai-review` endpoint holds its case lock during inference; the main UI uses `/review`.
+| Boundary | Current implementation |
+|---|---|
+| Public | Home, aggregate context, fixed sample-ticket demo and map; no private case data |
+| Driver | Separate session audience/cookie and `driver_*` tables; every private case operation checks ownership |
+| Council | Separate session, owner-approved membership and shared synthetic officer workspace; driver signup does not grant access |
+| Connector | Dedicated machine key for versioned council exchange; cannot approve cases or administer membership |
+| Provider | Server-side Mubit key; consumer calls send consented facts/images and request metadata-only recording |
+| Outcomes | User reports are stored but never marked independently verified by the current UI |
 
-Each web worker reuses a small PostgreSQL connection pool (1–8 connections), checks connection health before reuse, and returns connections after commit or rollback. Command-line scripts retain direct connections. Dashboard reads are cached in browser memory for 10 seconds, with concurrent requests for the same view shared. Edits, uploads, sign-in/out, access-denied responses and returning to the browser tab clear the cache. Sessions and access-request administration are never cached. Changes from other reviewers may appear on the next fetch after that short cache window; server-side decision and access checks still run for writes.
+Deleting a driver case deletes its active case records and images, not its Neon Auth account, provider records or database backups. Council audit/review/decision history has different append-only rules. There is no general automatic retention purge or multi-council tenant model.
 
-Startup runs versioned PostgreSQL schema creation under a transaction-level advisory lock. Application tables live in the `civic` schema by default. Immutable review, decision, investigation and audit rows reject updates and deletes. Uploaded bytes and their metadata commit together in database-storage mode. The migration command copies an existing SQLite workspace only into an empty destination, verifies attachment hashes and preserves IDs and history.
+## What is live, and what is separate
 
-## Mubit’s role
+Mubit handles consumer image reading and assessment. The retained council agent uses separate planner/reviewer prompts, allowlisted tools, deterministic policy checks and descriptions of evidence; council attachments are not passed through vision. CEO photos are optional in the default policy. See [council workspace](COUNCIL-WORKSPACE.md) and [exchange contract](COUNCIL-INTEGRATION.md).
 
-Mubit is the required hosted inference gateway for the planner and reviewer. Production does not fall back to a simulated provider. Connected cases also require Mubit in local development. The two tasks have separate stable system prompts and JSON schemas. Request IDs, provider/model, latency and usage are recorded where supplied. Account configuration is visible separately from successful inference.
+Live consumer demo inference was verified on 24 October 2026 using `gpt-6-luna` through Mubit's OpenAI-compatible route. Examples/Blueprint default to the Anthropic-compatible route; the existing service's environment determines its actual route. Configured credentials, successful inference, retrieved precedents and trained adapters are different states. [Mubit integration](04-mubit-integration.md) and [feedback status](MUBIT-FEEDBACK.md) document them.
 
-The application already collects officer feedback, requires human approval before examples are reused, and supports baseline-versus-precedent evaluation from the older branch. The existing evaluation labels predate the stricter mitigation guard: those scores are a historical fixture check, not proof of legal correctness or improvement. Real savings require a timed pilot and independent quality review.
+The demo stores temporary runs in bounded process memory; regular cases persist in Neon. Map discovery uses a bundled London snapshot, with external tiles and geocoding. Neither map pins nor public sample outputs are proof of live occupancy or product success.
 
-No live Mubit credential was needed for implementation or the offline tests. Automatic fine-tuning, trained-adapter activation, rollback and improvement against a fixed independent holdout are **not verified features**. Do not describe retrieval as model training. Do not claim that a configured gateway proves a trained model is in use.
+## Deployment boundaries
 
-## Access and data
+Keep a single instance/worker until demo state, geocoder throttling and caches are shared and long AI work has a durable execution path. PostgreSQL removes dependence on Render's local disk but does not make every component horizontally scalable. No concurrent-user benchmark has been completed. See [capacity and scaling](CAPACITY.md).
 
-Neon Better Auth email verification and owner-approved membership protect the hosted workspace (see below). `PCN_ACCESS_KEY` signs the first-party cookie and must be at least 16 characters in production. Without Neon Auth configured, the older shared-password flow remains available for local/bootstrap use; its reviewer names are self-declared. Access management is owner-only; the other Admin panels remain shared reviewer tools. Render defaults to secure cookies and accepts its supplied external URL as the application origin. `/api/health` reports configuration; `/api/ready` checks database connectivity without exposing credentials.
-
-Only synthetic cases are accepted by intake. This flag is an assertion, not a personal-data detector. Upload only synthetic attachments. Mubit calls can contain appeal text, evidence descriptions and rule findings; masking an explicit registration field does not guarantee anonymisation of free text. `MUBIT_RECORD=full` permits provider-side recording, subject to the provider account settings.
-
-## Before a real council rollout
-
-This MVP deliberately stays one web service plus Neon. A live pilot would first require approved council policies, validated statutory-stage/deadline logic, enterprise SSO and detailed council roles, independent security/privacy review, retention and backup policies, OCR/image handling if needed, and authorised case-system integrations. Move large or numerous files to object storage and add a background job queue when workloads justify them. Database attachments count toward Neon storage and backup usage; replaced blobs are retained, with no automatic retention cleanup.
-
-## Design
-
-Warm cream surfaces and ticket-like case files give the work a familiar structure. Electric blue identifies actions; lime highlights copilot information. Small monospace labels and a pixel-style mark supply the retro character. The main screen contains queue, evidence and decision; technical provider details, feedback curation and evaluation remain in Admin. Responsive layouts stack the panels on smaller screens. Keyboard focus, labelled controls and reduced-motion styles are included.
-
-
-## Approved workspace membership
-
-React offers Request access and email-code sign-in, including direct entry of a code received after approval. FastAPI stores pending requests, expiry-limited hashed approval links and decisions in the Civic schema in Neon. Resend delivers request notifications only to the owner; its test sender works when that inbox is the Resend signup address. Neon sends applicants their sign-in codes after approval and on request. Both paths share approval checks and a one-minute cooldown. Approval remains saved if email fails, and the owner review list is the fallback when owner notifications fail. The configured owner email is the only identity allowed to administer membership. All other approved members can review the shared synthetic case workspace.
-
-Neon's managed Better Auth issues and verifies sign-in codes. FastAPI calls the fixed Auth Base URL server-side, obtains the authenticated session token, and resolves it against the same branch's read-only managed `neon_auth` tables. The raw token is neither returned to the browser nor saved by Civic. A signed, first-party HttpOnly cookie references the Neon session/user IDs for up to 12 hours, bounded by the Neon session expiry. Every API request rechecks the live session, email verification, ban status and Civic approval, so revoked access is enforced immediately. No custom OTP generator or email-password provisioning remains.
-
-Owner email links carry a single-use approval credential in the fragment (removed from browser history when opened). Reading a link has no approval side effect; an explicit POST approves it. Approval and Neon mailbox verification are distinct gates. The app still has one shared workspace; multi-tenant subscriptions and verified organization domains remain future work.
-
-## Council exchange
-
-The Council connection page identifies the configured council and source system and labels the current exchange as a synthetic sandbox. The versioned API imports complete case/evidence packages transactionally, rejects stale/conflicting versions, invalidates old reviews on source updates, and refuses to overwrite officer-modified evidence or final decisions. Final Mubit-reviewed, officer-approved decisions remain pending until the connector confirms storage in its source system. Dedicated machine credentials cannot approve decisions or access workspace sessions. The first import binds the schema to one council/system. No supplier-specific connector is built; one isolated deployment/schema is needed per council. See [contract and user flow](COUNCIL-INTEGRATION.md).
+The product does not include automatic council submission/cancellation, payment processing, subscription billing, verified outcome checks, universal supplier connections, model fine-tuning orchestration or guaranteed fraud detection.

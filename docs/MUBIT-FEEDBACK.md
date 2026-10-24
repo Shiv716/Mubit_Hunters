@@ -1,7 +1,6 @@
 # Officer corrections and model updates
 
-This branch prepares corrections locally. **It does not yet submit corrections to Mubit,
-train an adapter, or change the model used for live reviews.**
+Reviewed **24 October 2026**. The deployed council workspace captures corrections in Civic and exports approved targets. **It does not submit corrections to Mubit, train an adapter, or change the model used for live reviews.** This is separate from [consumer AI](04-mubit-integration.md), whose real driver uploads are not automatically training examples.
 
 ## Before and after
 
@@ -45,7 +44,7 @@ targets, reviewers and content hashes, and explicitly reports `submitted_to_mubi
 No network request or training job is triggered. Preserve the distinction between a downloaded
 package, accepted examples, a completed adapter and a version that has passed evaluation.
 
-## Completing the loop before deployment
+## Before deploying a trained adapter
 
 Connect an acknowledged submission and training-status adapter once that contract is available.
 Freeze a separate holdout set; never train on its cases or retrieve their answers as precedents.
@@ -62,7 +61,7 @@ configuration for rollback. Do not manufacture calls to reach the 25-example thr
 Run `python -m pytest backend/tests/test_learning.py -q` in the project virtual environment.
 The tests use simulated model replies and isolated databases. For PostgreSQL migration verification,
 set `PCN_TEST_DATABASE_URL` to a **disposable local database**, never the deployed Neon workspace.
-The app applies additive schema migration 4 on startup. Existing records are not rewritten.
+Correction tables were added in migration 4; the current app also applies consumer migration 5. Existing records are not rewritten.
 
 Build the UI with `npm run build --prefix frontend`. Preview the original answer, approved target
 and explicit pending state in Admin. No deployment environment variable changes are needed for

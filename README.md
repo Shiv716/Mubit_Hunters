@@ -1,49 +1,71 @@
 # civic. — Parking, with perspective
 
-Civic helps drivers understand parking notices, prepare an evidence-backed challenge and find parking for their next trip.
+**Understand your parking ticket. Build a clearer appeal. Find parking for your next trip.**
 
-**Sign up → scan and confirm a ticket → add evidence → get Mubit advice → review the draft → submit to the issuer → track the response.**
+Civic, built by Mubit-Hunters, helps drivers in England turn a parking notice and supporting evidence into a reviewed appeal pack. Mubit powers ticket reading and appeal guidance; the driver stays in control of what gets submitted.
 
-The public home is now the default. Personal appeals are private to each driver. The existing council review workspace is retained separately at `/#workspace`.
+**[Open Civic](https://mubit-hunters.onrender.com/) · [Try the sample ticket](https://mubit-hunters.onrender.com/#demo) · [Explore the London map](https://mubit-hunters.onrender.com/#parking)**
 
-## Built now
+## The walkthrough
 
-- A permanent sample ticket at `/#demo`: live Mubit scan and assessment, explicitly labelled fallback walkthrough, and restart on reload.
-- Public Neon Auth email-code signup and sign-in, without council owner approval.
-- Private ticket details, photo uploads, Mubit vision extraction and user confirmation.
-- Mubit assessments with reasons, missing evidence, risks and linked, dated guidance.
-- Editable drafts, explicit approval, downloadable appeal packs and calendar reminders.
-- User-reported submissions, responses and refunds; no invented wins or savings.
-- London parking map with 4,339 mapped locations, place search, filters and directions.
-- Light/dark themes, responsive layouts, cream/charcoal surfaces, blue actions and lime accents.
+1. **Try it first:** process a fictional ticket without an account. The demo calls live Mubit, with a clearly labelled sample walkthrough if unavailable. Reload to start again.
+2. **Create your account:** sign up or sign in with a Neon email code. Personal appeals stay private to your account.
+3. **Add your notice:** upload a photo or enter the details manually. Check the extracted issuer, reference, dates and amount.
+4. **Build your case:** explain what happened, attach evidence and consent to AI processing. Mubit suggests grounds, missing evidence, risks and next steps using dated source summaries.
+5. **Prepare your appeal:** edit and approve the draft, download the evidence pack, then submit through the issuer's own website or postal route.
+6. **Keep track:** download a calendar reminder and record the issuer's response. Explore nearby parking for your next journey.
 
-See [consumer architecture, deployment and limits](docs/CONSUMER.md), [parking data and map](docs/PARKING-MAP.md), and [officer feedback workflow](docs/MUBIT-FEEDBACK.md).
+## What makes Civic useful
+
+- **One connected flow:** ticket reading, evidence, guidance, drafting and tracking in the same case.
+- **Evidence you can check:** linked guidance and explicit uncertainty, with user confirmation before assessment and approval before export.
+- **A practical map:** 4,339 mapped London parking locations, search, filters and directions. These are locations, not live vacant bays.
+- **An honest demo:** live model/request details are shown; sample results are clearly identified and never counted as customer outcomes.
+- **Accessible presentation:** responsive light/dark layouts with a restrained retro style, clear actions and readable case details.
+
+The home page uses sourced industry context: 5.17m London parking PCNs in 2024/25 and 16.9m private-parking keeper lookups in 2025/26. These are different populations, not Civic users or successes. [Figures, definitions and sources](docs/CONSUMER.md#homepage-figures).
+
+## Architecture
+
+![Civic architecture: browser, Render API, Neon, Mubit and external appeal submission](docs/assets/architecture.svg)
+
+| Layer | Role |
+|---|---|
+| React + Vite | Public home/demo/map, private driver cases and a separate council workspace |
+| FastAPI on Render | Authentication, evidence handling, AI orchestration, approved downloads and history |
+| Neon PostgreSQL + Neon Auth | Persistent records/photos and managed Better Auth email-code accounts |
+| Mubit gateway | Vision extraction and structured appeal guidance through the configured model provider |
+| MapLibre, OpenFreeMap, OSM, Photon | Map rendering, bundled parking data and destination search |
+| Docker | Reproducible build for Render and optional local use |
+
+One Docker image serves the frontend and API on the same HTTPS origin. Schema migrations run at startup. Live demo inference was verified on **24 October 2026** through Mubit's OpenAI-compatible route using **`gpt-6-luna`**; the model remains configurable. [Architecture and source map](docs/ARCHITECTURE.md) · [Mubit integration](docs/04-mubit-integration.md).
+
+## Hosting and capacity
+
+The hosted project is **[mubit-hunters.onrender.com](https://mubit-hunters.onrender.com/)**. The existing Render Docker service deploys **`main`**; Neon persists data across deploys. A separate frontend host or evidence bucket is not required for the current small-file implementation.
+
+- **Registered users:** no application account cap; actual capacity depends on the Neon plan, stored evidence and workload. The subscribed plans and maximum simultaneous users have not been verified.
+- **Consumer AI:** 200 requests/hour across the app, 20/hour per user. A scan plus assessment uses two calls: a theoretical budget of 100 such journeys/hour before retries, **not a load-tested throughput claim**.
+- **Uploads:** eight photos/case, 8 MiB and 24 megapixels per input. Photos are resized and stored in Neon.
+- **Deployment:** one Uvicorn worker, with a PostgreSQL pool of up to eight connections. Scale only after measurement and shared-state/job-queue work.
+
+See [capacity, storage examples and scaling](docs/CAPACITY.md) and [deployment, environment settings and troubleshooting](docs/DEPLOYMENT.md).
 
 ## Run locally
 
-Requires Python 3.14 and Node 22.12+.
+Requires **Python 3.14** and **Node 22.12+**. From the repository root, this explicitly isolates offline work from any production database/Auth URL in `.env`:
 
 ```sh
-bash scripts/dev.sh
+DATABASE_URL='' NEON_AUTH_BASE_URL='' RENDER='' PCN_ENV=development \
+  AI_PROVIDER=stub PCN_DB_PATH=/tmp/civic-local.db \
+  PCN_EVIDENCE_DIR=/tmp/civic-local-evidence bash scripts/dev.sh
 ```
 
-Open <http://127.0.0.1:5173>. The home and parking map are public. Private driver accounts need a Neon Auth test branch; scanning and advice require a live Mubit connection and a vision-capable model. Consumer AI does not silently fall back to demo answers. The older council sample tools remain at `/#workspace`.
+Open **http://127.0.0.1:5173**. Ctrl-C stops both processes. The home, map and sample walkthrough work without accounts. Real driver sign-in requires a separate Neon test branch; live scanning/advice requires Mubit. Use [.env.example](.env.example) and the [local setup guide](docs/DEPLOYMENT.md#local-development). Never point development or tests at the production Neon branch.
 
-Use `.env.example` for settings. Root `.env` is supported; `backend/.env` takes precedence. Use a disposable database for development, not the production Neon branch.
+Docker is optional locally: after configuring `.env`, run `docker compose up -d --build`, then open http://localhost:8000. Stop it with `docker compose down`; retain the named volume. Full Docker setup is in the deployment guide.
 
-## Deploy
-
-The existing Render service follows `main` and builds the repository's Dockerfile. FastAPI serves the built React app and API on the same origin. Neon stores application data and small evidence images and provides managed Better Auth. Schema migrations run at startup.
-
-```sh
-cp .env.example .env
-# Configure a private PCN_ACCESS_KEY and test database/provider settings.
-docker compose up -d --build
-```
-
-Local Docker serves <http://localhost:8000>. Docker packages the software; Render hosts it; Neon persists the data. See [deployment instructions](docs/DEPLOYMENT.md). No new hosting service or paid map key is required for this release.
-
-## Relevant checks
+## Checks
 
 ```sh
 .venv/bin/python -m pytest backend/tests -q
@@ -51,14 +73,20 @@ npm test --prefix frontend
 npm run build --prefix frontend
 ```
 
-Checks cover driver isolation, consent, Mubit transport, version conflicts, approved exports, reminders, outcomes, council review/auth, integration and persistence. CI repeats relevant database checks on disposable PostgreSQL. Mocked transport tests do not establish live email delivery, live AI quality or training improvement.
+[CI](.github/workflows/checks.yml) also checks selected workflows against disposable PostgreSQL. Tests cover ownership, consent, provider transport, version conflicts, approved exports, auth, persistence and council workflows. Mocked tests do not prove live email delivery, model quality or trained-adapter improvement. Run checks relevant to the change; documentation-only edits do not need a full rebuild.
 
-## Current scope
+## Scope and next steps
 
-England council parking PCNs and private parking charges, focused on initial challenge preparation. Drivers confirm facts and deadlines and submit through the issuer's own route. Seven dated primary-source summaries provide a starting library; this is not complete legal knowledge or an automatic council integration. Later legal stages are routed to specialist help. The London map is sourced discovery data, not live availability.
+Civic supports early challenge preparation for England council parking PCNs and private parking charges, backed by seven dated primary-source summaries. It does not automatically submit appeals, cancel tickets, guarantee success or prove a ticket is genuine. Later/uncertain stages are directed to specialist help. Self-reported cancellations/refunds are not verified wins.
 
-Public metrics distinguish assessed cases from verified outcomes. Self-reported cancellations and refunds do not become verified wins. Real driver uploads are never automatically submitted as model training examples.
+The separate [council workspace](https://mubit-hunters.onrender.com/#workspace) retains officer review, policy checks, insights and a synthetic council exchange contract. CEO photos are optional unless the selected council policy requires them. No live supplier-specific connector is included. Approved officer corrections can be exported; automatic Mubit training/adapter activation is not connected. Consumer uploads are not automatically training examples.
 
-## Retained council workspace
+Next production work is measured load testing, larger-file storage, reliable background AI jobs, maintained guidance, outcome verification and authorised supplier integrations where required. Billing, multi-council tenancy and live parking availability are not implemented.
 
-The council route preserves the officer queue, bounded investigation, policy checks, editable decisions, insights, membership approvals and synthetic council exchange. Northgate Borough and the bundled council cases remain fictional. No real supplier-specific council connector is included. Officer correction snapshots can be approved/exported; automatic adapter training and activation remain unverified. See [implemented architecture](docs/ARCHITECTURE.md) and [council exchange contract](docs/COUNCIL-INTEGRATION.md).
+**[Documentation index](docs/README.md)** · [Driver flow and limits](docs/CONSUMER.md) · [Privacy and risks](docs/07-compliance-and-risks.md) · [Demo runbook](docs/08-hackathon-plan.md)
+
+## License
+
+Application code: [MIT](LICENSE). The derived parking dataset has separate [OpenStreetMap/ODbL attribution and licensing](docs/PARKING-MAP.md#licensing-and-refresh).
+
+Documentation reviewed against the implementation on **24 October 2026**.

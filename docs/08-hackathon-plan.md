@@ -1,59 +1,28 @@
-> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+# Demo runbook
 
-# 8. Hackathon plan
+Reviewed **24 October 2026**. This replaces the original build schedule with a walkthrough of what exists now.
 
-Night Shift, London. Hacking started Fri 23 Oct 19:30. **Code freeze Sun 25 Oct 10:00.** UK clocks go back at 02:00 Sunday (extra hour).
+**Open [Civic](https://mubit-hunters.onrender.com/).** Allow for a cold start if the hosting plan sleeps. The sample ticket needs no account; real driver accounts use Neon email codes.
 
-## Judging (equal weight) and how we hit each
+## Three-minute walkthrough
 
-| Criterion | Our answer |
-|-----------|-----------|
-| Use of Mubit | Live: officer override → new adapter version → similar cases now correct; adapter vs frontier side by side |
-| Usefulness | Real recurring council task with public numbers behind it |
-| Technical execution | Rules + AI + guardrails + audit log; works on 200+ cases |
-| Demo | One story, one borough, under the time limit |
+1. **Introduce the problem:** a driver has a parking notice and needs to understand the facts, evidence and next step. Point to the homepage's sourced industry context, not invented customer successes.
+2. **Open Demo ticket:** show the fictional notice. Run live Mubit extraction, inspect the extracted fields and confirm them. Explain that a real driver can correct facts or enter them manually.
+3. **Assess:** show the sample payment receipt and ask for guidance. Highlight grounds, evidence gaps, risks and linked sources. When available, show the returned model/request ID as evidence of a live call.
+4. **Review the draft:** edit, approve and download the watermarked example. Explain that the user submits through the issuer; Civic has not sent an appeal or cancelled a charge.
+5. **Show the map:** search a London destination, select a location and inspect recorded restrictions/directions. No live vacancy claim.
+6. **Finish with the real account flow:** sign up, keep private cases, upload evidence, prepare a pack and track the response. Do not create fake verified outcomes to fill the dashboard.
 
-Track fit: **Recurring tasks** (primary), with the **Own your intelligence layer** comparison (quality, cost, latency).
+## If a service is unavailable
 
-## Scope
+Choose the explicit **sample walkthrough** when Mubit fails; its answers are prewritten and labelled. Never present them as live model output. Reload or **Start again** resets the demo. Runs do not count toward customer activity. Demo quotas and state expiry are described in [capacity](CAPACITY.md).
 
-**In:** one synthetic borough, formal + informal challenges, 5 contravention codes, rules engine, AI review via Mubit, guardrails, three lanes, officer console, override with reason codes, letters from templates, metrics page, held-out eval.
+Map failures should leave list browsing usable; geocoder failure still permits map browsing. Use the isolated local setup in [deployment](DEPLOYMENT.md#local-development) if the hosted frontend is unavailable. A local sample walkthrough does not prove live signup or inference.
 
-**Out:** real data, vision, email ingestion, tribunal import (mocked), SSO, multi-council UI.
+## Optional council/learning segment
 
-## Build order
+The separate council workspace demonstrates synthetic review, officer decisions, optional CEO photos and exchange receipts. **Admin → Learning & evaluation** shows original answers beside owner-approved targets and permits export. The after-training result remains pending: no automatic correction submission or trained-adapter activation is connected. [Feedback status](MUBIT-FEEDBACK.md).
 
-| When | Deliverable | Done when |
-|------|-------------|-----------|
-| Fri 20:00–23:00 | Synthetic generator: 1 borough policy (10 clauses), 5 codes, 250 cases incl. signage-at-one-street pattern; 50-case held-out set | Fixtures load |
-| Fri 23:00–01:00 | Reviewer: fixed prompt + schema + Mubit client; **send 80+ varied calls** | Task visible in Mubit console, examples counting |
-| Sat 01:00–09:00 | Sleep / rules engine + guardrails + lanes | Every case lands in a lane |
-| Sat 09:00–14:00 | Backend API + SQLite + audit log | All endpoints return data |
-| Sat 14:00–20:00 | Officer console: queue, case view, evidence panel, confirm/override, letter preview | Officer can work 20 cases end to end |
-| Sat 20:00–23:00 | Correction loop: precedents store (ADR-012) + Mubit native path if confirmed at office hours | Override changes the next similar recommendation |
-| Sat 23:00–Sun 03:00 | Metrics page + eval script (before/after, adapter vs frontier) | Numbers on screen |
-| Sun 03:00–08:00 | Rehearse demo; record backup video | Demo < limit |
-| Sun 08:00–10:00 | Buffer, README polish, submit | Submitted before 10:00 |
+Live consumer demo inference was verified on 24 October 2026 using `gpt-6-luna` through Mubit. Recheck a changed provider configuration before a presentation; do not manufacture calls to reach a provider training threshold. Record only non-sensitive demo data and keep credentials/approval links off screen.
 
-Owners: assign at team matching.
-
-## Synthetic data spec
-
-- **Borough:** fictional "Borough of Northgate" (no real council branding).
-- **Codes:** 01 restricted street (yellow line), 12 resident/shared bay without permit or payment, 16 permit space without permit, 30 overstay, 40 disabled bay without badge.
-- **Patterns (target mix):** ~45% provable by payment/permit/badge record, ~20% clear reject, ~15% signage disputes (concentrated on "Alder Road"), ~12% mitigation, ~8% procedural claims.
-- **Letters:** varied tone, length and spelling; some multi-claim.
-- **Held-out set:** 50 cases including 15 Alder Road signage cases, never sent before the correction.
-
-## Demo script (3 minutes)
-
-1. **Problem (20s):** 9.46M London PCNs, ~1 in 5 challenged, half of tribunal appeals lost, 6,143 rejections not even defended.
-2. **Priya's queue (30s):** lanes, deadline sort, Fast-confirm batch cleared in seconds with proof shown.
-3. **The miss (30s):** AI rejects an Alder Road signage case. Priya overrides: `OVR_SIGNAGE`.
-4. **Mubit (45s):** console shows the task, kept examples and the new adapter version; held-out Alder Road cases now flagged accept.
-5. **Own your model (30s):** adapter vs frontier: agreement, cost per 1,000 cases, latency.
-6. **Close (25s):** per-council learning, vendor-neutral, officer always decides.
-
-## Questions to ask Mubit at office hours
-
-See [04-mubit-integration.md](04-mubit-integration.md#open-questions-for-the-mubit-team).
+Event track, judging criteria and submission deadlines must be confirmed against the organiser's current instructions; this document makes no claim of eligibility or award alignment.

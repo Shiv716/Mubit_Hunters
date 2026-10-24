@@ -1,10 +1,12 @@
 # Council exchange and user flow
 
+Reviewed **24 October 2026**. This describes the retained [council workspace](COUNCIL-WORKSPACE.md), not the separate [driver product](CONSUMER.md).
+
 ## What is available
 
 Civic now implements a reusable, versioned case-and-evidence intake API and an acknowledged result export API. The **Council connection** page names the configured council and source system, explains each step, lists imported source references and shows result receipts. The same contract can be mapped to different suppliers; no Taranto, Imperial or other supplier connector has been implemented or verified.
 
-The current build remains a **synthetic-data sandbox with demonstration policies**. Configuring a council name or a connector key does not establish a live integration. One deployment and isolated database schema serve one council/source system. This is not a multi-council SaaS tenant boundary. Use separate deployments, credentials, schemas and access configuration for separate councils.
+The council exchange remains a **synthetic-data sandbox with demonstration policies**. Private consumer cases use a separate data model and are not imported through this contract. Configuring a council name or a connector key does not establish a live integration. One deployment and isolated database schema serve one council/source system. This is not a multi-council SaaS tenant boundary. Use separate deployments, credentials, schemas and access configuration for separate councils.
 
 ## The officer's flow
 

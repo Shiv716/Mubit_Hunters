@@ -1,59 +1,31 @@
-# 9. Glossary
+# Glossary
 
-## Parking enforcement
-
-| Term | Meaning |
-|------|---------|
-| PCN | Penalty Charge Notice: the council's civil parking fine |
-| CEO | Civil Enforcement Officer: the warden who issues PCNs |
-| Contravention code | Standard code for the breach, e.g. 01 yellow line, 12 resident bay |
-| Informal challenge | Driver's early objection, before a Notice to Owner |
-| NtO | Notice to Owner: formal letter to the registered keeper if unpaid |
-| Formal representation | Keeper's legal challenge after the NtO, on stated grounds |
-| 56-day rule | Council must decide a formal representation within 56 days or the PCN is cancelled |
-| Discretion policy | Council's published rules for when it may cancel a PCN |
-| Procedural impropriety | The council made a legal or process error |
-| Mitigation / compelling reasons | Circumstances (illness, emergency) that may justify cancelling |
-| London Tribunals | Independent adjudicators for London appeals; decisions bind the council |
-| Not contested | Council chose not to defend its rejection at tribunal; driver wins |
-| Parking Services | Council department that issues and processes PCNs |
-
-## Product
+Reviewed **24 October 2026**. Terms are scoped to Civic's implemented workflow; statutory deadlines and legal eligibility depend on the specific notice and stage.
 
 | Term | Meaning |
-|------|---------|
-| Case Bundle | The normalised case data sent to the AI |
-| Rules engine | Deterministic checks (payment, permit, badge, deadline) |
-| Recommendation | The AI's structured suggestion: decision, ground, clause, confidence, reasons |
-| Guardrails | Checks that decide whether a recommendation is shown and in which lane |
-| Lane | Fast-confirm, Review or Judgement queue |
-| Override | Officer decides differently from the AI, with a reason code |
-| Precedent | A past officer decision retrieved into a new case as context |
-| Hotspot | A location producing repeated accepted challenges, e.g. faded signage |
-| False-reject rate | Share of AI "reject" recommendations that officers accepted |
+|---|---|
+| Civic | Mubit-Hunters' consumer parking appeal preparation app, with a separate council review workspace |
+| PCN | Can mean a council **Penalty Charge Notice** or a private **Parking Charge Notice**; these have different procedures |
+| Issuer | Council or private operator identified on the notice; normally the first destination for the user's challenge |
+| Driver / keeper | Different roles; Civic must not assume the registered keeper drove |
+| CEO | **Civil Enforcement Officer**, not a company's chief executive. A CEO photo is optional unless selected council policy requires it |
+| Challenge / representation / appeal | Stage-dependent procedures; an initial challenge is not automatically a tribunal or independent appeal |
+| Evidence | Supplied material supporting the actual events. Consumer photos can be inspected by vision; council attachments currently supply descriptions to AI |
+| Appeal pack | User-approved draft and supporting files for external submission; downloading it does not submit anything |
+| Self-reported outcome | Cancellation, rejection, payment or refund entered by a user; not independent verification |
+| Verified success | Outcome independently established and marked verified; this release has no user-facing verification workflow |
+| Mubit | Hosted inference gateway and provider platform; Civic uses its configured model route |
+| Model | The configured provider model performing extraction or generation, e.g. the observed `gpt-6-luna` deployment |
+| Task / adapter | Provider-side grouping/training concepts; console entries do not establish Civic submitted corrections or activated a trained version |
+| Precedent retrieval | Adding approved similar council examples to a prompt; does not update model weights |
+| Correction export | Civic's owner-approved original/target package; not a training request or documented Mubit import format |
+| Neon | Managed PostgreSQL and managed Better Auth for persistent records and email-code identity |
+| Render | Hosting service running the application container and HTTPS endpoint |
+| Docker | Reproducible application packaging; optional local runtime, not the hosted database |
+| `PCN_ACCESS_KEY` | Application cookie-signing secret; not a driver's email code |
+| OSM parking location | A mapped car park/parking area, not necessarily one bay or a currently available space |
+| Keeper lookup | A request for registered-keeper information; not a count of distinct people or every parking ticket |
+| Auth MAU | Unique users authenticating in a month under a provider's plan; not simultaneous application capacity |
+| Synthetic case | Fictional council/demo input; must not be counted as a real customer or success |
 
-## Mubit and AI
-
-| Term | Meaning |
-|------|---------|
-| Frontier model | Large, expensive model (e.g. GPT, Claude, Gemini) |
-| Task | Calls with the same model, instructions, tools, tool choice and output format |
-| Kept example | A call Mubit accepts for training or testing |
-| Adapter | Small model trained for one task |
-| Passed / Below target | Whether an adapter version matched the provider model closely enough |
-| Prompt only | The base open model already did as well as the adapter |
-| Run | One Mubit-billed request in a learning task, up to 8,000 tokens |
-
-## Compliance
-
-| Term | Meaning |
-|------|---------|
-| UK GDPR | UK law on personal data |
-| DPIA | Data Protection Impact Assessment |
-| Cyber Essentials Plus | UK government security certificate, externally tested |
-| ISO 27001 | Information-security management certificate |
-| ISO 42001 | AI management-system certificate |
-| SOC 2 | Audit report on how a company protects customer data |
-| WCAG 2.2 AA | Accessibility standard |
-| ATRS | Algorithmic Transparency Recording Standard: government template for explaining AI tools |
-| G-Cloud / ESPO | Government and council buying frameworks |
+[Documentation index](README.md) · [User flow](02-user-process.md).

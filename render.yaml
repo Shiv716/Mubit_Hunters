@@ -1,6 +1,9 @@
 # For a NEW service. Existing mubit-hunters service: apply these settings in its dashboard.
 # No credentials are stored here. The database is the user's existing Neon project.
-# Approval notifications: add RESEND_API_KEY and PCN_EMAIL_FROM in Environment.
+# Optional council owner notifications: RESEND_API_KEY and PCN_EMAIL_FROM.
+# Public driver signup uses Neon email codes without owner approval.
+# PCN_ACCESS_KEY is the cookie signing secret, not a driver password.
+# Route below is an example; preserve the existing service's configured route/model.
 # Existing service: set the Auth URL and owner email together as described in docs/DEPLOYMENT.md.
 services:
   - type: web

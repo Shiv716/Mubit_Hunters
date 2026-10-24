@@ -1,0 +1,26 @@
+# secrets
+.env
+*.env
+!.env.example
+
+# local data
+*.db
+*.db-journal
+backend/evidence_store/
+backend/eval/results/
+
+# python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# node
+node_modules/
+frontend/dist/
+
+# editor and SQLite runtime files
+.idea/
+.DS_Store
+*.db-wal
+*.db-shm

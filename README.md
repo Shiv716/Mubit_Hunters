@@ -1,35 +1,72 @@
-# PCN Review Copilot
+# civic. — Review Copilot
 
-An AI case reviewer for council Parking Services teams. It reads each parking-fine (PCN) challenge, checks the evidence, recommends accept or reject with the legal ground and policy clause, and drafts the decision letter. **A council officer always makes the decision.** Every officer correction is routed through [Mubit](https://mubit.ai) so the model gets better, and cheaper, at that council's cases.
+A working full-stack demo for the **parking appeals officer**: the person who reads a driver's challenge, weighs the evidence and decides the outcome.
 
-Built for the Night Shift Mubit Hackathon, London, 23–25 October 2026.
+**Open case → review evidence → get a suggested outcome → choose and edit the reply → save and move on.**
 
-## One-line pitch
+The application developed on `trial-2` is merged into `main`, the deployed branch. The interface uses warm paper, charcoal, electric blue and lime, with restrained retro details. Northgate Borough, its policies and all sample cases are fictional.
 
-Same officers, more cases handled, fewer wrong rejections, and a model that learns from every overturn.
+## Run locally
 
-## Architecture at a glance
+Requires Python 3.14 and Node 22.12+.
 
-![PCN Review Copilot architecture](docs/assets/architecture.svg)
+```sh
+bash scripts/dev.sh
+```
 
-Detail: [docs/03-architecture.md](docs/03-architecture.md).
+Open <http://127.0.0.1:5173>, then choose **Explore sample appeals**. No key is required: the default is a clearly labelled, deterministic AI simulation. You can also add a synthetic appeal through the form. Put optional settings in root `.env` using `.env.example`; `backend/.env` remains supported and takes precedence when both exist.
 
-## Read in this order
+## What is built
 
-| # | Doc | What it answers |
-|---|-----|-----------------|
-| 1 | [Business case](docs/01-business-case.md) | Problem, numbers, buyer, pricing, market, competition, moat |
-| 2 | [User process](docs/02-user-process.md) | Who uses it, the end-to-end flow, officer SOP, lanes, reason codes |
-| 3 | [Architecture](docs/03-architecture.md) | Components, data flow, data model, APIs, guardrails |
-| 4 | [Mubit integration](docs/04-mubit-integration.md) | How calls become a task, how adapters train and serve, cost curve |
-| 5 | [Metrics](docs/05-metrics.md) | North star, business, model and Mubit metrics, targets |
-| 6 | [Decision log](docs/06-decision-log.md) | Why things are the way they are (ADRs) |
-| 7 | [Compliance and risks](docs/07-compliance-and-risks.md) | Legal duty, GDPR, certifications, risk register |
-| 8 | [Hackathon plan](docs/08-hackathon-plan.md) | Scope, build order, demo script |
-| 9 | [Glossary](docs/09-glossary.md) | Every term in plain words |
-| – | [Sources](docs/10-sources.md) | Every figure and where it came from |
-| – | [Recommendation schema](docs/schemas/recommendation.schema.json) | The exact JSON the AI must return |
+- Searchable queue with explicit response dates; evidence and council records beside the copilot.
+- A bounded agent that selects read-only checks, plus mandatory deterministic rules.
+- Mubit gateway adapter or offline simulation; validated recommendations and visible investigation steps.
+- Explicit officer choices, editable response drafts, save-and-next, response downloads and a persistent case history.
+- Evidence attachments, JSON import, feedback approval, example retrieval and evaluation tools under Admin.
+- Insights calculated from saved decisions; no invented accuracy or savings claims.
+- Shared-password demo access, Neon/PostgreSQL persistence on Render, and SQLite for offline use.
 
-## Status
+```mermaid
+flowchart LR
+  Officer[Officer in React UI] --> API[FastAPI]
+  API --> DB[(Neon: records + small attachments)]
+  API --> Agent[Bounded investigation]
+  Agent --> Checks[Rules + supplied records + policy]
+  Agent --> Model[Mubit gateway or offline stub]
+  Agent --> Past[Approved past examples]
+  API --> Guard[Validate references and safety]
+  Guard --> Officer
+  Officer --> Decision[Decision + editable reply]
+  Decision --> DB
+  DB --> QA[Human feedback approval]
+  QA --> Past
+```
 
-Pre-build. These docs fix the design before any code is written. Figures marked **(assumption)** are hypotheses to validate; everything else links to a source.
+## Deploy
+
+```sh
+cp .env.example .env
+# Set a private PCN_ACCESS_KEY of at least 16 characters in .env.
+docker compose up -d --build
+```
+
+Open <http://localhost:8000>. React is served by FastAPI. Set `DATABASE_URL` to use Neon; leave it blank for SQLite in the persistent Docker volume. The same Neon URL locally and on Render means both apps share the same cases.
+
+For hosting, the existing Render service runs the Docker image and Neon stores records and small attachments. No separate file bucket is required for this MVP. See [deployment instructions](docs/DEPLOYMENT.md) for the existing service settings, SQLite migration and backup guidance, and [implemented architecture](docs/ARCHITECTURE.md).
+
+## Focused verification
+
+```sh
+.venv/bin/python -m pytest backend/tests -q
+npm run build --prefix frontend
+```
+
+The 40 original tests and four workspace tests are retained. Four focused persistence tests cover shared attachments, review ownership, competing decisions and SQLite migration. SQLite runs 46 tests with two PostgreSQL-only skips; CI also runs the 17 relevant API/workspace/persistence checks against PostgreSQL. There is no extra test framework.
+
+## Scope
+
+This is a **synthetic-data MVP**, not a live council system. The agent reads supplied records and evidence descriptions; it does not fetch council records, interpret uploaded image/PDF contents, send letters or cancel PCNs. Response dates are imported or entered, not calculated as legal advice. The shared password is not SSO or role-based access. Audit rows are append-only in the application, not independently tamper-proof.
+
+Approved examples already inform later reviews. Mubit model training, deployment and measured model improvement remain unverified until exercised with account credentials. The older [design notes](docs/03-architecture.md) describe future scope; `docs/ARCHITECTURE.md` is the implementation reference.
+
+The [revised business case](docs/01-business-case.md) separates evidence, pricing assumptions and competitive risks. The opportunity is to reduce routine review time while preserving officer judgement; a pilot must establish whether it does.

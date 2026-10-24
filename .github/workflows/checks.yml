@@ -1,0 +1,34 @@
+name: Relevant checks
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_PASSWORD: ci-test-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.14'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: pip install -r backend/requirements-dev.txt
+      - run: pytest backend/tests -q
+        env:
+          AI_PROVIDER: stub
+      - run: pytest backend/tests/test_api_workflow.py backend/tests/test_workspace.py backend/tests/test_persistence.py -q
+        env:
+          PCN_TEST_DATABASE_URL: postgresql://postgres:ci-test-password@localhost:5432/postgres?sslmode=disable
+      - run: npm ci --prefix frontend
+      - run: npm run build --prefix frontend

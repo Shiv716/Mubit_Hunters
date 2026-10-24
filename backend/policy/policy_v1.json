@@ -1,0 +1,148 @@
+{
+  "policy_version": "demo-council-policy-2026.10-v1",
+  "ruleset_version": "rules-2026.10-v1",
+  "notice": "SYNTHETIC DEMO POLICY. Not legal advice and not the policy of any real council. Section text is written for this hackathon demo only.",
+  "parameters": {
+    "representation_window_days": 28,
+    "paid_parking_grace_minutes": 10,
+    "default_min_observation_minutes": 0
+  },
+  "contraventions": {
+    "01": {
+      "description": "Parked in a restricted street during prescribed hours",
+      "min_observation_minutes": 5,
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-OBSERVATION",
+        "R-LOADING"
+      ]
+    },
+    "11": {
+      "description": "Parked without payment of the parking charge",
+      "min_observation_minutes": 0,
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-PAYMENT"
+      ]
+    },
+    "12": {
+      "description": "Parked in a residents' or shared use parking place without a valid permit",
+      "min_observation_minutes": 0,
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-PERMIT"
+      ]
+    },
+    "05": {
+      "description": "Parked after the expiry of paid for time",
+      "min_observation_minutes": 0,
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-GRACE"
+      ]
+    },
+    "40": {
+      "description": "Parked in a designated disabled person's parking place without displaying a valid disabled person's badge",
+      "min_observation_minutes": 0,
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-BADGE"
+      ]
+    }
+  },
+  "claim_evidence": {
+    "paid": [
+      "payment_receipt"
+    ],
+    "permit": [
+      "permit_record"
+    ],
+    "blue_badge": [
+      "badge_record"
+    ],
+    "loading": [
+      "delivery_note"
+    ],
+    "signage": [
+      "signage_photo"
+    ],
+    "medical_emergency": [
+      "medical_letter"
+    ],
+    "breakdown": [
+      "breakdown_report"
+    ]
+  },
+  "references": [
+    {
+      "id": "DEMO-POL-2.1",
+      "title": "Representation window",
+      "text": "Representations should be received within the representation window stated in the policy parameters, measured from the notice date. Late representations may still be considered at the officer's discretion."
+    },
+    {
+      "id": "DEMO-POL-3.1",
+      "title": "Valid payment at the time of contravention",
+      "text": "Where a verified payment record covers the vehicle, location zone and time of the alleged contravention, the representation should normally be accepted."
+    },
+    {
+      "id": "DEMO-POL-3.2",
+      "title": "Grace period after paid time",
+      "text": "A notice for parking after paid time must not be issued until the grace period in the policy parameters has elapsed after the paid time expired."
+    },
+    {
+      "id": "DEMO-POL-4.1",
+      "title": "Valid permit",
+      "text": "Where a verified permit record shows a permit valid for the vehicle and zone at the time of the alleged contravention, the representation should normally be accepted."
+    },
+    {
+      "id": "DEMO-POL-4.2",
+      "title": "Permit not displayed but valid",
+      "text": "A first occurrence of a valid permit that was not displayed may be accepted at the officer's discretion; repeated occurrences should normally be rejected."
+    },
+    {
+      "id": "DEMO-POL-5.1",
+      "title": "Disabled person's badge",
+      "text": "Where a verified badge record shows a valid badge for the time of the alleged contravention, the representation should normally be accepted. A badge that had expired should normally be rejected."
+    },
+    {
+      "id": "DEMO-POL-6.1",
+      "title": "Loading and unloading",
+      "text": "Loading or unloading activity may be accepted where it is supported by documentary evidence such as a delivery note and the observation period was not exceeded by a significant margin."
+    },
+    {
+      "id": "DEMO-POL-6.2",
+      "title": "Observation period",
+      "text": "For contraventions with a minimum observation period, a notice issued before that period elapsed should normally be cancelled."
+    },
+    {
+      "id": "DEMO-POL-7.1",
+      "title": "Signage and lines",
+      "text": "Claims that signs or road markings were missing, obscured or unclear require supporting photographic evidence and should be referred for a site check if the evidence is credible."
+    },
+    {
+      "id": "DEMO-POL-8.1",
+      "title": "Mitigating circumstances",
+      "text": "Mitigation and vulnerability always require human judgement. Missing supporting documents require investigation and are not automatic grounds for rejection."
+    },
+    {
+      "id": "DEMO-POL-9.1",
+      "title": "Insufficient information",
+      "text": "Where the facts needed to decide a representation are missing or inconsistent, the case should be referred for further review rather than decided."
+    }
+  ]
+}

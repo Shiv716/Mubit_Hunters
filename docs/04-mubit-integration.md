@@ -1,3 +1,5 @@
+> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+
 # 4. Mubit integration
 
 ## What Mubit does for us, in one line

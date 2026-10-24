@@ -1,0 +1,27 @@
+# For a NEW service. Existing mubit-hunters service: apply these settings in its dashboard.
+# No credentials are stored here. The database is the user's existing Neon project.
+services:
+  - type: web
+    name: mubit-hunters
+    runtime: docker
+    branch: main
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/ready
+    envVars:
+      - key: PCN_ENV
+        value: production
+      - key: PCN_ACCESS_KEY
+        sync: false
+      - key: PCN_COOKIE_SECURE
+        value: 'true'
+      - key: DATABASE_URL
+        sync: false
+      - key: PCN_DB_SCHEMA
+        value: civic
+      - key: PCN_EVIDENCE_STORAGE
+        value: database
+      - key: AI_PROVIDER
+        value: stub
+      - key: PCN_PUBLIC_ORIGIN
+        value: https://mubit-hunters.onrender.com

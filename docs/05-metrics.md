@@ -1,3 +1,5 @@
+> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+
 # 5. Metrics
 
 Every metric below can be computed from the audit log ([03-architecture.md](03-architecture.md#audit-log)). Targets are **assumptions** to be replaced with a council's baseline in the first 4 weeks.

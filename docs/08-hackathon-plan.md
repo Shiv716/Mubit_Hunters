@@ -1,3 +1,5 @@
+> Original planning notes retained from `main`. Proposals and legal/process assumptions below are not a statement of implemented or verified capability. See [current architecture](ARCHITECTURE.md) and [deployment](DEPLOYMENT.md).
+
 # 8. Hackathon plan
 
 Night Shift, London. Hacking started Fri 23 Oct 19:30. **Code freeze Sun 25 Oct 10:00.** UK clocks go back at 02:00 Sunday (extra hour).

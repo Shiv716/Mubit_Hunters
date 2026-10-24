@@ -1,0 +1,3774 @@
+{
+ "dataset_version": "pcn-eval-v1",
+ "seed": 20261024,
+ "synthetic": true,
+ "notice": "Synthetic data. Gold labels reflect the synthetic demo council's practice, not any real council.",
+ "pool": [
+  {
+   "scenario": "paid_covered",
+   "gold_label": "accept",
+   "officer_reason": "Verified payment covers the time and zone.",
+   "case": {
+    "pcn_ref": "DMP000001",
+    "vrm": "SYN9619",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-07-24T09:15:00",
+    "location": "Elm Row, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-07-24",
+    "representation_received_date": "2026-08-01",
+    "representation_text": "I paid using the parking app before I left the car. The session was still running when the ticket was issued.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000001_ceo.jpg",
+      "sha256": "5d8a14da64983b9c3df4312cf2e398d8d065afa50ced6e710a3a2257c2e88c5b",
+      "captured_at": "2026-07-24T09:15:00",
+      "vrm_seen": "SYN9619",
+      "location_seen": "Elm Row"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Screenshot of app payment confirmation",
+      "filename": "DMP000001_E2.pdf",
+      "sha256": "8a02cd52deb952310a1b21ed2882c2069e43528a95a46f2ead1a44466793346e"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00001",
+       "vrm": "SYN9619",
+       "zone": "Z1",
+       "start": "2026-07-24T08:45:00",
+       "end": "2026-07-24T10:15:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_covered",
+   "gold_label": "accept",
+   "officer_reason": "Verified payment covers the time and zone.",
+   "case": {
+    "pcn_ref": "DMP000002",
+    "vrm": "SYN9236",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-08-17T18:34:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-08-19",
+    "representation_received_date": "2026-09-02",
+    "representation_text": "I had paid for two hours by phone. Please check your records, my payment was valid.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000002_ceo.jpg",
+      "sha256": "b6058e5f675ae06a397d1a2f76a70efba283c6811a05d92cdfaf45c347088e91",
+      "captured_at": "2026-08-17T18:34:00",
+      "vrm_seen": "SYN9236",
+      "location_seen": "Mill Street"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Screenshot of app payment confirmation",
+      "filename": "DMP000002_E2.pdf",
+      "sha256": "6aec9bea164dec65a4e243e2c00ee73bcab3d1fd844d5fcfad1e73f201652c71"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00002",
+       "vrm": "SYN9236",
+       "zone": "Z2",
+       "start": "2026-08-17T18:04:00",
+       "end": "2026-08-17T19:34:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_not_found",
+   "gold_label": "reject",
+   "officer_reason": "No payment covers the contravention time; earlier session had ended.",
+   "case": {
+    "pcn_ref": "DMP000003",
+    "vrm": "SYN9106",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-21T16:00:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-21",
+    "representation_received_date": "2026-10-14",
+    "representation_text": "I always pay for parking here, I must have paid.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000003_ceo.jpg",
+      "sha256": "a117b2128f7c79821383253edac92302745f9c1254503e29b1bdc6c305f33c45",
+      "captured_at": "2026-09-21T16:00:00",
+      "vrm_seen": "SYN9106",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00003",
+       "vrm": "SYN9106",
+       "zone": "Z3",
+       "start": "2026-09-21T12:00:00",
+       "end": "2026-09-21T14:00:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_not_found",
+   "gold_label": "reject",
+   "officer_reason": "No payment covers the contravention time; earlier session had ended.",
+   "case": {
+    "pcn_ref": "DMP000004",
+    "vrm": "SYN2260",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-07-01T08:34:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-07-01",
+    "representation_received_date": "2026-07-16",
+    "representation_text": "I paid earlier that day so I should not have been ticketed.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000004_ceo.jpg",
+      "sha256": "3258653dc292f22d7ba5bf5ac4d8ab4bce26e5fcee0fd93170966b3f2816a6b4",
+      "captured_at": "2026-07-01T08:34:00",
+      "vrm_seen": "SYN2260",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00004",
+       "vrm": "SYN2260",
+       "zone": "Z2",
+       "start": "2026-07-01T04:34:00",
+       "end": "2026-07-01T06:34:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_wrong_zone",
+   "gold_label": "reject",
+   "officer_reason": "Payment was made for a different zone.",
+   "case": {
+    "pcn_ref": "DMP000005",
+    "vrm": "SYN7080",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-05T13:15:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-08",
+    "representation_received_date": "2026-09-21",
+    "representation_text": "I paid at the machine on the corner, here is the receipt.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000005_ceo.jpg",
+      "sha256": "587ca3b95a88ce4792e543ac4356a0bfbf8b24cf28f96c5be0aa35734b148ea8",
+      "captured_at": "2026-09-05T13:15:00",
+      "vrm_seen": "SYN7080",
+      "location_seen": "Abbey Walk"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Receipt from pay-and-display machine",
+      "filename": "DMP000005_E2.pdf",
+      "sha256": "8abf636ca2e100cf122c184a28e7ef58b36639fdd17e1c58890c16997209219d"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00005",
+       "vrm": "SYN7080",
+       "zone": "Z9",
+       "start": "2026-09-05T12:55:00",
+       "end": "2026-09-05T14:45:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_wrong_zone",
+   "gold_label": "reject",
+   "officer_reason": "Payment was made for a different zone.",
+   "case": {
+    "pcn_ref": "DMP000006",
+    "vrm": "SYN4991",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-08-21T12:00:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-08-22",
+    "representation_received_date": "2026-09-16",
+    "representation_text": "My receipt shows I paid. The zone signs are confusing but I did pay.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000006_ceo.jpg",
+      "sha256": "4de65b735fe1d1b4e6926f0a019b28db631a904562f9983aecf624ae5b4f43e0",
+      "captured_at": "2026-08-21T12:00:00",
+      "vrm_seen": "SYN4991",
+      "location_seen": "Quarry Hill"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Receipt from pay-and-display machine",
+      "filename": "DMP000006_E2.pdf",
+      "sha256": "5ca5bf48f886c3a4dd69160f6c9789de5aaa5e033b64914a1c6aa720114d2cc3"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00006",
+       "vrm": "SYN4991",
+       "zone": "Z9",
+       "start": "2026-08-21T11:40:00",
+       "end": "2026-08-21T13:30:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "grace",
+   "gold_label": "accept",
+   "officer_reason": "Notice issued inside the grace period after paid time.",
+   "case": {
+    "pcn_ref": "DMP000007",
+    "vrm": "SYN8077",
+    "contravention_code": "05",
+    "contravention_datetime": "2026-08-27T16:22:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-08-29",
+    "representation_received_date": "2026-09-16",
+    "representation_text": "My time had only just run out when the warden issued the ticket. I was walking back to the car.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000007_ceo.jpg",
+      "sha256": "79c5018b406ae3a068eaf1ea22ef393be6bad8614de516013322ab54a6c4ec32",
+      "captured_at": "2026-08-27T16:22:00",
+      "vrm_seen": "SYN8077",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00007",
+       "vrm": "SYN8077",
+       "zone": "Z3",
+       "start": "2026-08-27T14:22:00",
+       "end": "2026-08-27T16:17:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "grace",
+   "gold_label": "accept",
+   "officer_reason": "Notice issued inside the grace period after paid time.",
+   "case": {
+    "pcn_ref": "DMP000008",
+    "vrm": "SYN8568",
+    "contravention_code": "05",
+    "contravention_datetime": "2026-07-27T13:00:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-07-30",
+    "representation_received_date": "2026-08-12",
+    "representation_text": "I was a few minutes late back to the car, surely there is some leeway.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000008_ceo.jpg",
+      "sha256": "a423a6a8888509aee3eedc758e845d9d19a1963108dbb2e01bd5da9d5532f415",
+      "captured_at": "2026-07-27T13:00:00",
+      "vrm_seen": "SYN8568",
+      "location_seen": "Linden Close"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00008",
+       "vrm": "SYN8568",
+       "zone": "Z2",
+       "start": "2026-07-27T11:00:00",
+       "end": "2026-07-27T12:55:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_valid",
+   "gold_label": "accept",
+   "officer_reason": "Valid permit for vehicle and zone on council records.",
+   "case": {
+    "pcn_ref": "DMP000009",
+    "vrm": "SYN1151",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-09-02T16:00:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-09-02",
+    "representation_received_date": "2026-09-10",
+    "representation_text": "I have a resident's permit for this zone and it was on the dashboard.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000009_ceo.jpg",
+      "sha256": "0402ad229e024fe0522c876fed502d34122995f309b268e8ddb487218a662f9d",
+      "captured_at": "2026-09-02T16:00:00",
+      "vrm_seen": "SYN1151",
+      "location_seen": "Linden Close"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00009",
+       "vrm": "SYN1151",
+       "zone": "Z2",
+       "valid_from": "2026-05-25T16:00:00",
+       "valid_to": "2027-03-21T16:00:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_valid",
+   "gold_label": "accept",
+   "officer_reason": "Valid permit for vehicle and zone on council records.",
+   "case": {
+    "pcn_ref": "DMP000010",
+    "vrm": "SYN9474",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-06-02T18:53:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-06-04",
+    "representation_received_date": "2026-06-12",
+    "representation_text": "I live on this street and hold a valid permit.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000010_ceo.jpg",
+      "sha256": "b2a27d36665d5b7f98efdadc71da4a44555973b6330305d7367ee2313f7ded9a",
+      "captured_at": "2026-06-02T18:53:00",
+      "vrm_seen": "SYN9474",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00010",
+       "vrm": "SYN9474",
+       "zone": "Z3",
+       "valid_from": "2026-02-22T18:53:00",
+       "valid_to": "2026-12-19T18:53:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_undisplayed_first",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: first occurrence of a valid but undisplayed permit is accepted.",
+   "case": {
+    "pcn_ref": "DMP000011",
+    "vrm": "SYN8506",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-07-07T11:34:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-07-09",
+    "representation_received_date": "2026-07-19",
+    "representation_text": "My permit had fallen off the windscreen onto the floor. It is valid, please check.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000011_ceo.jpg",
+      "sha256": "24cac5550bfbed38e80e58483ca45348ec87f4fbb00ff5de2cc6ceab2b714db6",
+      "captured_at": "2026-07-07T11:34:00",
+      "vrm_seen": "SYN8506",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00011",
+       "vrm": "SYN8506",
+       "zone": "Z1",
+       "valid_from": "2026-03-29T11:34:00",
+       "valid_to": "2027-01-23T11:34:00",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_undisplayed_first",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: first occurrence of a valid but undisplayed permit is accepted.",
+   "case": {
+    "pcn_ref": "DMP000012",
+    "vrm": "SYN3099",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-07-04T12:00:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-06",
+    "representation_received_date": "2026-07-28",
+    "representation_text": "I forgot to put the permit back after cleaning the car. It is valid for this zone.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000012_ceo.jpg",
+      "sha256": "0b9a010c31b4e3f70de99c98316df86788fb61fab5e89856ed95c98c5d1fa86e",
+      "captured_at": "2026-07-04T12:00:00",
+      "vrm_seen": "SYN3099",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00012",
+       "vrm": "SYN3099",
+       "zone": "Z3",
+       "valid_from": "2026-03-26T12:00:00",
+       "valid_to": "2027-01-20T12:00:00",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_expired",
+   "gold_label": "reject",
+   "officer_reason": "Permit had expired before the contravention.",
+   "case": {
+    "pcn_ref": "DMP000013",
+    "vrm": "SYN9914",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-22T14:22:00",
+    "location": "Bridge Road, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-08-23",
+    "representation_received_date": "2026-09-03",
+    "representation_text": "I have a resident's permit, I have always had one.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000013_ceo.jpg",
+      "sha256": "85eabf09c4ad0925d3adef08ed3e94ab4228905cd3efa3baf6fb0e7afdf110d5",
+      "captured_at": "2026-08-22T14:22:00",
+      "vrm_seen": "SYN9914",
+      "location_seen": "Bridge Road"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00013",
+       "vrm": "SYN9914",
+       "zone": "Z1",
+       "valid_from": "2025-07-18T14:22:00",
+       "valid_to": "2026-07-23T14:22:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_expired",
+   "gold_label": "reject",
+   "officer_reason": "Permit had expired before the contravention.",
+   "case": {
+    "pcn_ref": "DMP000014",
+    "vrm": "SYN1045",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-07-07T18:15:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-07",
+    "representation_received_date": "2026-07-16",
+    "representation_text": "I thought my permit was still valid, I renewed it I think.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000014_ceo.jpg",
+      "sha256": "c941e00a710a3e00f9ec0d80261124fc12c37cf80c33c4c58d30d71726107e30",
+      "captured_at": "2026-07-07T18:15:00",
+      "vrm_seen": "SYN1045",
+      "location_seen": "Linden Close"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00014",
+       "vrm": "SYN1045",
+       "zone": "Z3",
+       "valid_from": "2025-06-02T18:15:00",
+       "valid_to": "2026-06-07T18:15:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_expired",
+   "gold_label": "reject",
+   "officer_reason": "Blue badge expired before the contravention date.",
+   "case": {
+    "pcn_ref": "DMP000015",
+    "vrm": "SYN3869",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-06-05T13:41:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-06-05",
+    "representation_received_date": "2026-06-12",
+    "representation_text": "I am a blue badge holder and the badge was displayed.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000015_ceo.jpg",
+      "sha256": "5718ce9f55e432f0f5b991aeb551168075291f6bcf0fecdcd39eec36611e36f5",
+      "captured_at": "2026-06-05T13:41:00",
+      "vrm_seen": "SYN3869",
+      "location_seen": "Abbey Walk"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00015",
+       "valid_from": "2023-02-21",
+       "valid_to": "2026-05-16",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_expired",
+   "gold_label": "reject",
+   "officer_reason": "Blue badge expired before the contravention date.",
+   "case": {
+    "pcn_ref": "DMP000016",
+    "vrm": "SYN5744",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-07-17T12:22:00",
+    "location": "Elm Row, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-19",
+    "representation_received_date": "2026-07-23",
+    "representation_text": "My badge was on the dashboard, I am disabled.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000016_ceo.jpg",
+      "sha256": "676ed9ba1b254612ffaafcd6679591793c191820db1211a74bdc0588db64981f",
+      "captured_at": "2026-07-17T12:22:00",
+      "vrm_seen": "SYN5744",
+      "location_seen": "Elm Row"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00016",
+       "valid_from": "2023-04-04",
+       "valid_to": "2026-06-27",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_valid_undisplayed",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: valid badge not displayed is accepted on first occurrence.",
+   "case": {
+    "pcn_ref": "DMP000017",
+    "vrm": "SYN9455",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-09-04T09:00:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-05",
+    "representation_received_date": "2026-09-27",
+    "representation_text": "My blue badge fell off the dashboard when I closed the door. It is valid.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000017_ceo.jpg",
+      "sha256": "8ddb3865ffe34e0a598976f995e411082df1bce6eab349c5380398da804b22ac",
+      "captured_at": "2026-09-04T09:00:00",
+      "vrm_seen": "SYN9455",
+      "location_seen": "Abbey Walk"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00017",
+       "valid_from": "2025-11-08",
+       "valid_to": "2027-10-09",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_valid_undisplayed",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: valid badge not displayed is accepted on first occurrence.",
+   "case": {
+    "pcn_ref": "DMP000018",
+    "vrm": "SYN5396",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-06-09T10:53:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-06-09",
+    "representation_received_date": "2026-06-29",
+    "representation_text": "I forgot to display my badge that day but it is valid, copy attached.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000018_ceo.jpg",
+      "sha256": "20a1fe77658031e656ad4be3284a0dce7a7d055bf9a18f3763565f7eb525acc6",
+      "captured_at": "2026-06-09T10:53:00",
+      "vrm_seen": "SYN5396",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00018",
+       "valid_from": "2025-08-13",
+       "valid_to": "2027-07-14",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "short_observation",
+   "gold_label": "accept",
+   "officer_reason": "Observation period below the policy minimum.",
+   "case": {
+    "pcn_ref": "DMP000019",
+    "vrm": "SYN3317",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-12T14:15:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-13",
+    "representation_received_date": "2026-09-18",
+    "representation_text": "I was unloading shopping for my elderly mother and was only there a moment.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 1,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000019_ceo.jpg",
+      "sha256": "6149b3c223b3bd8fc5a6bd84ad59702870494745d2a864269d6830d92b8efa25",
+      "captured_at": "2026-09-12T14:15:00",
+      "vrm_seen": "SYN3317",
+      "location_seen": "Linden Close"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "short_observation",
+   "gold_label": "accept",
+   "officer_reason": "Observation period below the policy minimum.",
+   "case": {
+    "pcn_ref": "DMP000020",
+    "vrm": "SYN6387",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-19T17:15:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-07-22",
+    "representation_received_date": "2026-08-03",
+    "representation_text": "I stopped to unload heavy boxes, the ticket was issued almost immediately.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 2,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000020_ceo.jpg",
+      "sha256": "3e7cc077c67d3e212182d84e6d1a0140103c032ed9b6ef9537131f59f5c6f3d2",
+      "captured_at": "2026-07-19T17:15:00",
+      "vrm_seen": "SYN6387",
+      "location_seen": "Quarry Hill"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_with_note",
+   "gold_label": "accept",
+   "officer_reason": "Loading supported by a delivery note.",
+   "case": {
+    "pcn_ref": "DMP000021",
+    "vrm": "SYN2721",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-06-21T18:15:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-06-23",
+    "representation_received_date": "2026-07-12",
+    "representation_text": "I was making a delivery to the shop, the delivery note is attached.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 8,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000021_ceo.jpg",
+      "sha256": "2e17ab16fecf5c6b3b92f6c1152c3b7715497a0eac8e6867d7616fedc13759b2",
+      "captured_at": "2026-06-21T18:15:00",
+      "vrm_seen": "SYN2721",
+      "location_seen": "Abbey Walk"
+     },
+     {
+      "id": "E2",
+      "type": "delivery_note",
+      "source": "motorist",
+      "description": "Signed delivery note with timestamp",
+      "filename": "DMP000021_E2.pdf",
+      "sha256": "a0d95c4f53a975cb6a7c004583015e7af3476f380e1f11dcae9049cebd1a504c"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_with_note",
+   "gold_label": "accept",
+   "officer_reason": "Loading supported by a delivery note.",
+   "case": {
+    "pcn_ref": "DMP000022",
+    "vrm": "SYN7816",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-16T08:53:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-07-16",
+    "representation_received_date": "2026-07-22",
+    "representation_text": "Delivering furniture to a customer; signed delivery note attached.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 11,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000022_ceo.jpg",
+      "sha256": "966134a8aedac8e558be413d73f6660b6db47d8225f36658ba6810a01a24c557",
+      "captured_at": "2026-07-16T08:53:00",
+      "vrm_seen": "SYN7816",
+      "location_seen": "Orchard Way"
+     },
+     {
+      "id": "E2",
+      "type": "delivery_note",
+      "source": "motorist",
+      "description": "Signed delivery note with timestamp",
+      "filename": "DMP000022_E2.pdf",
+      "sha256": "21bf81791bf4dc3005a8b15a0c870ff3b11cc8f6398d3aa0e193f3079be815fa"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_no_note",
+   "gold_label": "reject",
+   "officer_reason": "Loading claimed without documentary evidence.",
+   "case": {
+    "pcn_ref": "DMP000023",
+    "vrm": "SYN9879",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-27T10:22:00",
+    "location": "Victoria Terrace, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-29",
+    "representation_received_date": "2026-09-18",
+    "representation_text": "I was just loading the car.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 15,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000023_ceo.jpg",
+      "sha256": "d3f06b91d6e4cb0b9e3ca07a648f9236ad89d325b67c3293da638b0e828ec0c6",
+      "captured_at": "2026-08-27T10:22:00",
+      "vrm_seen": "SYN9879",
+      "location_seen": "Victoria Terrace"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_no_note",
+   "gold_label": "reject",
+   "officer_reason": "Loading claimed without documentary evidence.",
+   "case": {
+    "pcn_ref": "DMP000024",
+    "vrm": "SYN2309",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-11T18:41:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-13",
+    "representation_received_date": "2026-08-27",
+    "representation_text": "I was unloading for a few minutes only.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 20,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000024_ceo.jpg",
+      "sha256": "ff8552d1e6f608ae2c16ffc823e2d2c077ee616b78c60aae9bf8f605f45ccb6f",
+      "captured_at": "2026-08-11T18:41:00",
+      "vrm_seen": "SYN2309",
+      "location_seen": "Quarry Hill"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_with_letter",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: documented medical emergency is accepted.",
+   "case": {
+    "pcn_ref": "DMP000025",
+    "vrm": "SYN5071",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-20T16:53:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-21",
+    "representation_received_date": "2026-10-03",
+    "representation_text": "My son had an asthma attack and I rushed him into the clinic. The hospital letter is attached.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 14,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000025_ceo.jpg",
+      "sha256": "02232041d6d73c307b7a1e0ac0578fc63534422191a6ca38815aef45d1569ecd",
+      "captured_at": "2026-09-20T16:53:00",
+      "vrm_seen": "SYN5071",
+      "location_seen": "Quarry Hill"
+     },
+     {
+      "id": "E2",
+      "type": "medical_letter",
+      "source": "motorist",
+      "description": "Letter from hospital confirming attendance",
+      "filename": "DMP000025_E2.pdf",
+      "sha256": "edfffdedb79cc8d6f9aa5c2b9ce1ea9042a621bb3b17b71a351c59820aaffa8f"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_with_letter",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: documented medical emergency is accepted.",
+   "case": {
+    "pcn_ref": "DMP000026",
+    "vrm": "SYN5812",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-20T15:41:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-21",
+    "representation_received_date": "2026-10-09",
+    "representation_text": "I had to take my father to A&E urgently; letter from the hospital attached.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 6,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000026_ceo.jpg",
+      "sha256": "886cf8aaa9f6948a4106fe8af41520bc421b138db51c7dbc9fcc7ab64468f1c8",
+      "captured_at": "2026-09-20T15:41:00",
+      "vrm_seen": "SYN5812",
+      "location_seen": "Market Square"
+     },
+     {
+      "id": "E2",
+      "type": "medical_letter",
+      "source": "motorist",
+      "description": "Letter from hospital confirming attendance",
+      "filename": "DMP000026_E2.pdf",
+      "sha256": "3783813b3f731313cd18b009ab11896342b2d3d70134c4bcb1ea613656f63979"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_no_letter",
+   "gold_label": "reject",
+   "officer_reason": "Unsupported mitigation.",
+   "case": {
+    "pcn_ref": "DMP000027",
+    "vrm": "SYN6293",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-24T18:15:00",
+    "location": "Victoria Terrace, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-08-25",
+    "representation_received_date": "2026-09-15",
+    "representation_text": "I felt unwell so I stopped.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 10,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000027_ceo.jpg",
+      "sha256": "595202ca5e03ed2f29423b5529207641aad92dfcb6bd6d3ed2d55b7911b772b0",
+      "captured_at": "2026-08-24T18:15:00",
+      "vrm_seen": "SYN6293",
+      "location_seen": "Victoria Terrace"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_no_letter",
+   "gold_label": "reject",
+   "officer_reason": "Unsupported mitigation.",
+   "case": {
+    "pcn_ref": "DMP000028",
+    "vrm": "SYN2749",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-08T11:00:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-08-09",
+    "representation_received_date": "2026-08-12",
+    "representation_text": "It was an emergency.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 14,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000028_ceo.jpg",
+      "sha256": "14a166d0b071d5f933a24ca9f1135c7a9748c058df75fb7b089d2d39936da4e6",
+      "captured_at": "2026-08-08T11:00:00",
+      "vrm_seen": "SYN2749",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "signage_photo",
+   "gold_label": "needs_review",
+   "officer_reason": "Credible signage claim requires a site check.",
+   "case": {
+    "pcn_ref": "DMP000029",
+    "vrm": "SYN8818",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-08T16:53:00",
+    "location": "Station Approach, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-09",
+    "representation_received_date": "2026-07-15",
+    "representation_text": "The sign was covered by a tree, see my photo.",
+    "claimed_grounds": [
+     "signage"
+    ],
+    "observation_minutes": 12,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000029_ceo.jpg",
+      "sha256": "1ea9b87d9d5d5c8b621a9bfff9a5af810452c9fae612d8eee7a0eb80e92b8d8c",
+      "captured_at": "2026-07-08T16:53:00",
+      "vrm_seen": "SYN8818",
+      "location_seen": "Station Approach"
+     },
+     {
+      "id": "E2",
+      "type": "signage_photo",
+      "source": "motorist",
+      "description": "Photo of sign partially covered by foliage",
+      "filename": "DMP000029_E2.pdf",
+      "sha256": "4665cf9edc2063ad037510a3aac33f64feea3b4d099138c793c7c22b678dbdac"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "signage_photo",
+   "gold_label": "needs_review",
+   "officer_reason": "Credible signage claim requires a site check.",
+   "case": {
+    "pcn_ref": "DMP000030",
+    "vrm": "SYN4090",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-05T08:22:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-07",
+    "representation_received_date": "2026-07-22",
+    "representation_text": "There was no visible sign, the post was bent away from the road. Photo attached.",
+    "claimed_grounds": [
+     "signage"
+    ],
+    "observation_minutes": 7,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000030_ceo.jpg",
+      "sha256": "d1a99828f502856f7df22038ba120e557c2df710478080532760a2276eac82a6",
+      "captured_at": "2026-07-05T08:22:00",
+      "vrm_seen": "SYN4090",
+      "location_seen": "Orchard Way"
+     },
+     {
+      "id": "E2",
+      "type": "signage_photo",
+      "source": "motorist",
+      "description": "Photo of sign partially covered by foliage",
+      "filename": "DMP000030_E2.pdf",
+      "sha256": "8019e19afd24797c4693da11f545e4d4eebdb7013a9364341df02e0b3670b669"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "vrm_mismatch",
+   "gold_label": "needs_review",
+   "officer_reason": "Evidence VRM does not match the case; refer for investigation.",
+   "case": {
+    "pcn_ref": "DMP000031",
+    "vrm": "SYN2207",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-22T11:53:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-09-22",
+    "representation_received_date": "2026-10-07",
+    "representation_text": "I paid by app, my session was running.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000031_ceo.jpg",
+      "sha256": "33a34eb215a5cd0622257963f669d894b8111f3e718af946e63c3b3ce52ea360",
+      "captured_at": "2026-09-22T11:53:00",
+      "vrm_seen": "SYN0000",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00031",
+       "vrm": "SYN2207",
+       "zone": "Z1",
+       "start": "2026-09-22T11:23:00",
+       "end": "2026-09-22T12:53:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "vrm_mismatch",
+   "gold_label": "needs_review",
+   "officer_reason": "Evidence VRM does not match the case; refer for investigation.",
+   "case": {
+    "pcn_ref": "DMP000032",
+    "vrm": "SYN7443",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-08-27T11:22:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-28",
+    "representation_received_date": "2026-09-04",
+    "representation_text": "The ticket is for my car but I had paid.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000032_ceo.jpg",
+      "sha256": "c132bdab272147ffc51983baae91062cf1b0baa7e25d6eac7e8291d6e8699e5c",
+      "captured_at": "2026-08-27T11:22:00",
+      "vrm_seen": "SYN0000",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00032",
+       "vrm": "SYN7443",
+       "zone": "Z4",
+       "start": "2026-08-27T10:52:00",
+       "end": "2026-08-27T12:22:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "late_but_paid",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: late representation accepted where payment is verified.",
+   "case": {
+    "pcn_ref": "DMP000033",
+    "vrm": "SYN9895",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-23T15:07:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-06-26",
+    "representation_received_date": "2026-08-06",
+    "representation_text": "Sorry this is late, I was abroad. I had paid by app at the time.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000033_ceo.jpg",
+      "sha256": "539ff24305e7a4e3d7022eeb5a8959650b9139a79751c752c40ff7e6298b5114",
+      "captured_at": "2026-06-23T15:07:00",
+      "vrm_seen": "SYN9895",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00033",
+       "vrm": "SYN9895",
+       "zone": "Z3",
+       "start": "2026-06-23T14:52:00",
+       "end": "2026-06-23T15:52:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "late_but_paid",
+   "gold_label": "accept",
+   "officer_reason": "Council practice: late representation accepted where payment is verified.",
+   "case": {
+    "pcn_ref": "DMP000034",
+    "vrm": "SYN6987",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-22T16:07:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-09-24",
+    "representation_received_date": "2026-11-03",
+    "representation_text": "I only just found the notice. I had paid for parking that day.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMP000034_ceo.jpg",
+      "sha256": "3a55778a1845da7e315c5e359007c4b106e6baa179632542aff9990ece4ae172",
+      "captured_at": "2026-09-22T16:07:00",
+      "vrm_seen": "SYN6987",
+      "location_seen": "Linden Close"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00034",
+       "vrm": "SYN6987",
+       "zone": "Z2",
+       "start": "2026-09-22T15:52:00",
+       "end": "2026-09-22T16:52:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  }
+ ],
+ "holdout": [
+  {
+   "scenario": "paid_covered",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000001",
+    "vrm": "SYN7047",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-14T15:34:00",
+    "location": "Station Approach, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-16",
+    "representation_received_date": "2026-09-26",
+    "representation_text": "The machine took my card payment and I have the confirmation. I was within my paid time.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000001_ceo.jpg",
+      "sha256": "6fed80343614cc9d635ea2e688555deb27b238a4c7dba35d1230cca8d866f062",
+      "captured_at": "2026-09-14T15:34:00",
+      "vrm_seen": "SYN7047",
+      "location_seen": "Station Approach"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Screenshot of app payment confirmation",
+      "filename": "DMH000001_E2.pdf",
+      "sha256": "d2152d612b2f200744b4c3c9af527d5683b0e8d11db78251a9abfb0bee2de505"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00001",
+       "vrm": "SYN7047",
+       "zone": "Z3",
+       "start": "2026-09-14T15:04:00",
+       "end": "2026-09-14T16:34:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_covered",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000002",
+    "vrm": "SYN3305",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-27T08:53:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-06-30",
+    "representation_received_date": "2026-07-03",
+    "representation_text": "Paid on the app at the start of my stay, the receipt is attached.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000002_ceo.jpg",
+      "sha256": "be1c33d6aebe6d451f03bd7aa626b3194b5030d390e0a247fb5b059f3a87605e",
+      "captured_at": "2026-06-27T08:53:00",
+      "vrm_seen": "SYN3305",
+      "location_seen": "Orchard Way"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Screenshot of app payment confirmation",
+      "filename": "DMH000002_E2.pdf",
+      "sha256": "1d1c4427aefb3f52c748600364ee7b22cb129a74917194c0e5f0347d8f16240a"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00002",
+       "vrm": "SYN3305",
+       "zone": "Z2",
+       "start": "2026-06-27T08:23:00",
+       "end": "2026-06-27T09:53:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_covered",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000003",
+    "vrm": "SYN1546",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-07-09T09:15:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-10",
+    "representation_received_date": "2026-08-02",
+    "representation_text": "My partner paid for the parking on her phone for my car; it should show on your system.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000003_ceo.jpg",
+      "sha256": "e088237adec0ec2d585027a65ce61c589b75dacb2f9835b88f539d84a0e15e90",
+      "captured_at": "2026-07-09T09:15:00",
+      "vrm_seen": "SYN1546",
+      "location_seen": "Quarry Hill"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Screenshot of app payment confirmation",
+      "filename": "DMH000003_E2.pdf",
+      "sha256": "ba855c674daa04229d39c49548e911454645ac037c5a5a919595ab40e2453d6c"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00003",
+       "vrm": "SYN1546",
+       "zone": "Z3",
+       "start": "2026-07-09T08:45:00",
+       "end": "2026-07-09T10:15:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_not_found",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000004",
+    "vrm": "SYN5327",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-07-02T15:41:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-03",
+    "representation_received_date": "2026-07-24",
+    "representation_text": "I thought my morning payment would cover the afternoon.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000004_ceo.jpg",
+      "sha256": "40e147b3334f4c66f53be173a2d7a91d2edd853ea478fb0f7d76ff66f59235ea",
+      "captured_at": "2026-07-02T15:41:00",
+      "vrm_seen": "SYN5327",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00004",
+       "vrm": "SYN5327",
+       "zone": "Z4",
+       "start": "2026-07-02T11:41:00",
+       "end": "2026-07-02T13:41:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_not_found",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000005",
+    "vrm": "SYN4910",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-21T11:15:00",
+    "location": "Elm Row, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-06-22",
+    "representation_received_date": "2026-07-15",
+    "representation_text": "I am sure I paid, I just don't have the receipt any more.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000005_ceo.jpg",
+      "sha256": "c051623b98117371f219b87f6a8a02b3ab1cc3ddf26b71eb4733e7950e538bba",
+      "captured_at": "2026-06-21T11:15:00",
+      "vrm_seen": "SYN4910",
+      "location_seen": "Elm Row"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00005",
+       "vrm": "SYN4910",
+       "zone": "Z2",
+       "start": "2026-06-21T07:15:00",
+       "end": "2026-06-21T09:15:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_not_found",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000006",
+    "vrm": "SYN3050",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-21T14:34:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-09-23",
+    "representation_received_date": "2026-10-04",
+    "representation_text": "I paid at lunchtime, the ticket must be wrong.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000006_ceo.jpg",
+      "sha256": "233396212cf04969f2829c347795006ba65d7c775b9560ed79e7428e6a36d871",
+      "captured_at": "2026-09-21T14:34:00",
+      "vrm_seen": "SYN3050",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00006",
+       "vrm": "SYN3050",
+       "zone": "Z2",
+       "start": "2026-09-21T10:34:00",
+       "end": "2026-09-21T12:34:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_wrong_zone",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000007",
+    "vrm": "SYN1042",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-07T15:22:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-06-07",
+    "representation_received_date": "2026-07-01",
+    "representation_text": "I paid for parking on the next street, I did not realise it was a different zone.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000007_ceo.jpg",
+      "sha256": "d62e5930d0971eb08f5a9b66a74cf0c2e4dc86be9df094238c6fa3f1f198fd67",
+      "captured_at": "2026-06-07T15:22:00",
+      "vrm_seen": "SYN1042",
+      "location_seen": "Quarry Hill"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Receipt from pay-and-display machine",
+      "filename": "DMH000007_E2.pdf",
+      "sha256": "45fbcf2f067fcfa048039401d499963bbb067fb5244fdce81ec8bd0fd9e7959e"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00007",
+       "vrm": "SYN1042",
+       "zone": "Z9",
+       "start": "2026-06-07T15:02:00",
+       "end": "2026-06-07T16:52:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_wrong_zone",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000008",
+    "vrm": "SYN2745",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-08T15:00:00",
+    "location": "Station Approach, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-06-10",
+    "representation_received_date": "2026-06-25",
+    "representation_text": "Attached is my receipt, I paid for 90 minutes.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000008_ceo.jpg",
+      "sha256": "68300bfb03d8f3fdf689803bf82c07ae676f394f63bb06245d06fa16800baadb",
+      "captured_at": "2026-06-08T15:00:00",
+      "vrm_seen": "SYN2745",
+      "location_seen": "Station Approach"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Receipt from pay-and-display machine",
+      "filename": "DMH000008_E2.pdf",
+      "sha256": "5fd3222f24f3156553be18c0fe0a4db424983d9b4877a31b2f290973234642b2"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00008",
+       "vrm": "SYN2745",
+       "zone": "Z9",
+       "start": "2026-06-08T14:40:00",
+       "end": "2026-06-08T16:30:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "paid_wrong_zone",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000009",
+    "vrm": "SYN8194",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-23T09:41:00",
+    "location": "Harbour Lane, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-06-24",
+    "representation_received_date": "2026-07-19",
+    "representation_text": "I bought a ticket from the machine nearest my car.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000009_ceo.jpg",
+      "sha256": "5608c44c4ada50062cd0b55829df4eebcae54428147cb85f8e0bc3a4f916a5c9",
+      "captured_at": "2026-06-23T09:41:00",
+      "vrm_seen": "SYN8194",
+      "location_seen": "Harbour Lane"
+     },
+     {
+      "id": "E2",
+      "type": "payment_receipt",
+      "source": "motorist",
+      "description": "Receipt from pay-and-display machine",
+      "filename": "DMH000009_E2.pdf",
+      "sha256": "913a4e81e86052d25bae709e7e5d27fed70f7f44be543387cb6d403f2ef2ab7a"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00009",
+       "vrm": "SYN8194",
+       "zone": "Z9",
+       "start": "2026-06-23T09:21:00",
+       "end": "2026-06-23T11:11:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "grace",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000010",
+    "vrm": "SYN3929",
+    "contravention_code": "05",
+    "contravention_datetime": "2026-09-01T18:41:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-04",
+    "representation_received_date": "2026-09-15",
+    "representation_text": "The ticket was issued just after my paid time ended, I was literally on my way.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000010_ceo.jpg",
+      "sha256": "6b8a5db897f00ba239e640bcc432afcd6823e8ab4a7a835e9aca9ef5bf79f26e",
+      "captured_at": "2026-09-01T18:41:00",
+      "vrm_seen": "SYN3929",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00010",
+       "vrm": "SYN3929",
+       "zone": "Z4",
+       "start": "2026-09-01T16:41:00",
+       "end": "2026-09-01T18:37:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "grace",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000011",
+    "vrm": "SYN6262",
+    "contravention_code": "05",
+    "contravention_datetime": "2026-06-01T10:00:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-06-01",
+    "representation_received_date": "2026-06-04",
+    "representation_text": "I overran by a couple of minutes only.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000011_ceo.jpg",
+      "sha256": "af9b973bf283cfe159f558095dfe4d92217c2b22ad0e77f922645c1205af7592",
+      "captured_at": "2026-06-01T10:00:00",
+      "vrm_seen": "SYN6262",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00011",
+       "vrm": "SYN6262",
+       "zone": "Z2",
+       "start": "2026-06-01T08:00:00",
+       "end": "2026-06-01T09:52:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "grace",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000012",
+    "vrm": "SYN8059",
+    "contravention_code": "05",
+    "contravention_datetime": "2026-08-07T13:00:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-08-08",
+    "representation_received_date": "2026-08-26",
+    "representation_text": "I returned moments after the expiry, the officer was already writing the ticket.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000012_ceo.jpg",
+      "sha256": "326ffbab23adc98373230c72b81267285199df6676b3e7775d01230552763198",
+      "captured_at": "2026-08-07T13:00:00",
+      "vrm_seen": "SYN8059",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00012",
+       "vrm": "SYN8059",
+       "zone": "Z3",
+       "start": "2026-08-07T11:00:00",
+       "end": "2026-08-07T12:56:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_valid",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000013",
+    "vrm": "SYN4282",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-28T13:00:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-08-28",
+    "representation_received_date": "2026-08-31",
+    "representation_text": "My resident permit covers this bay. I don't understand why I was ticketed.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000013_ceo.jpg",
+      "sha256": "d5a492f095545d5194e4a4ce12a1986b8ad24cb29e74f93c9cfb96aee025136c",
+      "captured_at": "2026-08-28T13:00:00",
+      "vrm_seen": "SYN4282",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00013",
+       "vrm": "SYN4282",
+       "zone": "Z3",
+       "valid_from": "2026-05-20T13:00:00",
+       "valid_to": "2027-03-16T13:00:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_valid",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000014",
+    "vrm": "SYN4321",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-23T18:07:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-24",
+    "representation_received_date": "2026-09-03",
+    "representation_text": "Permit was displayed, please check your system.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000014_ceo.jpg",
+      "sha256": "5d0ba7ce0777b3785179fa4f0c6a2d11fb3f8f7d99e02dece5fc6586f3e15cd9",
+      "captured_at": "2026-08-23T18:07:00",
+      "vrm_seen": "SYN4321",
+      "location_seen": "Abbey Walk"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00014",
+       "vrm": "SYN4321",
+       "zone": "Z4",
+       "valid_from": "2026-05-15T18:07:00",
+       "valid_to": "2027-03-11T18:07:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_valid",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000015",
+    "vrm": "SYN9821",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-09-14T09:53:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-09-14",
+    "representation_received_date": "2026-10-02",
+    "representation_text": "I am a permit holder for this zone.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000015_ceo.jpg",
+      "sha256": "38b7713e3b678ba748f7129ad50348ccf453b0de6dd65bb4398916604bc2153f",
+      "captured_at": "2026-09-14T09:53:00",
+      "vrm_seen": "SYN9821",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00015",
+       "vrm": "SYN9821",
+       "zone": "Z1",
+       "valid_from": "2026-06-06T09:53:00",
+       "valid_to": "2027-04-02T09:53:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_undisplayed_first",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000016",
+    "vrm": "SYN5233",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-07-24T10:53:00",
+    "location": "Harbour Lane, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-26",
+    "representation_received_date": "2026-08-07",
+    "representation_text": "The permit slipped down behind the dashboard. I have held a permit for years.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000016_ceo.jpg",
+      "sha256": "b87cfbe810f606d0386c05f608ffe084fb637f26d29874209a974f8c3c3a39e0",
+      "captured_at": "2026-07-24T10:53:00",
+      "vrm_seen": "SYN5233",
+      "location_seen": "Harbour Lane"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00016",
+       "vrm": "SYN5233",
+       "zone": "Z3",
+       "valid_from": "2026-04-15T10:53:00",
+       "valid_to": "2027-02-09T10:53:00",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_undisplayed_first",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000017",
+    "vrm": "SYN2843",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-25T13:34:00",
+    "location": "Quarry Hill, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-08-28",
+    "representation_received_date": "2026-09-13",
+    "representation_text": "I had moved the permit to my other car by mistake, but this car is registered on it.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000017_ceo.jpg",
+      "sha256": "304abd466c361c2a78496c3331cac5158683f0857a7ccb6f6a49066d60b941b6",
+      "captured_at": "2026-08-25T13:34:00",
+      "vrm_seen": "SYN2843",
+      "location_seen": "Quarry Hill"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00017",
+       "vrm": "SYN2843",
+       "zone": "Z1",
+       "valid_from": "2026-05-17T13:34:00",
+       "valid_to": "2027-03-13T13:34:00",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_undisplayed_first",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000018",
+    "vrm": "SYN3220",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-18T17:34:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-08-21",
+    "representation_received_date": "2026-08-29",
+    "representation_text": "The permit was in the glovebox, it is valid and in my name.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000018_ceo.jpg",
+      "sha256": "0e341697f996a4ff49be7dc21c96878febd0c156bcc03253ec8e39f96ed479be",
+      "captured_at": "2026-08-18T17:34:00",
+      "vrm_seen": "SYN3220",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00018",
+       "vrm": "SYN3220",
+       "zone": "Z2",
+       "valid_from": "2026-05-10T17:34:00",
+       "valid_to": "2027-03-06T17:34:00",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_expired",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000019",
+    "vrm": "SYN1534",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-21T13:22:00",
+    "location": "Victoria Terrace, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-08-24",
+    "representation_received_date": "2026-09-05",
+    "representation_text": "I live here and should be allowed to park.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000019_ceo.jpg",
+      "sha256": "4221baed10e3a669a88dbe331a4ffd71db6a181e6e2a03063032c9a574aa18d8",
+      "captured_at": "2026-08-21T13:22:00",
+      "vrm_seen": "SYN1534",
+      "location_seen": "Victoria Terrace"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00019",
+       "vrm": "SYN1534",
+       "zone": "Z2",
+       "valid_from": "2025-07-17T13:22:00",
+       "valid_to": "2026-07-22T13:22:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_expired",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000020",
+    "vrm": "SYN4065",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-07-27T10:15:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-07-29",
+    "representation_received_date": "2026-08-12",
+    "representation_text": "My permit covers this street.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000020_ceo.jpg",
+      "sha256": "98c9152397b716d248ed49abaf1b89d40b9bd401e49bbd5a09be20ba871af227",
+      "captured_at": "2026-07-27T10:15:00",
+      "vrm_seen": "SYN4065",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00020",
+       "vrm": "SYN4065",
+       "zone": "Z2",
+       "valid_from": "2025-06-22T10:15:00",
+       "valid_to": "2026-06-27T10:15:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "permit_expired",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000021",
+    "vrm": "SYN1008",
+    "contravention_code": "12",
+    "contravention_datetime": "2026-08-17T12:00:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-08-20",
+    "representation_received_date": "2026-09-04",
+    "representation_text": "I have been parking here for years with a permit.",
+    "claimed_grounds": [
+     "permit"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000021_ceo.jpg",
+      "sha256": "fa64a5b902737b194d3d627e534cec32c7801dd66128a4ab8b1016f4c5cd101f",
+      "captured_at": "2026-08-17T12:00:00",
+      "vrm_seen": "SYN1008",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "permits": [
+      {
+       "permit_id": "PRM-00021",
+       "vrm": "SYN1008",
+       "zone": "Z2",
+       "valid_from": "2025-07-13T12:00:00",
+       "valid_to": "2026-07-18T12:00:00",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_expired",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000022",
+    "vrm": "SYN3722",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-07-09T08:53:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-10",
+    "representation_received_date": "2026-07-15",
+    "representation_text": "I have a blue badge, the ticket is unfair.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000022_ceo.jpg",
+      "sha256": "0d1b017e94e885d98b97d27e5b62b824d9548a3769f5204328453e2c3f3264a1",
+      "captured_at": "2026-07-09T08:53:00",
+      "vrm_seen": "SYN3722",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00022",
+       "valid_from": "2023-03-27",
+       "valid_to": "2026-06-19",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_expired",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000023",
+    "vrm": "SYN9913",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-07-10T09:22:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-07-13",
+    "representation_received_date": "2026-07-21",
+    "representation_text": "I hold a disabled badge and was entitled to park there.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000023_ceo.jpg",
+      "sha256": "6fc68dd42fe75c604e2197407117abaf74840e0663f7e46280abf8cfb9c5014a",
+      "captured_at": "2026-07-10T09:22:00",
+      "vrm_seen": "SYN9913",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00023",
+       "valid_from": "2023-03-28",
+       "valid_to": "2026-06-20",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_expired",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000024",
+    "vrm": "SYN2403",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-09-17T12:00:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-20",
+    "representation_received_date": "2026-10-08",
+    "representation_text": "I displayed my badge as usual.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000024_ceo.jpg",
+      "sha256": "416fe9cf83e399f79672dbb100715f5d4da9718385f43c8ce192ea48dff9ff61",
+      "captured_at": "2026-09-17T12:00:00",
+      "vrm_seen": "SYN2403",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00024",
+       "valid_from": "2023-06-05",
+       "valid_to": "2026-08-28",
+       "displayed": true
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_valid_undisplayed",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000025",
+    "vrm": "SYN4511",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-08-17T12:15:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-17",
+    "representation_received_date": "2026-08-30",
+    "representation_text": "The badge was face down by mistake. It is a valid badge.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000025_ceo.jpg",
+      "sha256": "f9475d9d0552bd9fdbb0fe0d741ee4cae6167282257b4f459d679bf48b29952c",
+      "captured_at": "2026-08-17T12:15:00",
+      "vrm_seen": "SYN4511",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00025",
+       "valid_from": "2025-10-21",
+       "valid_to": "2027-09-21",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_valid_undisplayed",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000026",
+    "vrm": "SYN4997",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-09-08T16:15:00",
+    "location": "Elm Row, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-11",
+    "representation_received_date": "2026-09-27",
+    "representation_text": "My carer drove and forgot to put the badge out. The badge is valid.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000026_ceo.jpg",
+      "sha256": "72cea9966798fd103e7bb74c60c8f19fb54e244e15fbd23b545e0ccc856fa155",
+      "captured_at": "2026-09-08T16:15:00",
+      "vrm_seen": "SYN4997",
+      "location_seen": "Elm Row"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00026",
+       "valid_from": "2025-11-12",
+       "valid_to": "2027-10-13",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "badge_valid_undisplayed",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000027",
+    "vrm": "SYN4791",
+    "contravention_code": "40",
+    "contravention_datetime": "2026-07-27T12:15:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-27",
+    "representation_received_date": "2026-08-11",
+    "representation_text": "The badge was in my bag; I am entitled to use the bay.",
+    "claimed_grounds": [
+     "blue_badge"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000027_ceo.jpg",
+      "sha256": "19b9ac3ee265f376e33a7803a8e722c0931059e237ebfc41cb605f2d6e40e2cd",
+      "captured_at": "2026-07-27T12:15:00",
+      "vrm_seen": "SYN4791",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {
+     "badges": [
+      {
+       "badge_id": "BB-00027",
+       "valid_from": "2025-09-30",
+       "valid_to": "2027-08-31",
+       "displayed": false
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "short_observation",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000028",
+    "vrm": "SYN6683",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-05T16:53:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-09-08",
+    "representation_received_date": "2026-09-27",
+    "representation_text": "I was loading my van, I was there for a very short time.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 3,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000028_ceo.jpg",
+      "sha256": "3c9bd15605c4cd621d0e96e3166e6849be1775ba1c9b5a5e7e5334e1b15275da",
+      "captured_at": "2026-09-05T16:53:00",
+      "vrm_seen": "SYN6683",
+      "location_seen": "Kings Parade"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "short_observation",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000029",
+    "vrm": "SYN8251",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-15T14:34:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-15",
+    "representation_received_date": "2026-10-02",
+    "representation_text": "Unloading a parcel, the warden did not wait at all.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 1,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000029_ceo.jpg",
+      "sha256": "cca25538b205b1a4bbbfbaaae11d5445acd39359c1e232143cc21245e8dabc50",
+      "captured_at": "2026-09-15T14:34:00",
+      "vrm_seen": "SYN8251",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "short_observation",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000030",
+    "vrm": "SYN7515",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-02T10:00:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-08-03",
+    "representation_received_date": "2026-08-15",
+    "representation_text": "I was dropping off goods at the shop, it took two minutes.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 1,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000030_ceo.jpg",
+      "sha256": "7c7607fb28fef53527c9bd4360d6a80bb0862e650a605f0ee1d93bc8233e7c04",
+      "captured_at": "2026-08-02T10:00:00",
+      "vrm_seen": "SYN7515",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_with_note",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000031",
+    "vrm": "SYN6811",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-28T17:22:00",
+    "location": "Victoria Terrace, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-08-29",
+    "representation_received_date": "2026-09-20",
+    "representation_text": "I was unloading stock for the cafe; here is the delivery paperwork.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 9,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000031_ceo.jpg",
+      "sha256": "c7e5acad2b82ebea710b8ba8a59452437cf6930e2bfb1ed5fe237a0046292e31",
+      "captured_at": "2026-08-28T17:22:00",
+      "vrm_seen": "SYN6811",
+      "location_seen": "Victoria Terrace"
+     },
+     {
+      "id": "E2",
+      "type": "delivery_note",
+      "source": "motorist",
+      "description": "Signed delivery note with timestamp",
+      "filename": "DMH000031_E2.pdf",
+      "sha256": "058ce71782318f79a14e9323db3ec3b09d6ed980cfe827ebc05fb05a6895c5bd"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_with_note",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000032",
+    "vrm": "SYN2352",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-06-12T17:53:00",
+    "location": "Kings Parade, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-06-12",
+    "representation_received_date": "2026-07-04",
+    "representation_text": "Courier delivery in progress, signed proof of delivery attached.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 9,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000032_ceo.jpg",
+      "sha256": "b10abe0b4fdd08cfba239f7b5c104d9e8b549df3312a788b58df5a1ebc75606c",
+      "captured_at": "2026-06-12T17:53:00",
+      "vrm_seen": "SYN2352",
+      "location_seen": "Kings Parade"
+     },
+     {
+      "id": "E2",
+      "type": "delivery_note",
+      "source": "motorist",
+      "description": "Signed delivery note with timestamp",
+      "filename": "DMH000032_E2.pdf",
+      "sha256": "ea2ad450229147dbd18aeb4f311502106b16d8091404df15adce7050ff6b8490"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_with_note",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000033",
+    "vrm": "SYN8191",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-25T16:15:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-27",
+    "representation_received_date": "2026-08-19",
+    "representation_text": "Loading equipment into the venue, see the delivery note.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 9,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000033_ceo.jpg",
+      "sha256": "1a504ba61958aacb09e18e0364b5ba92824777dcf7fad6f5900cc409a2e0b153",
+      "captured_at": "2026-07-25T16:15:00",
+      "vrm_seen": "SYN8191",
+      "location_seen": "Abbey Walk"
+     },
+     {
+      "id": "E2",
+      "type": "delivery_note",
+      "source": "motorist",
+      "description": "Signed delivery note with timestamp",
+      "filename": "DMH000033_E2.pdf",
+      "sha256": "c03c6cb958d0abbcf0d1706f8fcb0678092b68c610cd08207848a00b548d700f"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_no_note",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000034",
+    "vrm": "SYN9393",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-11T09:22:00",
+    "location": "Bridge Road, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-08-14",
+    "representation_received_date": "2026-08-19",
+    "representation_text": "Dropping things off, it was quick.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 16,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000034_ceo.jpg",
+      "sha256": "9b2c308992ed9989a57dc22f55ce2b02f2904e003944759362f997863e54495e",
+      "captured_at": "2026-08-11T09:22:00",
+      "vrm_seen": "SYN9393",
+      "location_seen": "Bridge Road"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_no_note",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000035",
+    "vrm": "SYN8271",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-06-05T13:34:00",
+    "location": "Bridge Road, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-06-06",
+    "representation_received_date": "2026-06-11",
+    "representation_text": "I was loading, I did nothing wrong.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 17,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000035_ceo.jpg",
+      "sha256": "1978326bc5053a4838589c1ae36705375b8488bb041482248a694bd3239f1f29",
+      "captured_at": "2026-06-05T13:34:00",
+      "vrm_seen": "SYN8271",
+      "location_seen": "Bridge Road"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "loading_no_note",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000036",
+    "vrm": "SYN9115",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-06-04T08:07:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-06-05",
+    "representation_received_date": "2026-06-24",
+    "representation_text": "I had to unload, there was nowhere else to stop.",
+    "claimed_grounds": [
+     "loading"
+    ],
+    "observation_minutes": 8,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000036_ceo.jpg",
+      "sha256": "70fdcb719941c131e24b842c9dfd67a35b522ca4ac14168798e480b3855d5157",
+      "captured_at": "2026-06-04T08:07:00",
+      "vrm_seen": "SYN9115",
+      "location_seen": "Abbey Walk"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_with_letter",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000037",
+    "vrm": "SYN2182",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-09T17:15:00",
+    "location": "Harbour Lane, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-08-09",
+    "representation_received_date": "2026-08-27",
+    "representation_text": "Medical emergency, I was taken ill in the car. Letter from my GP attached.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 14,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000037_ceo.jpg",
+      "sha256": "a02268b410c9412acd3aedcd31595875d1c2f204a0c1923ea627ce252945aea3",
+      "captured_at": "2026-08-09T17:15:00",
+      "vrm_seen": "SYN2182",
+      "location_seen": "Harbour Lane"
+     },
+     {
+      "id": "E2",
+      "type": "medical_letter",
+      "source": "motorist",
+      "description": "Letter from hospital confirming attendance",
+      "filename": "DMH000037_E2.pdf",
+      "sha256": "465250ea5013b3ba385beaa1bd16a1d84b3d8b8485ae9005ce89eaf182b41a3c"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_with_letter",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000038",
+    "vrm": "SYN7936",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-12T17:15:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-07-12",
+    "representation_received_date": "2026-07-24",
+    "representation_text": "My wife went into labour, hospital confirmation attached.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 13,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000038_ceo.jpg",
+      "sha256": "bddd6e63ccfe9032ed1452b89e2c2fdfa587bf8315b2fc7973d93a3d1326ddee",
+      "captured_at": "2026-07-12T17:15:00",
+      "vrm_seen": "SYN7936",
+      "location_seen": "Abbey Walk"
+     },
+     {
+      "id": "E2",
+      "type": "medical_letter",
+      "source": "motorist",
+      "description": "Letter from hospital confirming attendance",
+      "filename": "DMH000038_E2.pdf",
+      "sha256": "f32a3ea1410c95f3ade218c4aa9fe84cba021309070f49cdb5fa00cc81c5317b"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_with_letter",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000039",
+    "vrm": "SYN3794",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-22T08:00:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-09-25",
+    "representation_received_date": "2026-09-29",
+    "representation_text": "I attended the urgent care centre, see the attached letter.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 8,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000039_ceo.jpg",
+      "sha256": "001b237628316fede6f8ed2278a2b3fff8c41e680f92da288ea8bb96d7a7fb4c",
+      "captured_at": "2026-09-22T08:00:00",
+      "vrm_seen": "SYN3794",
+      "location_seen": "Orchard Way"
+     },
+     {
+      "id": "E2",
+      "type": "medical_letter",
+      "source": "motorist",
+      "description": "Letter from hospital confirming attendance",
+      "filename": "DMH000039_E2.pdf",
+      "sha256": "f07a3a99c29b90717ed9aa587a73b36a3c8e735cc268a72af30b57ee21ad42f8"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_no_letter",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000040",
+    "vrm": "SYN1267",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-14T10:07:00",
+    "location": "Orchard Way, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-16",
+    "representation_received_date": "2026-09-30",
+    "representation_text": "I had a family emergency and had to stop.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 7,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000040_ceo.jpg",
+      "sha256": "f6be7bc69446db33ab264634425607e3d23032414519eb4e9ee0a785fc04afbb",
+      "captured_at": "2026-09-14T10:07:00",
+      "vrm_seen": "SYN1267",
+      "location_seen": "Orchard Way"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_no_letter",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000041",
+    "vrm": "SYN7613",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-08-24T16:34:00",
+    "location": "Station Approach, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-27",
+    "representation_received_date": "2026-09-05",
+    "representation_text": "I was ill that day.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 13,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000041_ceo.jpg",
+      "sha256": "d75923a76e66b8925eb647b5aac0d1f89b44f0086dc14a43547364b9530dd2e7",
+      "captured_at": "2026-08-24T16:34:00",
+      "vrm_seen": "SYN7613",
+      "location_seen": "Station Approach"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "medical_no_letter",
+   "gold_label": "reject",
+   "case": {
+    "pcn_ref": "DMH000042",
+    "vrm": "SYN7830",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-06-14T18:15:00",
+    "location": "Market Square, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-06-17",
+    "representation_received_date": "2026-07-04",
+    "representation_text": "Medical reasons, I had to stop.",
+    "claimed_grounds": [
+     "medical_emergency"
+    ],
+    "observation_minutes": 12,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000042_ceo.jpg",
+      "sha256": "1e4130596fea82cf11b01ef7dd6b592b74c30ac7755f80264d13b9a043c46a38",
+      "captured_at": "2026-06-14T18:15:00",
+      "vrm_seen": "SYN7830",
+      "location_seen": "Market Square"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "signage_photo",
+   "gold_label": "needs_review",
+   "case": {
+    "pcn_ref": "DMH000043",
+    "vrm": "SYN4932",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-23T14:15:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-09-24",
+    "representation_received_date": "2026-10-16",
+    "representation_text": "The yellow lines are worn away and the sign is hidden. Photos attached.",
+    "claimed_grounds": [
+     "signage"
+    ],
+    "observation_minutes": 15,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000043_ceo.jpg",
+      "sha256": "b0ca4678c3b0ffc0100883262449c07d0ab952b1f9acc8074f74c67a4c24ed55",
+      "captured_at": "2026-09-23T14:15:00",
+      "vrm_seen": "SYN4932",
+      "location_seen": "Linden Close"
+     },
+     {
+      "id": "E2",
+      "type": "signage_photo",
+      "source": "motorist",
+      "description": "Photo of sign partially covered by foliage",
+      "filename": "DMH000043_E2.pdf",
+      "sha256": "368f5a331512ae0d61156613c8907859e5d5aa19955219ee4b7765894deefeed"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "signage_photo",
+   "gold_label": "needs_review",
+   "case": {
+    "pcn_ref": "DMH000044",
+    "vrm": "SYN8825",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-09-08T08:53:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-09-09",
+    "representation_received_date": "2026-09-15",
+    "representation_text": "The restriction sign was obscured by scaffolding, photo attached.",
+    "claimed_grounds": [
+     "signage"
+    ],
+    "observation_minutes": 13,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000044_ceo.jpg",
+      "sha256": "0c1f022198c0999a2bfd34efaa747a12bede3b6878fc2df271e48f8e901048c9",
+      "captured_at": "2026-09-08T08:53:00",
+      "vrm_seen": "SYN8825",
+      "location_seen": "Linden Close"
+     },
+     {
+      "id": "E2",
+      "type": "signage_photo",
+      "source": "motorist",
+      "description": "Photo of sign partially covered by foliage",
+      "filename": "DMH000044_E2.pdf",
+      "sha256": "10e82601a428470d3f6fa7e1e33f98845cb11c7124eec08cfa739839ec01bf38"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "signage_photo",
+   "gold_label": "needs_review",
+   "case": {
+    "pcn_ref": "DMH000045",
+    "vrm": "SYN9114",
+    "contravention_code": "01",
+    "contravention_datetime": "2026-07-24T14:00:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-07-25",
+    "representation_received_date": "2026-08-08",
+    "representation_text": "I could not see any sign, photo attached showing it covered.",
+    "claimed_grounds": [
+     "signage"
+    ],
+    "observation_minutes": 6,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000045_ceo.jpg",
+      "sha256": "d50bb3b14a285abdd3474faeb14c9639538b237120a7a77b0b0370e5323d078f",
+      "captured_at": "2026-07-24T14:00:00",
+      "vrm_seen": "SYN9114",
+      "location_seen": "Abbey Walk"
+     },
+     {
+      "id": "E2",
+      "type": "signage_photo",
+      "source": "motorist",
+      "description": "Photo of sign partially covered by foliage",
+      "filename": "DMH000045_E2.pdf",
+      "sha256": "73446fb73fa15ef50d77d4d0fcccaee500cab91b8f36240b490852649be59794"
+     }
+    ],
+    "records": {},
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "vrm_mismatch",
+   "gold_label": "needs_review",
+   "case": {
+    "pcn_ref": "DMH000046",
+    "vrm": "SYN7739",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-25T17:34:00",
+    "location": "Bridge Road, Demo Borough",
+    "zone": "Z1",
+    "notice_date": "2026-09-26",
+    "representation_received_date": "2026-10-20",
+    "representation_text": "I paid, check your records.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000046_ceo.jpg",
+      "sha256": "d40f53072b8badfb54c94a9d94a0d7f30eee5384164ac8c648320e81b3d264a2",
+      "captured_at": "2026-09-25T17:34:00",
+      "vrm_seen": "SYN0000",
+      "location_seen": "Bridge Road"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00046",
+       "vrm": "SYN7739",
+       "zone": "Z1",
+       "start": "2026-09-25T17:04:00",
+       "end": "2026-09-25T18:34:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "vrm_mismatch",
+   "gold_label": "needs_review",
+   "case": {
+    "pcn_ref": "DMH000047",
+    "vrm": "SYN3006",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-07-10T09:41:00",
+    "location": "Bridge Road, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-11",
+    "representation_received_date": "2026-08-05",
+    "representation_text": "I had a valid parking session on the app.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000047_ceo.jpg",
+      "sha256": "caaf069ce3c1e68950dea99636fd79fc336c7583a528992a82533e0779ccb163",
+      "captured_at": "2026-07-10T09:41:00",
+      "vrm_seen": "SYN0000",
+      "location_seen": "Bridge Road"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00047",
+       "vrm": "SYN3006",
+       "zone": "Z3",
+       "start": "2026-07-10T09:11:00",
+       "end": "2026-07-10T10:41:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "vrm_mismatch",
+   "gold_label": "needs_review",
+   "case": {
+    "pcn_ref": "DMH000048",
+    "vrm": "SYN4646",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-06-05T08:07:00",
+    "location": "Linden Close, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-06-07",
+    "representation_received_date": "2026-06-11",
+    "representation_text": "Paid by phone before leaving the car.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000048_ceo.jpg",
+      "sha256": "bd35bfa055269727df2939f42c24c99f95d547e6773f4bf2bd04e3eba27139db",
+      "captured_at": "2026-06-05T08:07:00",
+      "vrm_seen": "SYN0000",
+      "location_seen": "Linden Close"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00048",
+       "vrm": "SYN4646",
+       "zone": "Z3",
+       "start": "2026-06-05T07:37:00",
+       "end": "2026-06-05T09:07:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "late_but_paid",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000049",
+    "vrm": "SYN9884",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-08-17T12:07:00",
+    "location": "Elm Row, Demo Borough",
+    "zone": "Z4",
+    "notice_date": "2026-08-20",
+    "representation_received_date": "2026-10-06",
+    "representation_text": "Apologies for the delay. My app payment was active.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000049_ceo.jpg",
+      "sha256": "c51fe6108c50498fb17a82053e7840039d95eb784ab456f8594d0f7aecfa7b08",
+      "captured_at": "2026-08-17T12:07:00",
+      "vrm_seen": "SYN9884",
+      "location_seen": "Elm Row"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00049",
+       "vrm": "SYN9884",
+       "zone": "Z4",
+       "start": "2026-08-17T11:52:00",
+       "end": "2026-08-17T12:52:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "late_but_paid",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000050",
+    "vrm": "SYN8071",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-09-02T14:41:00",
+    "location": "Abbey Walk, Demo Borough",
+    "zone": "Z2",
+    "notice_date": "2026-09-02",
+    "representation_received_date": "2026-10-19",
+    "representation_text": "I was in hospital and couldn't respond in time. I paid for parking.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000050_ceo.jpg",
+      "sha256": "647d9650920c0ef2e91d7db21b670e517752eff66d7a7921d63d27da2e82e237",
+      "captured_at": "2026-09-02T14:41:00",
+      "vrm_seen": "SYN8071",
+      "location_seen": "Abbey Walk"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00050",
+       "vrm": "SYN8071",
+       "zone": "Z2",
+       "start": "2026-09-02T14:26:00",
+       "end": "2026-09-02T15:26:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  },
+  {
+   "scenario": "late_but_paid",
+   "gold_label": "accept",
+   "case": {
+    "pcn_ref": "DMH000051",
+    "vrm": "SYN4707",
+    "contravention_code": "11",
+    "contravention_datetime": "2026-07-05T10:41:00",
+    "location": "Mill Street, Demo Borough",
+    "zone": "Z3",
+    "notice_date": "2026-07-05",
+    "representation_received_date": "2026-08-13",
+    "representation_text": "Late reply, sorry. I had a valid payment.",
+    "claimed_grounds": [
+     "paid"
+    ],
+    "observation_minutes": null,
+    "prior_undisplayed_permit_count": 0,
+    "evidence": [
+     {
+      "id": "E1",
+      "type": "ceo_photo",
+      "source": "council",
+      "description": "Civil enforcement officer photographs of vehicle and signage",
+      "filename": "DMH000051_ceo.jpg",
+      "sha256": "e14790322b1cfb38604437d1e510584eeb9a7a05272972e7f9918752ef17fc6d",
+      "captured_at": "2026-07-05T10:41:00",
+      "vrm_seen": "SYN4707",
+      "location_seen": "Mill Street"
+     }
+    ],
+    "records": {
+     "payments": [
+      {
+       "reference": "PAY-00051",
+       "vrm": "SYN4707",
+       "zone": "Z3",
+       "start": "2026-07-05T10:26:00",
+       "end": "2026-07-05T11:26:00"
+      }
+     ]
+    },
+    "synthetic": true
+   }
+  }
+ ]
+}

@@ -23,6 +23,7 @@ from .learning import router as learning_router
 from .parking import router as parking_router
 from . import consumer_auth
 from .consumer import router as consumer_router
+from .consumer_demo import router as consumer_demo_router
 from .neon_auth import auth_url, auth_url_error, owner_email, public_origin
 from pydantic import EmailStr, TypeAdapter
 
@@ -78,6 +79,7 @@ app.include_router(learning_router)
 app.include_router(parking_router)
 app.include_router(consumer_auth.router)
 app.include_router(consumer_router)
+app.include_router(consumer_demo_router)
 
 
 @app.middleware("http")
@@ -87,6 +89,9 @@ async def access_gate(request: Request, call_next):
     driver_public = {"/api/consumer/session", "/api/consumer/session/request", "/api/consumer/session/verify"}
     if request.method == "GET":
         driver_public.add("/api/consumer/public")
+        driver_public.update({"/api/consumer/demo", "/api/consumer/demo/ticket", "/api/consumer/demo/receipt"})
+    if request.method == "POST":
+        driver_public.update({"/api/consumer/demo/scan", "/api/consumer/demo/assess"})
     if request.method == "GET":
         public_paths.update({"/api/parking/nearby", "/api/parking/search", "/api/parking/dataset"})
     if path == "/api/access-requests" and request.method == "POST":

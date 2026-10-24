@@ -8,6 +8,7 @@ The public home is now the default. Personal appeals are private to each driver.
 
 ## Built now
 
+- A permanent sample ticket at `/#demo`: live Mubit scan and assessment, explicitly labelled fallback walkthrough, and restart on reload.
 - Public Neon Auth email-code signup and sign-in, without council owner approval.
 - Private ticket details, photo uploads, Mubit vision extraction and user confirmation.
 - Mubit assessments with reasons, missing evidence, risks and linked, dated guidance.

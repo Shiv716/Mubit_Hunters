@@ -46,6 +46,16 @@ No production-data copy is required. Startup applies the additive schema migrati
 
 For local work, use `bash scripts/dev.sh` with a disposable database. **Do not point local tests at the production Neon branch.** The public home/map work without Auth; private accounts require a configured Neon test branch. Consumer AI deliberately has no demo fallback. Existing council sample tools remain at `/#workspace`.
 
+## Repeatable sample ticket
+
+Open `/#demo` or choose **Demo ticket** in the navigation. The bundled fictional notice and receipt show a paid parking session that appears to cover the notice time. No signup is needed. The normal Mubit ticket reader extracts the actual image; after the user confirms those fields, the normal adviser receives that extraction, the fixed driver account, both images and the dated source library. Live output shows the returned model and request ID when supplied.
+
+If Mubit is unavailable, errors are visible and the user can explicitly choose the **sample walkthrough**. Those prewritten results are labelled at every step. The server never disguises them as successful inference. The user can edit and approve an example draft and download a watermarked text file; no submission happens. Demo runs never write case records or count as assessed cases or successful outcomes.
+
+Reloading or **Start again** clears browser progress, edits and approval; a fresh live scan makes a new model request. Only the fixed sample is allowed through the public endpoints: no uploads, user prompts, model selection or arbitrary case IDs. Live calls are capped globally at 60/hour and 200/day using the existing database quota mechanism. One demo inference runs at a time per worker. Completed assessment retries reuse that run's result to avoid duplicate billing. Temporary run state lasts 30 minutes in bounded process memory; a restart or different worker may require starting again. The current deployment uses one worker. No new secret or schema migration is needed.
+
+The documents live in `backend/data/consumer-demo/`; regenerate them with `python backend/create_demo_documents.py` when updating the reference sample. Their fixed dates are explicitly presented as a fictional example, not a current ticket deadline. Consumer signup and real cases remain separate.
+
 ## Honest product boundaries
 
 - Initial challenge preparation for England council parking PCNs and private parking charges. Rejections, debt collection, court papers and uncertain stages are routed to specialist help without an initial-challenge draft.

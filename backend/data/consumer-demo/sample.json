@@ -1,0 +1,50 @@
+{
+  "version": "paid-session-v1",
+  "title": "A ticket for a session that was paid for",
+  "description": "A fictional operator issued a charge for no valid payment. The sample receipt records payment for the same vehicle, car park and time.",
+  "facts": {
+    "issuer_kind": "private",
+    "region": "England",
+    "issuer": "Willow Yard Parking (fictional)",
+    "ticket_ref": "DEMO-001",
+    "vehicle_registration": "DEMO123",
+    "location": "Willow Yard, London (fictional)",
+    "incident_date": "2026-10-20",
+    "issue_date": "2026-10-20",
+    "date_received": null,
+    "amount_pounds": 100,
+    "deadline": "2026-11-17",
+    "discount_deadline": "2026-11-03",
+    "notice_stage": "initial",
+    "capacity": "driver",
+    "narrative": "This is a fictional demonstration. I parked at Willow Yard, London on 20 October 2026. I paid £6 at 09:55 for vehicle DEMO123, covering 10:00 to 13:00. The notice alleges no valid payment at 11:15. The attached receipt has the same vehicle and location. I want the operator to check its payment records. No cancellation or refund has happened.",
+    "appeal_url": ""
+  },
+  "extracted": {
+    "issuer_kind": "private",
+    "issuer": "Willow Yard Parking (fictional)",
+    "ticket_ref": "DEMO-001",
+    "vehicle_registration": "DEMO123",
+    "location": "Willow Yard, London (fictional)",
+    "incident_date": "2026-10-20",
+    "issue_date": "2026-10-20",
+    "date_received": "",
+    "amount_pounds": "100.00",
+    "deadline": "2026-11-17",
+    "discount_deadline": "2026-11-03",
+    "notice_stage": "initial",
+    "appeal_url": "",
+    "extracted_text": "FICTIONAL DEMO — NOT A REAL CHARGE. Willow Yard Parking (fictional). Private parking charge notice DEMO-001. Vehicle DEMO123. Willow Yard, London (fictional). Observed 20 October 2026 at 11:15. Alleged reason: no valid payment. Charge £100. Discounted charge £60 until 3 November 2026. Challenge by 17 November 2026.",
+    "uncertainties": ["The date the driver received the notice is not shown. Leave it blank."]
+  },
+  "assessment": {
+    "verdict": "grounds_to_explore",
+    "summary": "The sample receipt records payment for the same vehicle and location from 10:00 to 13:00, covering the notice time of 11:15. That gives the driver a factual reason to ask the operator to review its records. It does not establish that the charge has been cancelled.",
+    "grounds": [{"title": "Payment appears to cover the alleged contravention", "explanation": "Compare DEMO123, Willow Yard and the paid session against the notice. Ask the operator to reconcile the matching receipt with its payment records.", "source_ids": ["gov-challenge"], "evidence_ids": ["demo-ticket", "demo-receipt"]}],
+    "missing_evidence": ["The operator's underlying payment and enforcement records have not been supplied."],
+    "risks": ["Check the issuer's actual challenge instructions and discount terms. This fictional example does not establish a legal entitlement to cancellation."],
+    "next_steps": ["Check the notice and receipt details.", "Review and personalise the draft.", "Submit through the issuer's stated route and keep its confirmation."],
+    "draft_letter": "SAMPLE DRAFT — FICTIONAL DEMONSTRATION ONLY\n\nTo Willow Yard Parking (fictional),\n\nRe: parking charge DEMO-001, vehicle DEMO123\n\nPlease review this charge, which alleges no valid payment at Willow Yard, London on 20 October 2026 at 11:15.\n\nI paid £6 at 09:55 for vehicle DEMO123. My attached receipt records a parking session at the same location from 10:00 to 13:00, covering the time stated on the notice.\n\nPlease check the receipt against your payment and enforcement records and cancel the charge if you confirm that it was issued in error. If you maintain the charge, please explain the discrepancy and provide the records relied upon.\n\nYours faithfully,\n[Your name]",
+    "source_ids": ["gov-challenge"]
+  }
+}

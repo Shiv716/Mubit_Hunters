@@ -40,6 +40,8 @@ The home page uses sourced industry context: 5.17m London parking PCNs in 2024/2
 
 One Docker image serves the frontend and API on the same HTTPS origin. Schema migrations run at startup. Live demo inference was verified on **24 October 2026** through Mubit's OpenAI-compatible route using **`gpt-6-luna`**; the model remains configurable. [Architecture and source map](docs/ARCHITECTURE.md) · [Mubit integration](docs/04-mubit-integration.md).
 
+**Mubit usage lookup:** account email **cshivang2002@gmail.com**, model **`gpt-6-luna`**. Reference live demo request in Mubit's **Requests** view: `mreq_01a16fcb1c677e91b653a855a6fa319b` (24 October 2026).
+
 ## Hosting and capacity
 
 The hosted project is **[mubit-hunters.onrender.com](https://mubit-hunters.onrender.com/)**. The existing Render Docker service deploys **`main`**; Neon persists data across deploys. A separate frontend host or evidence bucket is not required for the current small-file implementation.

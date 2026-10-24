@@ -171,7 +171,9 @@ def insights():
                 g = groups.setdefault(r["location"], {"location": r["location"], "accepted": 0, "cases": []})
                 g["accepted"] += 1
                 g["cases"].append(r["pcn_ref"])
-        return {"total": len(rows), "decided": len(decisions), "accepted": sum(d["final_outcome"] == "representation_accepted" for d in decisions),
+        return {"total": len(rows), "pending": sum(r["lane"] != "done" for r in rows),
+            "reviewed": sum(r["recommendation"] is not None for r in rows),
+            "decided": len(decisions), "accepted": sum(d["final_outcome"] == "representation_accepted" for d in decisions),
             "rejected": sum(d["final_outcome"] == "representation_rejected" for d in decisions),
             "investigating": sum(r["status"] == "escalated" for r in rows),
             "agreement": round(100 * agree / len(comparable)) if comparable else None, "compared": len(comparable),

@@ -65,7 +65,10 @@ export const api = {
   accessDecision: (id, body) => post(`/access-requests/${id}/decision`, body),
   logout: () => mutate("/session", { method: "DELETE" }),
   queue: () => cachedGet("/queue"),
-  insights: () => cachedGet("/insights"),
+  insights: ({refresh = false} = {}) => {
+    if (refresh) reads.delete("/insights");
+    return cachedGet("/insights");
+  },
   review: (id) => post(`/cases/${id}/review`),
   resolve: (id, body) => post(`/cases/${id}/resolve`, body),
   draft: (id, outcome, reason = "") => request(`/cases/${id}/draft?${new URLSearchParams({outcome, reason})}`),

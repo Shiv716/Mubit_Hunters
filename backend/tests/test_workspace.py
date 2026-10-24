@@ -12,18 +12,27 @@ def first_case(client):
 
 
 def test_review_decide_export_and_insights(client):
+    empty = client.get("/api/insights").json()
+    assert (empty["total"], empty["pending"], empty["reviewed"], empty["decided"]) == (0, 0, 0, 0)
+    assert empty["agreement"] is None and empty["locations"] == []
     cid = first_case(client)
+    seeded = client.get("/api/insights").json()
+    assert (seeded["total"], seeded["pending"], seeded["reviewed"], seeded["decided"]) == (17, 17, 0, 0)
     review = client.post(f"/api/cases/{cid}/review")
     assert review.status_code == 200
     r = review.json()["ai_reviews"][0]
     assert {s["tool"] for s in r["steps"]} >= {"required_checks", "evidence", "policy", "payment_records", "recommendation"}
     assert r["provider"] == "offline-stub"
+    reviewed = client.get("/api/insights").json()
+    assert reviewed["reviewed"] == 1 and reviewed["decided"] == 0 and reviewed["agreement"] is None
     draft = client.get(f"/api/cases/{cid}/draft", params={"outcome": "accept"}).json()["text"]
     body = {"outcome": "accept", "review_id": r["id"], "reason": "Payment verified", "response": draft, "reviewer": "Priya"}
     assert client.post(f"/api/cases/{cid}/resolve", json=body).status_code == 200
     assert client.post(f"/api/cases/{cid}/resolve", json=body).status_code == 409
     assert client.get(f"/api/cases/{cid}/response").text == draft
-    assert client.get("/api/insights").json()["decided"] == 1
+    decided = client.get("/api/insights").json()
+    assert decided["decided"] == 1 and decided["accepted"] == 1 and decided["pending"] == 16
+    assert decided["locations"][0]["accepted"] == 1
     assert client.post(f"/api/cases/{cid}/review").status_code == 409
 
 
@@ -36,6 +45,7 @@ def test_correction_requires_reason_and_stale_review_is_rejected(client):
     client.post(f"/api/cases/{cid}/evidence/E1/file", files={"file": ("note.txt", b"New evidence", "text/plain")})
     assert client.post(f"/api/cases/{cid}/resolve", json=body).status_code == 409
     assert next(c for c in client.get("/api/queue").json() if c["id"] == cid)["lane"] == "new"
+    assert client.get("/api/insights").json()["reviewed"] == 0
     # A reasoned manual decision can still be recorded after evidence changes.
     body["review_id"] = None
     assert client.post(f"/api/cases/{cid}/resolve", json=body).status_code == 200

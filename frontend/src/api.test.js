@@ -52,6 +52,10 @@ test("sessions stay uncached, errors retry, and access denial clears saved views
   assert.equal(sessions, 2);
   await assert.rejects(api.insights(), /Unavailable/);
   assert.deepEqual(await api.insights(), {total: 17});
+  await api.insights();
+  assert.equal(insights, 2);
+  await api.insights({refresh: true});
+  assert.equal(insights, 3);
   await api.getCase(1);
   await assert.rejects(api.accessRequests(), /Access denied/);
   assert.deepEqual(await api.getCase(1), {version: 2});

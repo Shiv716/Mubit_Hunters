@@ -7,6 +7,7 @@ from uuid import uuid4
 
 import httpx
 import pytest
+from fastapi import HTTPException
 
 from app import email_access as access, neon_auth
 from app.config import get_settings
@@ -30,6 +31,7 @@ def configured(monkeypatch):
         sent.append(args)
         return True
     monkeypatch.setattr(access, "send_email", send)
+    monkeypatch.setattr(access, "call_auth", lambda path, body: {"success": True})
     return sent
 
 
@@ -47,11 +49,14 @@ def fake_identity(monkeypatch, email="reviewer@gmail.com"):
         return profile if valid[0] and (token == "neon-session-token" or session_id == profile["session_id"]) else None
     monkeypatch.setattr(access, "neon_profile", lookup)
     monkeypatch.setattr(neon_auth, "neon_profile", lookup)
-    monkeypatch.setattr(access, "call_auth", lambda path, body: {"token": "neon-session-token"})
+    monkeypatch.setattr(access, "call_auth", lambda path, body: {"token": "neon-session-token", "success": True})
     return valid
 
 
-def test_request_does_not_grant_access_and_link_requires_explicit_single_use_approval(client, configured):
+def test_request_does_not_grant_access_and_link_requires_explicit_single_use_approval(client, configured, monkeypatch):
+    monkeypatch.setenv("PCN_EMAIL_FROM", "Civic <onboarding@resend.dev>")
+    codes = []
+    monkeypatch.setattr(access, "call_auth", lambda *args: codes.append(args) or {"success": True})
     token = request_token(client, configured, "New.User@gmail.com")
     assert configured[0][0] == "owner@example.com"
     assert client.get("/api/queue").status_code == 401
@@ -63,8 +68,13 @@ def test_request_does_not_grant_access_and_link_requires_explicit_single_use_app
         row = dict(conn.execute("SELECT * FROM access_requests").fetchone())
         assert row["status"] == "pending" and token not in json.dumps(row)
     assert client.post(REQUEST+"/approve", json={"token": "x"*43}).status_code == 410
-    assert client.post(REQUEST+"/approve", json={"token": token}).json() == {"approved": True, "email_sent": True}
-    assert configured[-1][0] == "new.user@gmail.com"
+    result = client.post(REQUEST+"/approve", json={"token": token}).json()
+    assert result["approved"] is True and result["email_sent"] is True
+    assert "I already have a code" in result["message"]
+    assert len(configured) == 1  # Resend is used only for the owner's inbox.
+    assert codes == [("/email-otp/send-verification-otp", {"email": "new.user@gmail.com", "type": "sign-in"})]
+    with transaction() as conn:
+        assert conn.execute("SELECT applicant_email_sent FROM access_requests").fetchone()[0] == 1
     assert client.post(REQUEST+"/approve", json={"token": token}).status_code == 410
     assert client.get("/api/queue").status_code == 401  # Approval does not authenticate the email reader.
     assert client.post("/api/session", json={"name":"Attacker", "password":"test-workspace-password-only"}).status_code == 401
@@ -106,8 +116,15 @@ def test_owner_can_review_database_requests_when_mail_fails_and_retry_notice(cli
     row = client.get(REQUEST).json()["requests"][0]
     assert row["owner_email_sent"] == 0
     decision = f"{REQUEST}/{row['id']}/decision"
-    assert client.post(decision,json={"action":"approve"}).json() == {"status":"approved","email_sent":False}
-    monkeypatch.setattr(access,"send_email",lambda *args:True)
+    def fail(*args):
+        raise HTTPException(503, "Neon unavailable")
+    monkeypatch.setattr(access,"call_auth",fail)
+    result = client.post(decision,json={"action":"approve"}).json()
+    assert result["status"] == "approved" and result["email_sent"] is False
+    assert "No new sign-in code" in result["message"]
+    with transaction() as conn:
+        conn.execute("DELETE FROM auth_rate_limits WHERE bucket LIKE 'signin-send:%'")
+    monkeypatch.setattr(access,"call_auth",lambda *args:{"success":True})
     assert client.post(decision,json={"action":"notify"}).json()["email_sent"] is True
     assert client.get(REQUEST).json()["requests"][0]["applicant_email_sent"] == 1
     assert client.post(decision,json={"action":"revoke"}).json()["status"] == "revoked"
@@ -139,19 +156,40 @@ def test_neon_otp_is_only_requested_for_approved_email_and_errors_do_not_leak(cl
     assert before.status_code == 202 and not calls
     token=request_token(client,configured)
     client.post(REQUEST+"/approve",json={"token":token})
-    with transaction() as conn:
-        conn.execute("DELETE FROM auth_rate_limits WHERE bucket LIKE 'signin-send:%'")
     after=client.post(SEND,json={"email":"reviewer@gmail.com"})
     assert before.json() == after.json()
     assert calls == [("/email-otp/send-verification-otp",{"email":"reviewer@gmail.com","type":"sign-in"})]
+    # Approval and self-service share a cooldown, preserving the emailed code.
     client.post(SEND,json={"email":"reviewer@gmail.com"})
     assert len(calls)==1
+    with transaction() as conn:
+        conn.execute("DELETE FROM auth_rate_limits WHERE bucket LIKE 'signin-send:%'")
+    client.post(SEND,json={"email":"reviewer@gmail.com"})
+    assert len(calls)==2
     def fail(*args,**kwargs):
         raise httpx.ConnectError("private provider detail")
     monkeypatch.setattr(neon_auth.httpx,"post",fail)
     with pytest.raises(Exception) as error:
         neon_auth.call_auth("/sign-in/email-otp",{"email":"reviewer@gmail.com","otp":"123456"})
     assert error.value.status_code==503 and "private" not in str(error.value)
+
+
+@pytest.mark.parametrize("missing_auth", [True, False])
+def test_approval_survives_missing_auth_or_rejected_email_without_claiming_delivery(client, configured, monkeypatch, missing_auth):
+    if missing_auth:
+        monkeypatch.delenv("NEON_AUTH_BASE_URL")
+    monkeypatch.setattr(access,"call_auth",lambda *args:{"success":False})
+    token=request_token(client,configured)
+    response=client.post(REQUEST+"/approve",json={"token":token})
+    assert response.status_code==200
+    result=response.json()
+    assert result["approved"] is True and result["email_sent"] is False
+    assert ("NEON_AUTH_BASE_URL" if missing_auth else "No new sign-in code") in result["message"]
+    with transaction() as conn:
+        row=conn.execute("SELECT status,applicant_email_sent FROM access_requests").fetchone()
+        assert row["status"]=="approved" and row["applicant_email_sent"]==0
+    assert len(configured)==1
+    assert client.get("/api/queue").status_code==401
 
 
 def test_notification_contract_escapes_html_and_never_mails_password(monkeypatch):

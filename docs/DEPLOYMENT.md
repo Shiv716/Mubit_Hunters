@@ -35,7 +35,7 @@ Choose **Manual Deploy → Deploy latest commit** if automatic deployment is dis
 
 ## Request access and Neon Auth
 
-Flow: **Request access → owner reviews → approve → applicant signs in with a Neon email code**. No workspace password is emailed. All email domains may request access; subscription/domain enforcement is not implemented.
+Flow: **Request access → owner approves → Neon emails the applicant a code → applicant returns to Civic, chooses “I already have a code”, and opens the workspace**. Expired codes can be replaced using “Email sign-in code”. No workspace password is emailed. All email domains may request access; subscription/domain enforcement is not implemented.
 
 In the existing Render service, add these variables together and redeploy:
 
@@ -43,19 +43,21 @@ In the existing Render service, add these variables together and redeploy:
 |---|---|
 | `NEON_AUTH_BASE_URL` | `https://ep-dry-cake-za1nvk8t.neonauth.c-2.eu-west-2.aws.neon.tech/neondb/auth` |
 | `PCN_ACCESS_REQUEST_EMAIL` | Your email address; it receives requests and becomes the sole workspace owner |
-| `RESEND_API_KEY` | Your Resend API key, for request and approval notifications |
-| `PCN_EMAIL_FROM` | A sender on your verified Resend domain, e.g. `Civic <access@yourdomain.com>` |
+| `RESEND_API_KEY` | Your Resend API key, for owner request notifications only |
+| `PCN_EMAIL_FROM` | Without a domain: `Civic <onboarding@resend.dev>`, with `PCN_ACCESS_REQUEST_EMAIL` set to your Resend signup email. Alternatively, use a sender on your verified domain. |
 | `PCN_ALLOW_PASSWORD_LOGIN` | `false` (default with Neon Auth enabled) |
 
 Keep the existing `DATABASE_URL`, `PCN_ACCESS_KEY` (now the cookie signing secret), `PCN_COOKIE_SECURE=true` and public origin. Auth and database must point to the **same Neon branch**. The database role needs read access to `neon_auth.session` and `neon_auth.user`; Civic never writes those managed tables.
 
 In **Neon → Settings → Better Auth**, enable email sign-up/sign-in and add `https://mubit-hunters.onrender.com` as a trusted domain/origin. Enable email verification. The app uses Neon's Email OTP sign-in API, which verifies the mailbox and can create an account after approval. Sign in as `PCN_ACCESS_REQUEST_EMAIL` to bootstrap the owner; no manual user insert is needed. For local use, add your local origin too and set `PCN_COOKIE_SECURE=false`.
 
-Neon sends login codes through its configured email provider. Resend sends the custom owner/requester notifications; its sender domain must be verified to reach arbitrary recipients. This does not restrict the domains allowed to **request** access. Do not subscribe Neon email webhooks unless you also implement their delivery handler.
+Neon sends applicant sign-in codes through its configured email provider, both on approval and when an approved user requests a new code. Resend sends only the owner's request notification, so the test sender works without an owned domain as long as the owner uses their Resend signup inbox. Applicants do not need Resend accounts. Code delivery shares a one-minute cooldown across approval, owner retries and user requests. Do not subscribe Neon email webhooks unless you also implement their delivery handler.
 
-Requests live in the `civic.access_requests` table, with an additive version-2 migration. **Workspace admin → Access requests** lets the owner approve, revoke, or retry a failed approval notification. If Resend is unconfigured or unavailable, the request still persists and this list is the fallback. A successful HTTP request means the request was saved, not that email delivery succeeded. The UI shows notification failures to the owner.
+After redeployment, `/api/session` must report `email_signin: true`. If it is false, check `NEON_AUTH_BASE_URL` in the existing Render service's environment; editing `render.yaml` does not configure that service. An approval can be saved before setup is complete, but the applicant cannot enter until Neon email sign-in works. The owner UI identifies this missing setting. A successful provider response means the email was accepted for sending, not that it reached an inbox.
 
-The owner email contains a private review link that expires after 24 hours. Opening it does not change access: the owner presses **Approve access** on the page, preventing email scanners from approving requests. The link is single-use and stored only as a hash. Treat it as an approval credential. Approved users receive a link back to sign in; they must prove ownership of their email through Neon before seeing cases.
+Requests live in the `civic.access_requests` table, with an additive version-2 migration. **Workspace admin → Access requests** lets the owner approve, revoke, or retry a failed Neon sign-in email. If Resend is unconfigured or unavailable, the request still persists and this list is the fallback. A successful HTTP request means the request was saved, not that email delivery succeeded. Approval survives an email failure; the user can request another code from the login page.
+
+The owner email contains a private review link that expires after 24 hours. Opening it does not change access: the owner presses **Approve access** on the page, preventing email scanners from approving requests. The link is single-use and stored only as a hash. Treat it as an approval credential. Approved users receive a Neon code and return to the same Civic URL; they must prove ownership of their email before seeing cases.
 
 Every authenticated request checks both the live Neon session and Civic approval. Unverified accounts, banned users, expired/revoked Neon sessions and revoked memberships are blocked. Civic uses a first-party HttpOnly cookie so this flow does not depend on Safari allowing third-party auth cookies. Signing out clears the Civic browser session; it does not sign the person out of other applications using Neon Auth. Shared-password sessions stop working once Neon Auth is enabled unless the owner explicitly enables `PCN_ALLOW_PASSWORD_LOGIN=true` for recovery. Keep that option off and rotate any previously shared workspace password.
 

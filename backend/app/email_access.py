@@ -20,7 +20,7 @@ from .neon_auth import approved, auth_url, call_auth, neon_profile, owner_email,
 router = APIRouter(prefix="/api")
 logger = logging.getLogger(__name__)
 APPROVAL_TTL = 86400
-CONFIRMATION = "Request received. The workspace owner will review it. You'll receive an email once access is approved."
+CONFIRMATION = "Request received. After the owner approves, Neon will email you a sign-in code. Return here and choose ‘I already have a code’. If it expires, request another code with the same email."
 CODE_CONFIRMATION = "If your access is approved, a sign-in code will arrive shortly. Check your inbox and spam folder."
 
 
@@ -82,10 +82,27 @@ def send_email(recipient, subject, text, button_label, link, key):
         return False
 
 
+def send_signin_code(email):
+    if not auth_url() or len(secret()) < 16:
+        raise HTTPException(503, "Email sign-in is not configured yet.")
+    quota("signin-send:global", 100, 3600)
+    with transaction() as conn:
+        send = approved(email, conn) and take_quota(conn, f"signin-send:{digest(email)}", 1, 60, now())
+    if not send:
+        return False
+    result = call_auth("/email-otp/send-verification-otp", {"email": email, "type": "sign-in"})
+    if result.get("success") is not True:
+        raise HTTPException(503, "Email sign-in is temporarily unavailable. Please try again.")
+    return True
+
+
 def notify_approved(row):
-    sent = send_email(row["email"], "Your Civic workspace access is approved",
-        "Your access has been approved. Open Civic and sign in with the same email address.",
-        "Open workspace", public_origin(), f"access-approved-{row['id']}-{row['decided_at']}")
+    # Resend's test sender can reach only the owner. Neon handles applicant mail.
+    try:
+        sent = send_signin_code(row["email"])
+    except HTTPException:
+        logger.warning("Approved access retained; Neon sign-in code could not be sent.")
+        sent = False
     if sent:
         with transaction() as conn:
             conn.execute("UPDATE access_requests SET applicant_email_sent=1 WHERE id=? AND status='approved' AND decided_at=?",
@@ -93,16 +110,28 @@ def notify_approved(row):
     return sent
 
 
+def approval_result(row):
+    sent = notify_approved(row)
+    if not auth_url():
+        message = "Access approved, but email sign-in is not configured. Set NEON_AUTH_BASE_URL on Render and redeploy before this person can enter."
+    elif sent:
+        message = "Access approved. Neon accepted their sign-in email. They can return to Civic, choose ‘I already have a code’, and enter it."
+    else:
+        message = "Access approved. No new sign-in code was sent. They can use a recent code, or request another from Civic after one minute. If that fails, check Neon Auth email settings."
+    return {"email_sent": sent, "message": message}
+
+
 @router.post("/access-requests", status_code=202)
 def request_access(body: EmailRequest):
     if not owner_email() or len(secret()) < 16:
         raise HTTPException(503, "Access requests are not set up yet. Contact the workspace owner.")
     quota("access-requests:global", 100, 3600)
+    confirmation = CONFIRMATION if auth_url() else "Request received. The owner will review it. Email sign-in is awaiting setup; return here once it is enabled."
     email, timestamp = str(body.email).lower(), now()
     token = secrets.token_urlsafe(32)
     with transaction() as conn:
         if not take_quota(conn, f"access-request:{digest(email)}", 1, 600, timestamp):
-            return {"message": CONFIRMATION}
+            return {"message": confirmation}
         row = conn.execute("""INSERT INTO access_requests
             (id,email,status,requested_at,approval_token_hash,approval_expires_at) VALUES (?,?,'pending',?,?,?)
             ON CONFLICT(email) DO UPDATE SET approval_token_hash=excluded.approval_token_hash,
@@ -116,7 +145,7 @@ def request_access(body: EmailRequest):
         with transaction() as conn:
             conn.execute("UPDATE access_requests SET owner_email_sent=? WHERE id=? AND approval_token_hash=?",
                          (int(sent), row["id"], digest(token)))
-    return {"message": CONFIRMATION}
+    return {"message": confirmation}
 
 
 @router.post("/access-requests/inspect")
@@ -141,7 +170,7 @@ def approve_link(body: Approval):
         if not row:
             raise HTTPException(410, "This approval link has expired or has already been used.")
         audit(conn, None, "access_approved", owner_email(), {"request_id": row["id"], "email": row["email"]})
-    return {"approved": True, "email_sent": notify_approved(row)}
+    return {"approved": True, **approval_result(row)}
 
 
 @router.get("/access-requests")
@@ -151,6 +180,7 @@ def list_requests(request: Request):
         rows = conn.execute("""SELECT id,email,status,requested_at,decided_at,owner_email_sent,applicant_email_sent
             FROM access_requests ORDER BY requested_at DESC LIMIT 200""").fetchall()
     return {"requests": [dict(row) for row in rows],
+            "email_signin_configured": bool(auth_url()),
             "notifications_configured": bool(os.getenv("RESEND_API_KEY") and os.getenv("PCN_EMAIL_FROM") and public_origin())}
 
 
@@ -170,19 +200,12 @@ def decide_request(request_id: str, body: Decision, request: Request):
                 approval_token_hash=NULL,approval_expires_at=NULL,applicant_email_sent=0 WHERE id=? RETURNING *""",
                 (status, now(), actor, request_id)).fetchone()
             audit(conn, None, f"access_{status}", actor, {"request_id": request_id, "email": row["email"]})
-    return {"status": row["status"], "email_sent": notify_approved(row) if row["status"] == "approved" else False}
+    return {"status": row["status"], **(approval_result(row) if row["status"] == "approved" else {"email_sent": False})}
 
 
 @router.post("/session/email/request", status_code=202)
 def request_code(body: EmailRequest):
-    if not auth_url() or len(secret()) < 16:
-        raise HTTPException(503, "Email sign-in is not configured yet.")
-    email = str(body.email).lower()
-    quota("signin-send:global", 100, 3600)
-    with transaction() as conn:
-        send = take_quota(conn, f"signin-send:{digest(email)}", 1, 60, now()) and approved(email, conn)
-    if send:
-        call_auth("/email-otp/send-verification-otp", {"email": email, "type": "sign-in"})
+    send_signin_code(str(body.email).lower())
     return {"message": CODE_CONFIRMATION}
 
 

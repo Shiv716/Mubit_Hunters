@@ -42,6 +42,8 @@ One Docker image serves the frontend and API on the same HTTPS origin. Schema mi
 
 **Mubit usage lookup:** submitted team **Oz16**, account email **cshivang2002@gmail.com**, model **`gpt-6-luna`**. Reference live demo request in Mubit's **Requests** view: `mreq_01a16fcb1c677e91b653a855a6fa319b` (24 October 2026).
 
+**Committed routing evidence for judges:** [config.py](backend/app/config.py) defines `https://api.mubit.ai/openai/v1` as the OpenAI-route default and `https://api.mubit.ai/anthropic` for Anthropic. [adapters.py](backend/app/ai/adapters.py) sends requests to the configured Mubit base URL, authenticating with `MUBIT_API_KEY` from the environment (`Authorization: Bearer` for OpenAI, `x-api-key` for Anthropic). [render.yaml](render.yaml) sets `AI_PROVIDER=mubit` and declares the key as a runtime secret (`sync: false`). The actual key stays in Render or an ignored local `.env`; it must not be committed.
+
 ## Hosting and capacity
 
 The hosted project is **[mubit-hunters.onrender.com](https://mubit-hunters.onrender.com/)**. The existing Render Docker service deploys **`main`**; Neon persists data across deploys. A separate frontend host or evidence bucket is not required for the current small-file implementation.

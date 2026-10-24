@@ -301,4 +301,4 @@ if FRONTEND_DIST.is_dir():
 
     @app.get("/")
     def index():
-        return FileResponse(FRONTEND_DIST / "index.html")
+        return FileResponse(FRONTEND_DIST / "index.html", headers={"Cache-Control": "no-store"})

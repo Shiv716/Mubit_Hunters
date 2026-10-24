@@ -23,7 +23,7 @@ from pydantic import EmailStr, TypeAdapter
 
 from .ai.adapters import get_adapter
 from .config import DATA_DIR, get_settings
-from .db import audit, init_db, now_iso, row_to_dict, transaction, lock_case
+from .db import audit, init_db, now_iso, row_to_dict, transaction, lock_case, open_pool, close_pool
 from .storage import put_evidence, read_evidence
 from .mubit_capabilities import CAPABILITIES
 from .models import CaseIn, CurateIn, DecisionIn
@@ -49,8 +49,12 @@ async def lifespan(_: FastAPI):
             raise RuntimeError(f"NEON_AUTH_BASE_URL {auth_error}")
         if parsed_origin.scheme not in ("http", "https") or not parsed_origin.hostname or parsed_origin.path or parsed_origin.query or parsed_origin.fragment or parsed_origin.username:
             raise RuntimeError("Set PCN_PUBLIC_ORIGIN to the application's origin, without a path.")
-    init_db()
-    yield
+    try:
+        await run_in_threadpool(open_pool)
+        await run_in_threadpool(init_db)
+        yield
+    finally:
+        await run_in_threadpool(close_pool)
 
 
 app = FastAPI(title="PCN Review Copilot", version="0.1.0", lifespan=lifespan)

@@ -6,6 +6,7 @@ import sqlite3
 import psycopg
 from psycopg import sql
 from psycopg.rows import class_row
+from psycopg_pool import ConnectionPool
 from contextlib import contextmanager
 from datetime import datetime, timezone, timedelta
 from uuid import uuid4
@@ -197,12 +198,46 @@ class Record(dict):
         return tuple(self.values())[key] if isinstance(key, int) else super().__getitem__(key)
 
 
+_pool = None
+_pool_url = None
+
+
+def open_pool():
+    """One bounded pool per web worker; command-line scripts keep direct connections."""
+    global _pool, _pool_url
+    url = get_settings().database_url
+    if not url:
+        return
+    pool = ConnectionPool(url, min_size=1, max_size=8, timeout=10, max_idle=60,
+                          max_lifetime=1800, open=False, check=ConnectionPool.check_connection,
+                          kwargs={"row_factory": class_row(Record), "prepare_threshold": None,
+                                  "connect_timeout": 10})
+    try:
+        pool.open(wait=True, timeout=10)
+    except Exception:
+        pool.close()
+        raise
+    _pool, _pool_url = pool, url
+
+
+def close_pool():
+    global _pool, _pool_url
+    pool, _pool, _pool_url = _pool, None, None
+    if pool:
+        pool.close()
+
+
 class PostgresConnection:
     def __init__(self, url, schema):
         # Disable prepared statements for transaction-pooler compatibility.
-        self.raw = psycopg.connect(url, row_factory=class_row(Record), prepare_threshold=None,
-                                   connect_timeout=10)
-        self.raw.execute(sql.SQL("SET LOCAL search_path TO {}").format(sql.Identifier(schema)))
+        self.pool = _pool if url == _pool_url else None
+        self.raw = self.pool.getconn() if self.pool else psycopg.connect(
+            url, row_factory=class_row(Record), prepare_threshold=None, connect_timeout=10)
+        try:
+            self.raw.execute(sql.SQL("SET LOCAL search_path TO {}").format(sql.Identifier(schema)))
+        except Exception:
+            self.close()
+            raise
 
     def execute(self, statement, params=()):
         # Application queries use qmark placeholders and never interpolate user input.
@@ -216,7 +251,10 @@ class PostgresConnection:
         self.raw.rollback()
 
     def close(self):
-        self.raw.close()
+        if self.pool:
+            self.pool.putconn(self.raw)
+        else:
+            self.raw.close()
 
 
 Connection = sqlite3.Connection | PostgresConnection

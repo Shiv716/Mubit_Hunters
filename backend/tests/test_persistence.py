@@ -12,6 +12,26 @@ from app.storage import put_evidence
 from migrate_sqlite import migrate
 
 
+def test_postgres_reuses_connections_without_leaking_failed_transactions(client):
+    if not get_settings().database_url:
+        pytest.skip("Connection pool needs disposable PostgreSQL")
+    with transaction() as conn:
+        original = conn.raw
+    with pytest.raises(RuntimeError, match="Abort pooled write"):
+        with transaction() as conn:
+            assert conn.raw is original
+            conn.execute("INSERT INTO auth_rate_limits (bucket,count,expires_at) VALUES ('pool-check',1,1)")
+            raise RuntimeError("Abort pooled write")
+    with transaction() as conn:
+        assert conn.raw is original
+        assert conn.execute("SELECT 1 FROM auth_rate_limits WHERE bucket='pool-check'").fetchone() is None
+        assert conn.execute("SELECT current_schema()").fetchone()[0] == get_settings().db_schema
+    original.close()  # A dropped idle connection must be replaced before reuse.
+    with transaction() as conn:
+        assert conn.raw is not original
+        assert conn.execute("SELECT 1").fetchone()[0] == 1
+
+
 def test_database_attachments_survive_local_disk_change_and_rollback(client, demo_cases, monkeypatch, tmp_path):
     monkeypatch.setenv("PCN_EVIDENCE_STORAGE", "database")
     cid = client.post("/api/cases", json=demo_cases[0]).json()["id"]

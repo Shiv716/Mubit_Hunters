@@ -35,6 +35,8 @@ Evidence changes invalidate the displayed review. The API rejects superseded rev
 
 The default remains one web service and one Uvicorn worker. PostgreSQL removes the local-disk dependency and coordinates case writes across instances, but long reviews still use synchronous HTTP requests. A durable job queue, cancellation and retry handling would be the next step for heavier traffic. The older `/ai-review` endpoint holds its case lock during inference; the main UI uses `/review`.
 
+Each web worker reuses a small PostgreSQL connection pool (1–8 connections), checks connection health before reuse, and returns connections after commit or rollback. Command-line scripts retain direct connections. Dashboard reads are cached in browser memory for 10 seconds, with concurrent requests for the same view shared. Edits, uploads, sign-in/out, access-denied responses and returning to the browser tab clear the cache. Sessions and access-request administration are never cached. Changes from other reviewers may appear on the next fetch after that short cache window; server-side decision and access checks still run for writes.
+
 Startup runs versioned PostgreSQL schema creation under a transaction-level advisory lock. Application tables live in the `civic` schema by default. Immutable review, decision, investigation and audit rows reject updates and deletes. Uploaded bytes and their metadata commit together in database-storage mode. The migration command copies an existing SQLite workspace only into an empty destination, verifies attachment hashes and preserves IDs and history.
 
 ## Mubit’s role

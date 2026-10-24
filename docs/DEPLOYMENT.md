@@ -135,6 +135,7 @@ PostgreSQL case locks and database review leases coordinate concurrent requests.
 
 ```sh
 .venv/bin/python -m pytest backend/tests -q
+npm test --prefix frontend
 npm run build --prefix frontend
 docker build -t civic-check .
 ```

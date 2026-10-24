@@ -16,6 +16,26 @@ def auth_url():
     return os.getenv("NEON_AUTH_BASE_URL", "").strip().rstrip("/")
 
 
+def auth_url_error(base):
+    """Explain invalid configuration without echoing potentially pasted secrets."""
+    if not base.lower().startswith("https://"):
+        return "must start with https://. Paste only the Auth URL, without NEON_AUTH_BASE_URL=, quotes or Markdown."
+    if any(c.isspace() for c in base) or any(c in base for c in '\"\'`<>'):
+        return "contains whitespace or copied formatting. Remove line breaks, quotes, backticks and angle brackets."
+    try:
+        parsed = urlsplit(base)
+        if not parsed.hostname:
+            return "is missing its hostname. Copy the full HTTPS Auth URL from Neon."
+        parsed.port  # Validate port syntax without including it in the error.
+        if parsed.username is not None or parsed.password is not None:
+            return "contains credentials. Use Neon's public Auth URL, not a database connection string."
+    except ValueError:
+        return "has an invalid hostname or port. Copy the full HTTPS Auth URL from Neon."
+    if "?" in base or "#" in base:
+        return "contains a query (?) or fragment (#). Use the Auth Base URL without those suffixes."
+    return None
+
+
 def owner_email():
     return os.getenv("PCN_ACCESS_REQUEST_EMAIL", "").strip().lower()
 
@@ -26,8 +46,7 @@ def public_origin():
 
 def call_auth(path, body):
     base = auth_url()
-    parsed = urlsplit(base)
-    if parsed.scheme != "https" or not parsed.hostname or parsed.username or parsed.query or parsed.fragment:
+    if auth_url_error(base):
         raise HTTPException(503, "Email sign-in is not configured yet.")
     try:
         result = httpx.post(base + path, json=body, timeout=15,

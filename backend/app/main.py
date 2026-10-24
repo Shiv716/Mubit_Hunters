@@ -18,7 +18,7 @@ from starlette.concurrency import run_in_threadpool
 from .workspace import router as workspace_router
 from .access import router as access_router, identity, secret, required
 from .email_access import router as email_access_router
-from .neon_auth import auth_url, owner_email, public_origin
+from .neon_auth import auth_url, auth_url_error, owner_email, public_origin
 from pydantic import EmailStr, TypeAdapter
 
 from .ai.adapters import get_adapter
@@ -43,10 +43,10 @@ async def lifespan(_: FastAPI):
         if len(secret()) < 16 or not get_settings().database_url:
             raise RuntimeError("Neon Auth requires DATABASE_URL and PCN_ACCESS_KEY of at least 16 characters.")
         TypeAdapter(EmailStr).validate_python(owner_email())
-        parsed_auth = urlsplit(auth_url())
+        auth_error = auth_url_error(auth_url())
         parsed_origin = urlsplit(public_origin())
-        if parsed_auth.scheme != "https" or not parsed_auth.hostname or parsed_auth.username or parsed_auth.query or parsed_auth.fragment:
-            raise RuntimeError("NEON_AUTH_BASE_URL must be the HTTPS Auth URL from Neon.")
+        if auth_error:
+            raise RuntimeError(f"NEON_AUTH_BASE_URL {auth_error}")
         if parsed_origin.scheme not in ("http", "https") or not parsed_origin.hostname or parsed_origin.path or parsed_origin.query or parsed_origin.fragment or parsed_origin.username:
             raise RuntimeError("Set PCN_PUBLIC_ORIGIN to the application's origin, without a path.")
     init_db()

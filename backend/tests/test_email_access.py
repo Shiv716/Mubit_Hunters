@@ -18,6 +18,50 @@ SEND = "/api/session/email/request"
 VERIFY = "/api/session/email/verify"
 
 
+def test_auth_url_validation_accepts_neon_url_and_explains_bad_pastes_without_secrets(monkeypatch):
+    url = "https://ep-dry-cake-za1nvk8t.neonauth.c-2.eu-west-2.aws.neon.tech/neondb/auth"
+    monkeypatch.setenv("NEON_AUTH_BASE_URL", f"  {url}/  ")
+    assert neon_auth.auth_url() == url
+    assert neon_auth.auth_url_error(neon_auth.auth_url()) is None
+    invalid = [
+        (f"NEON_AUTH_BASE_URL={url}", "must start with https://"),
+        (f'"{url}"', "must start with https://"),
+        (f"[{url}]({url})", "must start with https://"),
+        (url.replace("https:", "http:"), "must start with https://"),
+        (url + "\nextra", "contains whitespace"),
+        ("https:///auth", "missing its hostname"),
+        ("https://owner:private-secret@auth.example/auth", "contains credentials"),
+        (url + "?token=private-secret", "query (?) or fragment (#)"),
+        (url + "#private-secret", "query (?) or fragment (#)"),
+        ("https://[invalid", "invalid hostname or port"),
+    ]
+    for value, reason in invalid:
+        detail = neon_auth.auth_url_error(value)
+        assert reason in detail and "private-secret" not in detail
+
+
+def test_invalid_auth_url_blocks_startup_and_requests_without_echoing_value(monkeypatch):
+    from fastapi.testclient import TestClient
+    from app.main import app
+    monkeypatch.setenv("PCN_ACCESS_KEY", "test-workspace-password-only")
+    monkeypatch.setenv("PCN_ACCESS_REQUEST_EMAIL", "owner@example.com")
+    monkeypatch.setenv("PCN_PUBLIC_ORIGIN", "https://civic.example")
+    monkeypatch.setenv("DATABASE_URL", "postgresql://unused/unused")
+    monkeypatch.setenv("NEON_AUTH_BASE_URL", "https://auth.example/auth?token=private-secret")
+    def no_network(*args, **kwargs):
+        pytest.fail("Invalid Auth URLs must be rejected before making a request")
+    monkeypatch.setattr(neon_auth.httpx, "post", no_network)
+    with pytest.raises(RuntimeError) as error:
+        with TestClient(app):
+            pytest.fail("Invalid Auth URLs must prevent startup")
+    assert "NEON_AUTH_BASE_URL contains a query" in str(error.value)
+    assert "private-secret" not in str(error.value)
+    with pytest.raises(HTTPException) as error:
+        neon_auth.call_auth("/email-otp/send-verification-otp", {})
+    assert error.value.status_code == 503
+    assert "private-secret" not in str(error.value)
+
+
 @pytest.fixture
 def configured(monkeypatch):
     monkeypatch.setenv("PCN_ACCESS_KEY", "test-workspace-password-only")

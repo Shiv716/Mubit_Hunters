@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { api } from "./api.js";
 import CaseDetail from "./CaseDetail.jsx";
 import CaseIntake from "./CaseIntake.jsx";
@@ -7,6 +7,19 @@ import { AuditView, FeedbackView, MubitView } from "./Panels.jsx";
 import { Icon, Mark } from "./Icons.jsx";
 
 export default function App() {
+  const [theme, setTheme] = useState(() => {
+    try {
+      const saved = localStorage.getItem("civic-theme");
+      if (saved === "light" || saved === "dark") return saved;
+    } catch { /* Theme switching still works when browser storage is unavailable. */ }
+    return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+  });
+  useLayoutEffect(() => {
+    document.documentElement.dataset.theme = theme;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#15191c" : "#f5f1e8");
+    try { localStorage.setItem("civic-theme", theme); } catch { /* Keep the preference for this session. */ }
+  }, [theme]);
+  const themeSwitch = <ThemeSwitch theme={theme} onToggle={() => setTheme(t => t === "dark" ? "light" : "dark")} />;
   const [session, setSession] = useState(null);
   const [page, setPage] = useState("cases");
   const [adminTab, setAdminTab] = useState("feedback");
@@ -70,7 +83,7 @@ export default function App() {
     `${c.pcn_ref} ${c.location} ${c.claim}`.toLowerCase().includes(search.toLowerCase()));
   const due = open.filter(c => c.days_left !== null && c.days_left <= 7).length;
 
-  if (session && !session.authenticated) return <Login onLogin={setSession} />;
+  if (session && !session.authenticated) return <><div className="login-theme">{themeSwitch}</div><Login onLogin={setSession} /></>;
   return <div className="app">
     <a className="skip-link" href="#main-content">Skip to case workspace</a>
     <header className="topbar">
@@ -80,7 +93,7 @@ export default function App() {
         <button className={page==="insights"?"nav-item active":"nav-item"} onClick={()=>setPage("insights")}><Icon name="chart"/>Insights</button>
       </nav>
       <div className="top-right">
-        <span className="mode-pill"><span className={`status-dot ${health?.ai_provider==="mubit"?"live":""}`}/>{health?.ai_provider==="mubit"?"Mubit configured":"Demo mode"}</span>
+        {themeSwitch}
         <button className={`icon-btn ${page==="admin"?"selected":""}`} title="Workspace admin" aria-label="Workspace admin" onClick={()=>setPage("admin")}><Icon name="settings"/></button>
         <div className="profile-wrap"><button className="avatar" title="Reviewer profile" aria-label="Reviewer profile" onClick={()=>setProfile(!profile)}>{reviewer.split(" ").map(n=>n[0]).slice(0,2).join("")}</button>
         {profile && <div className="profile-popover"><label>Your reviewer name<input value={reviewer} disabled={session?.required} onChange={e=>{setReviewer(e.target.value);localStorage.setItem("reviewer",e.target.value);}}/></label><button className="btn" onClick={()=>setProfile(false)}>Done</button>{session?.required && <button className="btn" onClick={async()=>{await api.logout();setSession(await api.session());}}>Sign out</button>}</div>}</div>
@@ -110,6 +123,14 @@ export default function App() {
     {page==="admin"&&<main id="main-content" className="admin-page"><div className="section-heading"><div className="eyebrow">WORKSPACE ADMIN</div><h1>Behind the decisions<span className="blue">.</span></h1><p>Approved examples, model connections and the full audit trail.</p></div><div className="admin-tabs">{[["feedback","Learning & evaluation"],["mubit","Mubit connection"],["audit","Audit history"]].map(([id,label])=><button key={id} className={`btn ${adminTab===id?"primary":""}`} onClick={()=>setAdminTab(id)}>{label}</button>)}</div>{adminTab==="feedback"?<FeedbackView onError={setError}/>:adminTab==="mubit"?<MubitView health={health}/>:<AuditView/>}<details className="admin-import"><summary>Import synthetic cases</summary><p className="muted small">Choose an exported JSON array of cases.</p><input type="file" accept="application/json" aria-label="Import cases JSON" onChange={async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error("Choose a JSON array of cases.");const r=await api.importCases(data);await refresh();setToast(`Imported ${r.created.length} cases; skipped ${r.skipped_duplicates.length} duplicates.`);}catch(err){setError(err.message);}e.target.value="";}}/><button className="btn" disabled={seeding} onClick={seed}>Load sample appeals</button></details></main>}
     {intake&&<CaseIntake onClose={()=>setIntake(false)} onCreated={async id=>{await refresh();setSelected(id);setIntake(false);setPage("cases");setFilter("open");setSearch("");setToast("Appeal added to your queue.");}}/>}
   </div>;
+}
+
+function ThemeSwitch({theme, onToggle}) {
+  return <button type="button" className="theme-toggle" role="switch" aria-label="Dark mode"
+    aria-checked={theme === "dark"} title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} onClick={onToggle}>
+    <span className={theme === "light" ? "theme-option active" : "theme-option"}><Icon name="sun" size={16}/></span>
+    <span className={theme === "dark" ? "theme-option active" : "theme-option"}><Icon name="moon" size={16}/></span>
+  </button>;
 }
 
 function Login({onLogin}) {

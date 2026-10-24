@@ -1,402 +1,89 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { api } from "./api.js";
-import { Card, Chip, EffectChip, List, OutcomeChip, RecChip, fmt, recLabel } from "./ui.jsx";
+import { Icon } from "./Icons.jsx";
+import { fmt } from "./ui.jsx";
 
-const REASON_CODES = [
-  ["", "— reason code —"],
-  ["facts_misread", "AI misread the facts"],
-  ["policy_discretion", "Officer discretion under policy"],
-  ["new_evidence", "Further evidence considered"],
-  ["evidence_insufficient", "Evidence insufficient"],
-  ["draft_edited", "Draft response edited"],
-  ["needs_senior_review", "Needs senior review / site check"],
-  ["other", "Other"],
-];
+const labels = {accept:"Accept appeal", reject:"Reject appeal", needs_review:"Needs investigation"};
+const outcomes = {representation_accepted:"Appeal accepted", representation_rejected:"Appeal rejected", escalated:"Under investigation"};
+const titleCase = s => s.replaceAll("_"," ").replace(/^./,c=>c.toUpperCase());
 
-export default function CaseDetail({ caseId, policy, onChanged, onError }) {
-  const [d, setD] = useState(null);
-  const [busy, setBusy] = useState(null);
+export default function CaseDetail({caseId, policy, reviewer, onChanged, onSaved, onError, isDemo}) {
+  const [d,setD]=useState(null), [tab,setTab]=useState("evidence"), [busy,setBusy]=useState(false), [loadError,setLoadError]=useState("");
+  const [outcome,setOutcome]=useState(""), [reason,setReason]=useState(""), [response,setResponse]=useState("");
+  const [saving,setSaving]=useState(false), [drafting,setDrafting]=useState(false), [trace,setTrace]=useState(false);
+  const [draftOutcome,setDraftOutcome]=useState("");
+  const [draftError,setDraftError]=useState("");
+  const [uploading,setUploading]=useState(null);
+  const [draftVersion,setDraftVersion]=useState(0);
+  useEffect(()=>{let active=true;api.getCase(caseId).then(x=>{if(active)setD(x);}).catch(e=>{if(active)setLoadError(e.message);});return()=>{active=false;};},[caseId]);
+  useEffect(()=>{
+    if (!outcome || outcome==="needs_review" || !d) {setDrafting(false);return;}
+    let active=true;setDrafting(true);setDraftError("");
+    const latest=d.ai_reviews[0];
+    const explanation=reason.trim() || (outcome===latest?.effective_recommendation ? latest.parsed?.reason_summary||"" : "");
+    api.draft(caseId,outcome,explanation).then(r=>{if(active){setResponse(r.text);setDraftOutcome(outcome);}}).catch(e=>{if(active)setDraftError(e.message);}).finally(()=>{if(active)setDrafting(false);});
+    return()=>{active=false;};
+  },[outcome,draftVersion]);
+  if(loadError)return <div className="empty-state alert error" role="alert">{loadError}</div>;
+  if(!d)return <div className="empty-state" role="status"><span className="spinner"/>Opening case…</div>;
+  const c=d.case, checks=d.checks;
+  const review=d.ai_reviews[0]?.check_id===checks?.id?d.ai_reviews[0]:null;
+  const final=d.decisions.find(x=>x.final_outcome!=="escalated");
+  const decided=d.status==="decided";
+  const agrees=review&&review.status!=="failed"&&outcome===review.effective_recommendation&&outcome!=="needs_review";
+  const needsReason=outcome&&!agrees;
+  const canSave=outcome&&reviewer.trim()&&(!needsReason||reason.trim())&&(outcome==="needs_review"||(response.trim()&&draftOutcome===outcome))&&!busy&&!saving&&!drafting;
+  const references=Object.fromEntries((policy?.references||[]).map(r=>[r.id,r]));
+  const issues=[...(checks?.validation||[]).filter(i=>i.severity!=="info").map(i=>i.message),...(review?.parsed?.missing_information||[])];
+  const isSensitive=review?.safety_flags?.includes("human_judgement_required");
+  const flagMessages=(review?.safety_flags||[]).filter(f=>f!=="human_judgement_required").map(f=>
+    f.startsWith("provider_failure")?"The AI service did not complete. You can review the case manually.":
+    f.includes("reference")||f.includes("unknown_evidence")||f.startsWith("draft_")?"The AI cited information we could not verify. Check the evidence before deciding.":
+    f.startsWith("conflicts")?"The AI response conflicted with the evidence checks.":
+    f.startsWith("missing_information")?"Some information needed for this decision is missing.":
+    f.includes("validation")?"The case contains inconsistent information.":
+    f.includes("schema")||f.includes("json")||f.includes("empty")||f.includes("truncated")?"The AI response could not be read. Review the case manually or try again.":null).filter(Boolean);
 
-  const load = () => api.getCase(caseId).then(setD).catch((e) => onError(e.message));
-  useEffect(() => { load(); }, [caseId]);
-
-  const act = async (label, fn) => {
-    setBusy(label);
-    try {
-      setD(await fn());
-      onChanged();
-    } catch (e) {
-      onError(e.message);
-    } finally {
-      setBusy(null);
-    }
-  };
-
-  const refs = useMemo(() => Object.fromEntries((policy?.references || []).map((r) => [r.id, r])), [policy]);
-
-  if (!d) return <div className="empty">Loading…</div>;
-  const c = d.case;
-  const check = d.checks;
-  const review = d.ai_reviews[0];
-  const decided = d.status === "decided";
-  const uploads = Object.fromEntries(d.evidence_files.map((f) => [f.evidence_id, f]));
-
-  return (
-    <div className="detail">
-      <div className="detail-head">
-        <div>
-          <h2 className="mono">{c.pcn_ref}</h2>
-          <div className="muted">
-            Code {c.contravention_code} · {d.contravention_description || "unknown code"}
-          </div>
-        </div>
-        <div className="chips">
-          {c.synthetic && <Chip tone="info">synthetic</Chip>}
-          <Chip tone="neutral">{d.status.replace("_", " ")}</Chip>
-          {d.decisions[0] && <OutcomeChip outcome={d.decisions[0].final_outcome} />}
-        </div>
+  async function runReview(){
+    setBusy(true);setOutcome("");setResponse("");setReason("");
+    try{const next=await api.review(caseId);setD(next);await onChanged();}catch(e){onError(e.message);}finally{setBusy(false);}
+  }
+  async function save(next){
+    if(!canSave)return;setSaving(true);
+    try{const result=await api.resolve(caseId,{outcome,review_id:review?.id??null,reason,response,reviewer});setD(result);setOutcome("");await onSaved(caseId,next);}catch(e){onError(e.message);}finally{setSaving(false);}
+  }
+  async function upload(eid,file){
+    if(!file)return;setUploading(eid);
+    try{setD(await api.uploadEvidence(caseId,eid,file));setOutcome("");await onChanged();}catch(e){onError(e.message);}finally{setUploading(null);}
+  }
+  return <div className="case-columns">
+    <article className="case-paper">
+      <header className="paper-header"><div className="row-between"><span className="eyebrow">APPEAL FILE <span className="mono">/{String(d.id).padStart(3,"0")}</span></span><span className="paper-stamp">{decided?"DECISION RECORDED":"FOR YOUR REVIEW"}</span></div><h2>{c.pcn_ref}</h2><div className="case-location"><Icon name="pin" size={15}/>{c.location}</div><div className="case-facts-strip"><span>Vehicle<b className="mono">{c.vrm}</b></span><span>Contravention<b>{c.contravention_code}</b></span><span>Received<b>{new Date(c.representation_received_date+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</b></span></div></header>
+      <section className="appeal-section"><div className="section-label"><span className="number-label">01</span><h3>The driver’s appeal</h3></div><blockquote>{c.representation_text}</blockquote><div className="claim-tags">{c.claimed_grounds.map(g=><span key={g}>{titleCase(g)}</span>)}</div></section>
+      <div className="document-tabs" role="tablist" aria-label="Case information">{[["evidence",`Evidence ${c.evidence.length}`],["checks","Checks & policy"],["history","History"]].map(([id,label])=><button role="tab" aria-selected={tab===id} key={id} onClick={()=>setTab(id)} className={tab===id?"active":""}>{label}</button>)}</div>
+      <div className="document-body" role="tabpanel">
+      {tab==="evidence"&&<><div className="section-label"><span className="number-label">02</span><h3>What we have</h3></div><p className="small muted">Supplied records and evidence descriptions.</p><div className="evidence-list">{c.evidence.map(e=>{const file=d.evidence_files.find(f=>f.evidence_id===e.id);return <div className="evidence-item" key={e.id}><span className="evidence-icon"><Icon name="file" size={21}/></span><div className="evidence-copy"><strong>{titleCase(e.type)}</strong><p>{e.description||"No description supplied."}</p><span className="mono">{e.id} · {e.source==="council"?"COUNCIL RECORD":"DRIVER SUPPLIED"}</span>{file?<a className="file-link" href={`/api/cases/${caseId}/evidence/${encodeURIComponent(e.id)}/file`}><Icon name="download" size={13}/>{file.filename}</a>:<small className="muted">Description only · no file attached</small>}</div>{!decided&&<label className="attach-button" title="Attach evidence file"><Icon name="plus" size={15}/><span className="sr-only">Attach file to {e.id}</span><input type="file" disabled={busy||!!uploading} accept="image/jpeg,image/png,image/webp,application/pdf,text/plain" onChange={ev=>{upload(e.id,ev.target.files[0]);ev.target.value="";}}/></label>}</div>;})}{!c.evidence.length&&<div className="alert warning">No evidence has been attached.</div>}</div>
+      <div className="records-section"><h4>Council records</h4>{[["payments","Payment"],["permits","Permit"],["badges","Badge"]].map(([key,label])=><details key={key} className="record-detail"><summary><span>{label} records</span><span className="mono muted">{c.records[key]==null?"NOT SUPPLIED":`${c.records[key].length} FOUND`}</span></summary>{c.records[key]==null?<p>These records have not been supplied. This does not mean no valid record exists.</p>:!c.records[key].length?<p>No matching records were supplied.</p>:c.records[key].map((r,i)=><dl key={i} className="mini-facts">{Object.entries(r).filter(([,v])=>v!==null).map(([k,v])=><div key={k}><dt>{titleCase(k)}</dt><dd>{typeof v==="boolean"?(v?"Yes":"No"):String(v)}</dd></div>)}</dl>)}</details>)}</div></>}
+      {tab==="checks"&&<><div className="section-label"><span className="number-label">02</span><h3>Checked against the facts</h3></div>{checks?.rules.map(r=><div className="check-item" key={r.rule_id}><span className={`check-mark ${r.effect}`}><Icon name={r.status==="insufficient_data"||r.effect==="needs_review"?"flag":"check"} size={15}/></span><div><p>{r.finding}</p>{r.policy_refs.map(id=><details className="policy-ref" key={id}><summary>{references[id]?.title||id}<span className="mono">{id}</span></summary><p>{references[id]?.text}</p></details>)}</div></div>)}<p className="small muted policy-note">Northgate is a fictional council. These are demonstration policies.</p><details className="record-detail"><summary>Full case details</summary><dl className="mini-facts">{[["Contravention",d.contravention_description],["Issued",fmt(c.contravention_datetime)],["Zone",c.zone],["Notice date",c.notice_date],["Stage",c.stage],["Response due",c.response_due_date||"Not set"],["Observation",`${c.observation_minutes??"Not recorded"} minutes`]].map(([k,v])=><div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl></details></>}
+      {tab==="history"&&<><div className="section-label"><span className="number-label">02</span><h3>The case so far</h3></div><ol className="case-timeline">{[...d.audit].reverse().map(e=><li key={e.id}><span className="timeline-dot"/><strong>{titleCase(e.event_type)}</strong><time>{fmt(e.created_at)}</time><p>{e.actor}</p>{e.detail.reason&&<p>{e.detail.reason}</p>}</li>)}</ol></>}
       </div>
-
-      <div className="grid-2">
-        <Card title="Case facts">
-          <dl className="facts">
-            <dt>Vehicle (VRM)</dt><dd className="mono">{c.vrm}</dd>
-            <dt>Contravention</dt><dd>{fmt(c.contravention_datetime)}</dd>
-            <dt>Location</dt><dd>{c.location}{c.zone ? ` · zone ${c.zone}` : ""}</dd>
-            <dt>Notice date</dt><dd>{c.notice_date}</dd>
-            <dt>Representation received</dt><dd>{c.representation_received_date}</dd>
-            <dt>Observation</dt><dd>{c.observation_minutes ?? "—"} min</dd>
-            <dt>Claimed grounds</dt><dd>{c.claimed_grounds.join(", ") || "—"}</dd>
-          </dl>
-        </Card>
-        <Card title="Representation">
-          <blockquote className="rep">{c.representation_text}</blockquote>
-          <RecordsSummary records={c.records} />
-        </Card>
-      </div>
-
-      <Card title="Evidence" aside={<span className="muted small">{c.evidence.length} item(s)</span>}>
-        <table className="table">
-          <thead><tr><th>ID</th><th>Type</th><th>Source</th><th>Description</th><th>File</th></tr></thead>
-          <tbody>
-            {c.evidence.map((e) => (
-              <tr key={e.id}>
-                <td className="mono">{e.id}</td>
-                <td>{e.type.replace("_", " ")}</td>
-                <td>{e.source}</td>
-                <td>{e.description}{e.vrm_seen && <span className="muted small"> · VRM seen {e.vrm_seen}</span>}</td>
-                <td>
-                  {uploads[e.id] ? (
-                    <span className="small" title={uploads[e.id].sha256}>✓ {uploads[e.id].filename}</span>
-                  ) : (
-                    <span className="muted small">{e.filename ? "metadata only" : "—"}</span>
-                  )}
-                  {!decided && (
-                    <label className="upload">
-                      upload
-                      <input type="file" accept="image/*,application/pdf,text/plain" onChange={(ev) => {
-                        const f = ev.target.files[0];
-                        if (f) act("upload", () => api.uploadEvidence(d.id, e.id, f));
-                      }} />
-                    </label>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
-
-      {check && (
-        <div className="grid-2">
-          <Card title="Validation" aside={<span className="muted small">{check.validation.length} issue(s)</span>}>
-            {check.validation.length === 0 ? (
-              <p className="muted small">No validation issues.</p>
-            ) : (
-              <ul className="issues">
-                {check.validation.map((i, k) => (
-                  <li key={k} className={i.severity}>
-                    <span className="sev">{i.severity}</span> {i.message}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </Card>
-          <Card title="Deterministic rule checks"
-                aside={<span className="small">Indicator: <RecChip rec={check.indicator} /></span>}>
-            <table className="table compact">
-              <tbody>
-                {check.rules.map((r) => (
-                  <tr key={r.rule_id}>
-                    <td className="mono nowrap">{r.rule_id}</td>
-                    <td><EffectChip effect={r.effect} /><div className="muted small">{r.status.replace("_", " ")}</div></td>
-                    <td>{r.finding}
-                      {r.policy_refs.length > 0 && <div className="refs">{r.policy_refs.map((p) => <RefTag key={p} id={p} refs={refs} />)}</div>}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            <p className="muted small">{check.ruleset_version} · {check.policy_version} · run {fmt(check.created_at)}</p>
-          </Card>
-        </div>
-      )}
-
-      <Card title="AI review" className="ai-card" aside={
-        !decided && (
-          <div className="btn-row">
-            <button className="btn" disabled={!!busy} onClick={() => act("baseline", () => api.aiReview(d.id, "baseline"))}>
-              {busy === "baseline" ? "Running…" : "Run baseline"}
-            </button>
-            <button className="btn primary" disabled={!!busy} onClick={() => act("precedent", () => api.aiReview(d.id, "precedent"))}>
-              {busy === "precedent" ? "Running…" : "Run with precedents"}
-            </button>
-          </div>
-        )
-      }>
-        {!review ? (
-          <p className="muted">No AI review yet. The AI drafts a recommendation; the officer decides.</p>
-        ) : (
-          <AIReview review={review} refs={refs} evidence={c.evidence} />
-        )}
-      </Card>
-
-      {!decided && <DecisionForm d={d} review={review} busy={busy} act={act} />}
-
-      <div className="grid-2">
-        <Card title="Decisions">
-          {d.decisions.length === 0 ? <p className="muted small">No decision recorded.</p> : d.decisions.map((x) => (
-            <div key={x.id} className="decision">
-              <div className="row-between">
-                <OutcomeChip outcome={x.final_outcome} />
-                <span className="muted small">{fmt(x.created_at)}</span>
-              </div>
-              <div className="small">
-                <strong>{x.reviewer}</strong> · action <b>{x.action}</b> · AI said {x.ai_recommendation ? <RecChip rec={x.ai_recommendation} /> : "—"}
-                {x.ai_review_id && <span className="muted"> (AI review #{x.ai_review_id})</span>}
-              </div>
-              {x.reason && <div className="small">Reason{x.reason_code ? ` [${x.reason_code}]` : ""}: {x.reason}</div>}
-              {x.final_response && <details><summary className="small">Final response</summary><pre className="draft">{x.final_response}</pre></details>}
-            </div>
-          ))}
-          {d.ai_reviews.length > 1 && (
-            <details>
-              <summary className="small">All AI reviews ({d.ai_reviews.length})</summary>
-              <ul className="plain small">
-                {d.ai_reviews.map((r) => (
-                  <li key={r.id}>#{r.id} {fmt(r.created_at)} · {r.mode} · {r.status} · <RecChip rec={r.effective_recommendation} /></li>
-                ))}
-              </ul>
-            </details>
-          )}
-        </Card>
-        <Card title="Audit trail">
-          <ol className="timeline">
-            {d.audit.map((e) => (
-              <li key={e.id}>
-                <div className="row-between">
-                  <strong className="small">{e.event_type.replaceAll("_", " ")}</strong>
-                  <span className="muted small">{fmt(e.created_at)}</span>
-                </div>
-                <div className="muted small">by {e.actor} · {summarise(e.detail)}</div>
-              </li>
-            ))}
-          </ol>
-        </Card>
-      </div>
-    </div>
-  );
-}
-
-function summarise(detail) {
-  const keys = ["ruleset_version", "indicator", "mode", "provider", "model", "provider_request_id", "status",
-    "failure_kind", "effective_recommendation", "action", "final_outcome", "reason", "eligible", "evidence_id"];
-  return keys.filter((k) => detail[k] !== undefined && detail[k] !== null).map((k) => `${k}: ${detail[k]}`).join(" · ");
-}
-
-function RefTag({ id, refs }) {
-  const r = refs[id];
-  return <span className="ref" title={r ? `${r.title}: ${r.text}` : "rule id"}>{id}</span>;
-}
-
-function RecordsSummary({ records }) {
-  const rows = [
-    ["Payment records", records.payments],
-    ["Permit records", records.permits],
-    ["Badge records", records.badges],
-  ];
-  return (
-    <div className="records">
-      {rows.map(([label, list]) => (
-        <div key={label} className="small">
-          <span className="muted">{label}: </span>
-          {list == null ? <em className="muted">not supplied</em> : list.length === 0 ? "none" : list.map((x, i) => (
-            <span key={i} className="mono record">
-              {x.reference || x.permit_id || x.badge_id}
-              {x.zone ? ` ${x.zone}` : ""} {fmt(x.start || x.valid_from)} → {fmt(x.end || x.valid_to)}
-              {x.displayed === false ? " (not displayed)" : ""}
-            </span>
-          ))}
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function AIReview({ review, refs, evidence }) {
-  const p = review.parsed;
-  const failed = review.status === "failed";
-  const ev = Object.fromEntries(evidence.map((e) => [e.id, e]));
-  return (
-    <div className="ai">
-      <div className="ai-head">
-        <div>
-          <div className="muted small">Effective recommendation (shown to officer)</div>
-          <div className={`big-rec ${review.effective_recommendation}`}>{recLabel(review.effective_recommendation)}</div>
-          {p && p.recommendation !== review.effective_recommendation && (
-            <div className="small warn-text">
-              Model said “{p.recommendation}” — downgraded to needs review by safety checks.
-            </div>
-          )}
-          {failed && <div className="small bad-text">AI review failed ({review.failure_kind}). Shown as needs review; decide manually.</div>}
-        </div>
-        <div className="meta small">
-          <div><span className="muted">provider</span> {review.provider === "offline-stub" ? <Chip tone="warn">offline stub — not Mubit</Chip> : review.provider}</div>
-          <div><span className="muted">model</span> {review.model || "—"}</div>
-          <div><span className="muted">request id</span> <span className="mono">{review.provider_request_id || "—"}</span></div>
-          <div><span className="muted">mode</span> {review.mode} · {review.prompt_version}</div>
-          <div><span className="muted">latency</span> {review.latency_ms ?? "—"} ms · {fmt(review.created_at)}</div>
-        </div>
-      </div>
-
-      {review.safety_flags.length > 0 && (
-        <div className="flags">
-          <strong className="small">Safety checks</strong>
-          <ul className="plain small">{review.safety_flags.map((f) => <li key={f}>⚠ {f}</li>)}</ul>
-        </div>
-      )}
-
-      {p && (
-        <>
-          <p className="reason">{p.reason_summary}</p>
-          <div className="grid-3">
-            <div>
-              <h4>Supporting references</h4>
-              {p.relevant_rule_references.length === 0 ? <p className="muted small">None</p> :
-                <ul className="plain small">{p.relevant_rule_references.map((r) => (
-                  <li key={r}><span className="ref">{r}</span> {refs[r]?.title || "rule result"}</li>))}</ul>}
-              <h4>Evidence cited</h4>
-              <List items={p.evidence_references.map((e) => `${e} · ${ev[e]?.type.replace("_", " ") || ""}`)} />
-            </div>
-            <div>
-              <h4>Missing information</h4>
-              <List items={p.missing_information} />
-            </div>
-            <div>
-              <h4>Uncertainty flags</h4>
-              <List items={p.uncertainty_flags} />
-            </div>
-          </div>
-          {review.precedent_ids.length > 0 && (
-            <p className="small"><span className="muted">Precedents supplied (retrieval, not training):</span> {review.precedent_ids.join(", ")}</p>
-          )}
-          {review.mode === "precedent" && review.precedent_ids.length === 0 && (
-            <p className="muted small">No eligible reviewed precedents matched this case.</p>
-          )}
-          <h4>Draft response <span className="muted small">(for officer review only — not sent)</span></h4>
-          <pre className="draft">{p.draft_response || "No draft."}</pre>
-        </>
-      )}
-      {failed && review.raw_output && (
-        <details><summary className="small">Raw provider output / error</summary><pre className="draft">{review.raw_output}</pre></details>
-      )}
-    </div>
-  );
-}
-
-function DecisionForm({ d, review, busy, act }) {
-  const [action, setAction] = useState("accept");
-  const [outcome, setOutcome] = useState("representation_rejected");
-  const [reasonCode, setReasonCode] = useState("");
-  const [reason, setReason] = useState("");
-  const [reviewer, setReviewer] = useState(() => localStorage.getItem("reviewer") || "officer.demo");
-  const [response, setResponse] = useState(review?.parsed?.draft_response || "");
-
-  useEffect(() => { setResponse(review?.parsed?.draft_response || ""); }, [review?.id]);
-
-  const aiUsable = review && review.status !== "failed" && review.effective_recommendation !== "needs_review";
-  useEffect(() => {
-    if (!aiUsable && action === "accept") setAction(review ? "override" : "reject");
-  }, [aiUsable, review?.id]);
-  const needsReason = action !== "accept";
-  const needsOutcome = action === "override" || action === "reject";
-  const valid = reviewer.trim() && (!needsReason || reason.trim()) && (action !== "accept" || aiUsable)
-    && (action !== "override" || review);
-
-  const submit = () => {
-    try { localStorage.setItem("reviewer", reviewer); } catch { /* storage unavailable */ }
-    act("decide", () => api.decide(d.id, {
-      ai_review_id: review?.id ?? null,
-      action,
-      final_outcome: needsOutcome ? outcome : null,
-      reason_code: reasonCode || null,
-      reason: reason || null,
-      final_response: action === "escalate" ? null : response || null,
-      reviewer,
-    }));
-  };
-
-  const options = [
-    ["accept", "Accept AI recommendation", aiUsable ? `Outcome: ${recLabel(review.effective_recommendation)}` : "Unavailable — no decisive AI recommendation"],
-    ["override", "Edit / override", "Change the outcome or the draft; reason required"],
-    ["reject", "Reject AI recommendation", "Decide manually without the AI; reason required"],
-    ["escalate", "Escalate", "Send for senior review / site check; reason required"],
-  ];
-
-  return (
-    <Card title="Officer decision" className="decision-card"
-          aside={<span className="muted small">Records the decision only. This tool never issues, cancels or submits a PCN.</span>}>
-      <div className="actions">
-        {options.map(([id, label, hint]) => (
-          <label key={id} className={`action ${action === id ? "on" : ""} ${id === "accept" && !aiUsable ? "disabled" : ""}`}>
-            <input type="radio" name="action" value={id} checked={action === id}
-                   disabled={id === "accept" && !aiUsable} onChange={() => setAction(id)} />
-            <span><strong>{label}</strong><span className="muted small">{hint}</span></span>
-          </label>
-        ))}
-      </div>
-      <div className="form-grid">
-        {needsOutcome && (
-          <label>Final outcome
-            <select value={outcome} onChange={(e) => setOutcome(e.target.value)}>
-              <option value="representation_accepted">Accept representation (cancel PCN)</option>
-              <option value="representation_rejected">Reject representation (PCN stands)</option>
-            </select>
-          </label>
-        )}
-        <label>Reason code
-          <select value={reasonCode} onChange={(e) => setReasonCode(e.target.value)}>
-            {REASON_CODES.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
-          </select>
-        </label>
-        <label>Reviewer
-          <input value={reviewer} onChange={(e) => setReviewer(e.target.value)} />
-        </label>
-      </div>
-      <label className="block">Reason {needsReason ? <span className="req">required</span> : <span className="muted small">optional</span>}
-        <textarea rows={2} value={reason} onChange={(e) => setReason(e.target.value)}
-                  placeholder="Why this decision? Stored separately from the AI output." />
-      </label>
-      {action !== "escalate" && (
-        <label className="block">Final response to motorist (editable draft)
-          <textarea rows={5} value={response} onChange={(e) => setResponse(e.target.value)} />
-        </label>
-      )}
-      <div className="btn-row end">
-        <button className="btn primary" disabled={!valid || !!busy} onClick={submit}>
-          {busy === "decide" ? "Saving…" : "Record decision"}
-        </button>
-      </div>
-    </Card>
-  );
+    </article>
+    <aside className="review-panel" aria-label="Review and decision">
+      <div className="review-panel-header"><span className="eyebrow">YOUR COPILOT</span><Icon name="spark" size={22}/></div>
+      {decided?<div className="completed-panel"><span className="completion-check"><Icon name="check" size={28}/></span><span className="eyebrow">SAVED TO CASE HISTORY</span><h2>{outcomes[final?.final_outcome]}</h2><p>Recorded by {final?.reviewer}. The response is ready to download.</p>{final?.reason&&<p className="saved-reason">{final.reason}</p>}<a className="btn primary" href={`/api/cases/${caseId}/response`}><Icon name="download"/>Download response</a><details className="record-detail"><summary>View saved response</summary><p className="saved-letter">{final?.final_response}</p></details><div className="small muted">No letter has been sent and no external PCN record has been changed.</div></div>:<>
+        {!review&&!busy&&<div className="review-start"><div className="orbit-icon"><Icon name="spark" size={34}/></div><h2>A second pair<br/>of eyes.</h2><p>Check the evidence, find the relevant policy and prepare a response.</p><button className="btn primary large full" onClick={runReview}><Icon name="spark" size={17}/>Review case<Icon name="arrow" size={17}/></button><span className="small muted">{isDemo?"Demo review uses simulated AI.":"Reviewed through Mubit."} You make the decision.</span></div>}
+        {busy&&<div className="review-running" role="status" aria-live="polite"><span className="spinner"/><h3>Putting the facts together…</h3><p>Checking the supplied evidence, council policy and approved similar cases.</p><span className="mono small muted">REVIEW IN PROGRESS</span></div>}
+        {review&&!busy&&<div className={`recommendation ${review.effective_recommendation}`}><div className="row-between"><span className="eyebrow">SUGGESTED OUTCOME</span><button className="text-btn small" onClick={runReview}>Review again</button></div><h2>{labels[review.effective_recommendation]}</h2><p>{review.parsed?.reason_summary||"The AI review did not complete. Check the evidence and decide manually, or try again."}</p>{review.parsed?.relevant_rule_references.length>0&&<div className="supporting-refs">{review.parsed.relevant_rule_references.map(id=><button key={id} onClick={()=>setTab("checks")} title={references[id]?.text}><Icon name="file" size={12}/>{references[id]?.title||id}</button>)}</div>}
+        {(review.steps||[]).length>0&&<><button className="trace-toggle" onClick={()=>setTrace(!trace)} aria-expanded={trace}><Icon name="check" size={13}/>{review.steps.filter(s=>s.tool!=="planner").length} investigation steps<span>{trace?"−":"+"}</span></button>{trace&&<ol className="agent-trace">{review.steps.filter(s=>s.tool!=="planner").map((s,i)=><li key={i}><strong>{s.label}</strong><p>{s.summary}</p></li>)}</ol>}</>}
+        </div>}
+        {(issues.length>0||isSensitive||flagMessages.length>0)&&<div className="attention-box"><div><Icon name="flag" size={16}/><strong>Needs your attention</strong></div><ul>{isSensitive&&<li>Vulnerability or mitigation was raised. Consider the circumstances carefully.</li>}{[...new Set([...issues,...flagMessages])].map((x,i)=><li key={i}>{x}</li>)}</ul></div>}
+        {!busy&&<section className="officer-decision"><div className="decision-label"><span className="eyebrow">YOUR DECISION</span><span className="small muted">{reviewer||"Set your name in profile"}</span></div><fieldset className="outcome-options"><legend className="sr-only">Choose the appeal outcome</legend>{["accept","reject","needs_review"].map(o=><label className={`outcome-option ${outcome===o?"chosen":""}`} key={o}><input type="radio" name={`outcome-${caseId}`} checked={outcome===o} onChange={()=>setOutcome(o)}/><span>{labels[o]}<small>{({accept:"Recommend cancellation of the fine",reject:"Recommend that the fine stands",needs_review:"Refer for more evidence or senior review"})[o]}</small></span></label>)}</fieldset>
+        {outcome&&<><label className="field">{needsReason?"Your reason · required":"Decision note · optional"}<textarea rows={2} value={reason} onChange={e=>setReason(e.target.value)} placeholder={needsReason?"Explain what led to your decision…":"Anything the next reviewer should know?"}/></label>{outcome!=="needs_review"&&<><div className="row-between draft-heading"><label htmlFor="response-draft">Response to the driver</label><button className="text-btn small" disabled={drafting} onClick={()=>setDraftVersion(v=>v+1)}>Refresh from reason</button></div>{draftError&&<p role="alert" className="alert error">{draftError}</p>}<textarea id="response-draft" className="response-editor" rows={9} value={response} disabled={drafting} onChange={e=>setResponse(e.target.value)} placeholder={drafting?"Preparing draft…":"Write your response…"}/><span className="small muted">Review the wording before saving. This is a draft for export.</span></>}
+        <div className="save-actions"><button className="btn full primary" disabled={!canSave} onClick={()=>save(true)}>{saving?"Saving…":"Save decision & next case"}<Icon name="arrow" size={17}/></button><button className="text-btn small" disabled={!canSave} onClick={()=>save(false)}>Save and stay on this case</button></div></>}
+        {!outcome&&<p className="small muted decision-help">Choose an outcome to prepare your response.</p>}
+        </section>}
+      </>}
+      <div className="review-footer"><Icon name="shield" size={14}/><span>Human judgement. A complete record.</span></div>
+    </aside>
+  </div>;
 }

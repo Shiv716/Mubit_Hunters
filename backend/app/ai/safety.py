@@ -86,6 +86,9 @@ def assess(result: ProviderResult, bundle: dict, indicator: str) -> SafetyOutcom
                 flags.append(f"draft_contains_unverified_identifier:{tok}")
 
     effective = rec.recommendation
+    if unsupported or unknown_ev or any(f.startswith("draft_") for f in flags):
+        effective = "needs_review"
+        rec.draft_response = None
     has_errors = any(i["severity"] == "error" for i in bundle["validation_issues"])
     if rec.recommendation != "needs_review":
         if has_errors:
@@ -95,6 +98,15 @@ def assess(result: ProviderResult, bundle: dict, indicator: str) -> SafetyOutcom
             flags.append(f"conflicts_with_deterministic_checks:{indicator}")
             effective = "needs_review"
     insufficient = [r["rule_id"] for r in bundle["rule_results"] if r["status"] == "insufficient_data"]
+    sensitive = any(r["rule_id"] == "R-MITIGATION" and r["status"] != "not_applicable" for r in bundle["rule_results"])
+    if sensitive:
+        flags.append("human_judgement_required")
+        effective = "needs_review"
+    if insufficient:
+        effective = "needs_review"
+    if rec.recommendation != "needs_review" and not rec.relevant_rule_references:
+        flags.append("missing_policy_reference")
+        effective = "needs_review"
     if insufficient and not rec.missing_information:
         flags.append("missing_information_not_reported:" + ",".join(insufficient))
 

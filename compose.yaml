@@ -1,0 +1,27 @@
+services:
+  civic:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      PCN_ENV: production
+      PCN_ACCESS_KEY: ${PCN_ACCESS_KEY:?Set PCN_ACCESS_KEY in .env to at least 16 characters}
+      PCN_COOKIE_SECURE: ${PCN_COOKIE_SECURE:-false}
+      PCN_PUBLIC_ORIGIN: ${PCN_PUBLIC_ORIGIN:-http://localhost:8000}
+      AI_PROVIDER: ${AI_PROVIDER:-stub}
+      MUBIT_API_KEY: ${MUBIT_API_KEY:-}
+      MUBIT_ROUTE: ${MUBIT_ROUTE:-anthropic}
+      MUBIT_MODEL: ${MUBIT_MODEL:-}
+      MUBIT_BASE_URL: ${MUBIT_BASE_URL:-}
+      MUBIT_RECORD: ${MUBIT_RECORD:-full}
+      MUBIT_MAX_TOKENS: ${MUBIT_MAX_TOKENS:-1500}
+      MUBIT_TIMEOUT_S: ${MUBIT_TIMEOUT_S:-60}
+    volumes:
+      - civic-data:/data
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+volumes:
+  civic-data:

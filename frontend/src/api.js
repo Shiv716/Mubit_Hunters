@@ -4,7 +4,8 @@ async function request(path, options = {}) {
     ...options,
   });
   const text = await res.text();
-  const data = text ? JSON.parse(text) : null;
+  let data;
+  try { data = text ? JSON.parse(text) : null; } catch { throw new Error("The server returned an unexpected response. Please try again."); }
   if (!res.ok) {
     const detail = data?.detail;
     const msg = Array.isArray(detail)
@@ -18,6 +19,14 @@ async function request(path, options = {}) {
 const post = (path, body) => request(path, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 
 export const api = {
+  session: () => request("/session"),
+  login: (body) => post("/session", body),
+  logout: () => request("/session", { method: "DELETE" }),
+  queue: () => request("/queue"),
+  insights: () => request("/insights"),
+  review: (id) => post(`/cases/${id}/review`),
+  resolve: (id, body) => post(`/cases/${id}/resolve`, body),
+  draft: (id, outcome, reason = "") => request(`/cases/${id}/draft?${new URLSearchParams({outcome, reason})}`),
   health: () => request("/health"),
   policy: () => request("/policy"),
   capabilities: () => request("/mubit/capabilities"),

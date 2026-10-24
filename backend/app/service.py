@@ -111,6 +111,10 @@ def run_ai_review(conn: sqlite3.Connection, case_id: int, adapter, mode: str, ac
         "precedent_ids": [p["precedent_id"] for p in precedents],
     })
     core = review_core(case, adapter, precedents)
+    return persist_review(conn, case_id, check_id, core, mode, precedents)
+
+
+def persist_review(conn, case_id, check_id, core, mode, precedents):
     s, r = core.safety, core.result
     cur = conn.execute(
         """INSERT INTO ai_reviews (case_id, check_id, status, failure_kind, provider, model, provider_request_id,
@@ -154,6 +158,12 @@ def record_decision(conn: sqlite3.Connection, case_id: int, d: DecisionIn) -> in
         raise WorkflowError(f"A reason is required for '{d.action}'.")
 
     ai_rec = review["effective_recommendation"] if review else None
+    latest = conn.execute("SELECT id FROM ai_reviews WHERE case_id=? ORDER BY id DESC LIMIT 1", (case_id,)).fetchone()
+    if review and latest and review["id"] != latest["id"]:
+        raise WorkflowError("This recommendation has been replaced. Refresh the case before deciding.")
+    last_check = conn.execute("SELECT id FROM checks WHERE case_id=? ORDER BY id DESC LIMIT 1", (case_id,)).fetchone()
+    if review and last_check and review["check_id"] != last_check["id"]:
+        raise WorkflowError("The evidence changed after this recommendation. Review the case again.")
     if d.action == "accept":
         if not review or review["status"] == "failed":
             raise WorkflowError("No valid AI recommendation to accept; use override or reject with a reason.")
@@ -227,6 +237,9 @@ def case_detail(conn: sqlite3.Connection, case_id: int) -> dict:
     events = [row_to_dict(r) for r in conn.execute("SELECT * FROM audit_events WHERE case_id=? ORDER BY id", (case_id,))]
     files = [dict(r) for r in conn.execute("SELECT * FROM evidence_files WHERE case_id=?", (case_id,))]
     feedback = [dict(r) for r in conn.execute("SELECT * FROM feedback_examples WHERE case_id=?", (case_id,))]
+    for review in reviews:
+        trace = conn.execute("SELECT steps_json FROM investigations WHERE ai_review_id=?", (review["id"],)).fetchone()
+        review["steps"] = json.loads(trace[0]) if trace else []
     policy = load_policy()
     return {
         "id": row["id"], "status": row["status"], "created_at": row["created_at"], "updated_at": row["updated_at"],

@@ -1,0 +1,15 @@
+.git
+.idea
+.venv
+**/__pycache__
+**/.pytest_cache
+**/node_modules
+frontend/dist
+**/.env
+**/*.env
+**/*.db*
+backend/evidence_store
+backend/eval/results
+backend/tests
+docs
+.DS_Store

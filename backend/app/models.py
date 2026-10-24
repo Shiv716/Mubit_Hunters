@@ -4,7 +4,12 @@ from __future__ import annotations
 from datetime import date, datetime
 from typing import Literal
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+
+def aware(value):
+    from datetime import timezone
+    return value.replace(tzinfo=timezone.utc) if value.tzinfo is None else value
 
 ClaimedGround = Literal[
     "paid", "permit", "blue_badge", "loading", "signage", "medical_emergency", "breakdown", "other"
@@ -27,6 +32,11 @@ class EvidenceIn(BaseModel):
     vrm_seen: str | None = None
     location_seen: str | None = None
 
+    @field_validator("captured_at")
+    @classmethod
+    def normalise_time(cls, value):
+        return aware(value) if value else value
+
 
 class PaymentRecord(BaseModel):
     reference: str
@@ -34,6 +44,11 @@ class PaymentRecord(BaseModel):
     zone: str
     start: datetime
     end: datetime
+
+    @field_validator("start", "end")
+    @classmethod
+    def normalise_time(cls, value):
+        return aware(value)
 
 
 class PermitRecord(BaseModel):
@@ -43,6 +58,11 @@ class PermitRecord(BaseModel):
     valid_from: datetime
     valid_to: datetime
     displayed: bool | None = None
+
+    @field_validator("valid_from", "valid_to")
+    @classmethod
+    def normalise_time(cls, value):
+        return aware(value)
 
 
 class BadgeRecord(BaseModel):
@@ -75,6 +95,21 @@ class CaseIn(BaseModel):
     evidence: list[EvidenceIn] = Field(default_factory=list)
     records: CouncilRecords = Field(default_factory=CouncilRecords)
     synthetic: bool = True
+    stage: Literal["informal", "formal"] = "informal"
+    response_due_date: date | None = None
+
+    @field_validator("contravention_datetime", mode="after")
+    @classmethod
+    def normalise_time(cls, value):
+        return aware(value)
+
+
+class ResolutionIn(BaseModel):
+    outcome: Literal["accept", "reject", "needs_review"]
+    review_id: int | None = None
+    reason: str = Field(default="", max_length=2000)
+    response: str = Field(default="", max_length=20000)
+    reviewer: str = Field(min_length=1, max_length=100)
 
 
 class ValidationIssue(BaseModel):

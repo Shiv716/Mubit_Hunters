@@ -92,7 +92,7 @@ export function MubitView({ health }) {
       <Card title="Connection">
         {health && (
           <p>
-            Provider: <strong>{health.ai_provider === "mubit" ? "Mubit (live)" : "Offline stub — not Mubit"}</strong>
+            Provider: <strong>{health.ai_provider === "mubit" ? "Mubit (configured)" : "Offline stub — not Mubit"}</strong>
             {health.mubit_route && <> · route <span className="mono">{health.mubit_route}</span> · model <span className="mono">{health.model}</span></>}
             {health.mubit_base_url && <> · <span className="mono">{health.mubit_base_url}</span></>}
             {health.mubit_record && <> · recording: <span className="mono">{health.mubit_record}</span></>}

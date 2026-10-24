@@ -190,6 +190,19 @@ class StubAdapter:
     def complete(self, system: str, user: str, schema: dict) -> ProviderResult:
         t0 = time.perf_counter()
         bundle = json.loads(user.split("\n", 1)[1])
+        if system.startswith("Northgate case investigation planner"):
+            case = bundle["case"]
+            done = bundle.get("completed_tools", {})
+            desired = ["evidence", "policy"]
+            ids = {r["rule_id"] for r in case["rule_results"]}
+            for name, rules in [("payment_records", {"R-PAYMENT", "R-GRACE"}),
+                                ("permit_records", {"R-PERMIT"}), ("badge_records", {"R-BADGE"})]:
+                if ids & rules:
+                    desired.append(name)
+            desired.append("similar_cases")
+            remaining = [n for n in desired if n not in done]
+            return ProviderResult(provider=STUB_PROVIDER, model="offline-stub-v1", latency_ms=0,
+                raw_text=json.dumps({"tools": remaining[:3], "complete": len(remaining) <= 3}))
         text = bundle["representation_text"]
         result = ProviderResult(provider=STUB_PROVIDER, model="offline-stub-v1", request_id=None)
         fault = re.search(r"\[\[STUB:(\w+)\]\]", text)
@@ -204,6 +217,10 @@ class StubAdapter:
         effects = [r["effect"] for r in bundle["rule_results"]]
         has_errors = any(i["severity"] == "error" for i in bundle["validation_issues"])
         if has_errors:
+            rec = "needs_review"
+        elif any(r["rule_id"] == "R-MITIGATION" and r["status"] != "not_applicable" for r in bundle["rule_results"]):
+            rec = "needs_review"
+        elif any(r["status"] == "insufficient_data" for r in bundle["rule_results"]):
             rec = "needs_review"
         elif "supports_accept" in effects and "supports_reject" not in effects:
             rec = "accept"
@@ -225,10 +242,7 @@ class StubAdapter:
             "evidence_references": [e["id"] for e in bundle["evidence"]],
             "missing_information": missing,
             "uncertainty_flags": ["offline stub output - not a Mubit model"],
-            "draft_response": (
-                f"Dear motorist, thank you for your representation regarding PCN {bundle['case']['pcn_ref']}. "
-                "[Officer to complete after review.]"
-            ),
+            "draft_response": None,
         }
         result.raw_text = json.dumps(out)
         result.latency_ms = int((time.perf_counter() - t0) * 1000)

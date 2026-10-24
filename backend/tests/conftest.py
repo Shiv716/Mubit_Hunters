@@ -14,6 +14,9 @@ def _isolated_env(tmp_path, monkeypatch):
     monkeypatch.setenv("PCN_EVIDENCE_DIR", str(tmp_path / "evidence"))
     monkeypatch.setenv("AI_PROVIDER", "stub")
     monkeypatch.delenv("MUBIT_API_KEY", raising=False)
+    monkeypatch.delenv("PCN_ACCESS_KEY", raising=False)
+    monkeypatch.delenv("PCN_ENV", raising=False)
+    monkeypatch.delenv("PCN_COOKIE_SECURE", raising=False)
 
 
 @pytest.fixture

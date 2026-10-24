@@ -46,7 +46,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-10-27"
  },
  {
   "pcn_ref": "DMD000002",
@@ -87,7 +89,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-10-29"
  },
  {
   "pcn_ref": "DMD000003",
@@ -136,7 +140,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-10-31"
  },
  {
   "pcn_ref": "DMD000004",
@@ -177,7 +183,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-02"
  },
  {
   "pcn_ref": "DMD000005",
@@ -219,7 +227,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-04"
  },
  {
   "pcn_ref": "DMD000006",
@@ -261,7 +271,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-06"
  },
  {
   "pcn_ref": "DMD000007",
@@ -303,7 +315,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-08"
  },
  {
   "pcn_ref": "DMD000008",
@@ -343,7 +357,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-10"
  },
  {
   "pcn_ref": "DMD000009",
@@ -383,7 +399,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-12"
  },
  {
   "pcn_ref": "DMD000010",
@@ -414,7 +432,9 @@
    }
   ],
   "records": {},
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-14"
  },
  {
   "pcn_ref": "DMD000011",
@@ -453,7 +473,9 @@
    }
   ],
   "records": {},
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-16"
  },
  {
   "pcn_ref": "DMD000012",
@@ -484,7 +506,9 @@
    }
   ],
   "records": {},
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-18"
  },
  {
   "pcn_ref": "DMD000013",
@@ -523,7 +547,9 @@
    }
   ],
   "records": {},
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-20"
  },
  {
   "pcn_ref": "DMD000014",
@@ -554,7 +580,9 @@
    }
   ],
   "records": {},
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-22"
  },
  {
   "pcn_ref": "DMD000015",
@@ -593,7 +621,9 @@
    }
   ],
   "records": {},
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-24"
  },
  {
   "pcn_ref": "DMD000016",
@@ -634,7 +664,9 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-26"
  },
  {
   "pcn_ref": "DMD000017",
@@ -675,6 +707,8 @@
     }
    ]
   },
-  "synthetic": true
+  "synthetic": true,
+  "stage": "formal",
+  "response_due_date": "2026-11-28"
  }
 ]

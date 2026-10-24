@@ -8,6 +8,7 @@ Each rule returns a RuleResult with:
 from __future__ import annotations
 
 from typing import Callable
+import re
 
 from .models import CaseIn, RuleResult, ValidationIssue
 from .policy import load_policy
@@ -181,6 +182,8 @@ def check_signage(case: CaseIn, policy: dict) -> RuleResult:
 @rule("R-MITIGATION")
 def check_mitigation(case: CaseIn, policy: dict) -> RuleResult:
     claims = [g for g in case.claimed_grounds if g in ("medical_emergency", "breakdown")]
+    if not claims and has_vulnerability(case):
+        claims = ["vulnerability raised in appeal"]
     if not claims:
         return _result(policy, "R-MITIGATION", "not_applicable", "neutral", "No mitigation claim made.")
     types = _evidence_types(case)
@@ -190,8 +193,14 @@ def check_mitigation(case: CaseIn, policy: dict) -> RuleResult:
         return _result(policy, "R-MITIGATION", "pass", "needs_review",
                        f"Mitigation ({', '.join(claims)}) has documentary evidence; officer judgement required.",
                        ["DEMO-POL-8.1"])
-    return _result(policy, "R-MITIGATION", "fail", "supports_reject",
-                   f"Mitigation ({', '.join(claims)}) made without documentary evidence.", ["DEMO-POL-8.1"])
+    return _result(policy, "R-MITIGATION", "insufficient_data", "needs_review",
+                   f"Mitigation ({', '.join(claims)}) requires officer judgement; supporting evidence is missing.", ["DEMO-POL-8.1"])
+
+
+def has_vulnerability(case: CaseIn) -> bool:
+    return bool(set(case.claimed_grounds) & {"medical_emergency", "breakdown"}) or bool(re.search(
+        r"\b(hospital|emergency|bereavement|disabled|disability|illness|ambulance|vulnerable)\b",
+        case.representation_text, re.I))
 
 
 GROUND_RULES = {"paid": "R-PAYMENT", "permit": "R-PERMIT", "blue_badge": "R-BADGE", "loading": "R-LOADING",
@@ -201,6 +210,8 @@ GROUND_RULES = {"paid": "R-PAYMENT", "permit": "R-PERMIT", "blue_badge": "R-BADG
 def applicable_rule_ids(case: CaseIn, policy: dict) -> list[str]:
     spec = policy["contraventions"].get(case.contravention_code)
     ids: list[str] = list(spec["applicable_rules"]) if spec else ["R-DEADLINE"]
+    if has_vulnerability(case) and "R-MITIGATION" not in ids:
+        ids.append("R-MITIGATION")
     for ground in case.claimed_grounds:
         rid = GROUND_RULES.get(ground)
         # For "after paid time" codes the grace check is the payment check; a covering payment cannot exist.

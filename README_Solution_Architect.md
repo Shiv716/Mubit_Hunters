@@ -1,3 +1,5 @@
+> Original design brief retained for reference. The implemented `trial-2` architecture is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), with runnable setup in [README.md](README.md).
+
 # PCN Review Copilot
 
 ### Solution Architecture & Implementation Brief

@@ -125,6 +125,15 @@ CREATE INDEX IF NOT EXISTS idx_decisions_case ON decisions(case_id);
 CREATE INDEX IF NOT EXISTS idx_audit_case ON audit_events(case_id);
 CREATE INDEX IF NOT EXISTS idx_feedback_status ON feedback_examples(curation_status, source);
 
+CREATE TABLE IF NOT EXISTS investigations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ai_review_id INTEGER NOT NULL UNIQUE REFERENCES ai_reviews(id),
+    steps_json TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+CREATE TRIGGER IF NOT EXISTS investigations_immutable BEFORE UPDATE ON investigations
+BEGIN SELECT RAISE(ABORT, 'investigations are immutable'); END;
+
 CREATE TRIGGER IF NOT EXISTS ai_reviews_immutable BEFORE UPDATE ON ai_reviews
 BEGIN SELECT RAISE(ABORT, 'ai_reviews rows are immutable'); END;
 CREATE TRIGGER IF NOT EXISTS ai_reviews_no_delete BEFORE DELETE ON ai_reviews
@@ -144,7 +153,8 @@ def now_iso() -> str:
 
 def connect(db_path: Path | None = None) -> sqlite3.Connection:
     path = db_path or get_settings().db_path
-    conn = sqlite3.connect(path, check_same_thread=False)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    conn = sqlite3.connect(path, check_same_thread=False, timeout=15)
     conn.row_factory = sqlite3.Row
     conn.execute("PRAGMA foreign_keys = ON")
     return conn
@@ -152,6 +162,7 @@ def connect(db_path: Path | None = None) -> sqlite3.Connection:
 
 def init_db(db_path: Path | None = None) -> None:
     with connect(db_path) as conn:
+        conn.execute("PRAGMA journal_mode = WAL")
         conn.executescript(SCHEMA)
 
 

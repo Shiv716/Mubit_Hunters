@@ -11,42 +11,82 @@
     "01": {
       "description": "Parked in a restricted street during prescribed hours",
       "min_observation_minutes": 5,
-      "required_evidence": ["ceo_photo"],
-      "applicable_rules": ["R-DEADLINE", "R-OBSERVATION", "R-LOADING"]
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-OBSERVATION",
+        "R-LOADING"
+      ]
     },
     "11": {
       "description": "Parked without payment of the parking charge",
       "min_observation_minutes": 0,
-      "required_evidence": ["ceo_photo"],
-      "applicable_rules": ["R-DEADLINE", "R-PAYMENT"]
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-PAYMENT"
+      ]
     },
     "12": {
       "description": "Parked in a residents' or shared use parking place without a valid permit",
       "min_observation_minutes": 0,
-      "required_evidence": ["ceo_photo"],
-      "applicable_rules": ["R-DEADLINE", "R-PERMIT"]
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-PERMIT"
+      ]
     },
     "05": {
       "description": "Parked after the expiry of paid for time",
       "min_observation_minutes": 0,
-      "required_evidence": ["ceo_photo"],
-      "applicable_rules": ["R-DEADLINE", "R-GRACE"]
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-GRACE"
+      ]
     },
     "40": {
       "description": "Parked in a designated disabled person's parking place without displaying a valid disabled person's badge",
       "min_observation_minutes": 0,
-      "required_evidence": ["ceo_photo"],
-      "applicable_rules": ["R-DEADLINE", "R-BADGE"]
+      "required_evidence": [
+        "ceo_photo"
+      ],
+      "applicable_rules": [
+        "R-DEADLINE",
+        "R-BADGE"
+      ]
     }
   },
   "claim_evidence": {
-    "paid": ["payment_receipt"],
-    "permit": ["permit_record"],
-    "blue_badge": ["badge_record"],
-    "loading": ["delivery_note"],
-    "signage": ["signage_photo"],
-    "medical_emergency": ["medical_letter"],
-    "breakdown": ["breakdown_report"]
+    "paid": [
+      "payment_receipt"
+    ],
+    "permit": [
+      "permit_record"
+    ],
+    "blue_badge": [
+      "badge_record"
+    ],
+    "loading": [
+      "delivery_note"
+    ],
+    "signage": [
+      "signage_photo"
+    ],
+    "medical_emergency": [
+      "medical_letter"
+    ],
+    "breakdown": [
+      "breakdown_report"
+    ]
   },
   "references": [
     {
@@ -97,7 +137,7 @@
     {
       "id": "DEMO-POL-8.1",
       "title": "Mitigating circumstances",
-      "text": "Claims of medical emergency or vehicle breakdown should be supported by documentary evidence. Unsupported mitigation should normally be rejected; credible but incomplete mitigation should be referred for further review."
+      "text": "Mitigation and vulnerability always require human judgement. Missing supporting documents require investigation and are not automatic grounds for rejection."
     },
     {
       "id": "DEMO-POL-9.1",

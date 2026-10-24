@@ -18,3 +18,9 @@ __pycache__/
 # node
 node_modules/
 frontend/dist/
+
+# editor and SQLite runtime files
+.idea/
+.DS_Store
+*.db-wal
+*.db-shm

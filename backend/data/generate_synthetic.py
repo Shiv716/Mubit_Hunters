@@ -45,6 +45,8 @@ class Builder:
             "contravention_datetime": t.isoformat(), "location": f"{street}, Demo Borough", "zone": r.choice(ZONES),
             "notice_date": notice.isoformat(), "representation_received_date": received.isoformat(),
             "representation_text": text, "claimed_grounds": grounds, "observation_minutes": obs,
+            "stage": "formal",
+            "response_due_date": (datetime(2026, 10, 27) + timedelta(days=2 * (self.n - 1))).date().isoformat(),
             "prior_undisplayed_permit_count": 0,
             "evidence": [{"id": "E1", "type": "ceo_photo", "source": "council",
                           "description": "Civil enforcement officer photographs of vehicle and signage",

@@ -22,6 +22,7 @@
 .theme-option{display:grid;place-items:center;width:30px;height:28px;border-radius:50%;pointer-events:none}
 .theme-option.active{background:var(--surface);color:var(--ink);box-shadow:0 1px 3px #0002}
 .login-theme{position:fixed;top:20px;right:20px;z-index:5}
+.email-access-entry{border-top:1px solid var(--line);padding-top:20px;display:grid;gap:12px;text-align:center}.email-access-entry .btn{width:100%;justify-content:center}.email-access-dialog{width:min(480px,calc(100vw - 32px))}.email-access-dialog .modal-heading h2{font-size:28px}.email-access-description{color:var(--muted);font-size:13px;line-height:1.65;margin:12px 0 22px}.email-access-form{display:flex;flex-direction:column;gap:18px;margin-top:18px}.email-access-form .btn{justify-content:center}.email-access-recipient{display:flex;justify-content:space-between;align-items:center;gap:12px;background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:12px;font-size:12px}.email-access-recipient span{overflow-wrap:anywhere;min-width:0}.email-access-recipient .text-btn{flex-shrink:0;font-size:11px}.signin-code{font-family:monospace;letter-spacing:.18em;font-size:20px}.signin-code::placeholder{letter-spacing:normal;font-size:13px}
 
 :root[data-theme="dark"]{color-scheme:dark;--bg:#15191c;--surface:#21262b;--ink:#f2f2e9;--ink-2:#c8cfc8;--muted:#a3aea5;--line:#3b4545;--blue:#a0b4ff;--lime:#d6f766;--ok:#a7dba5;--ok-bg:#263d2b;--bad:#ffb7a8;--bad-bg:#472d2b;--warn:#efc27e;--warn-bg:#3d3324;--info:#bccaff;--info-bg:#29334d}
 [data-theme="dark"] .brand-mark{background:#30382d;color:#f2f2e9}
@@ -68,3 +69,12 @@
 [data-theme="dark"] .learning-card{background:#293126}
 [data-theme="dark"] .banner.info{color:var(--info);border-color:var(--line)}
 @media(max-width:480px){.topbar{display:grid;grid-template-columns:1fr auto;height:auto;gap:8px 10px;padding-top:12px}.main-nav{grid-column:1/-1;grid-row:2;height:38px;gap:22px}.top-right{grid-column:2;grid-row:1}.theme-toggle{width:64px;height:34px}.theme-option{width:27px;height:26px}}
+
+.access-email { overflow-wrap: anywhere; }
+.access-requests { padding: 24px; border: 1px solid var(--line); background: var(--surface); border-radius: 16px; }
+.access-request-list { margin-top: 24px; }
+.access-request-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; border-top: 1px solid var(--line); }
+.access-request-row > div:first-child { min-width: 0; }
+.access-request-row p { margin: 6px 0 0; }
+.access-request-actions { display: flex; gap: 8px; flex-wrap: wrap; flex-shrink: 0; }
+@media (max-width: 650px) { .access-request-row { align-items: flex-start; flex-direction: column; } }

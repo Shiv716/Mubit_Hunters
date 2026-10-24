@@ -168,6 +168,26 @@ CREATE TRIGGER IF NOT EXISTS investigations_no_delete BEFORE DELETE ON investiga
 BEGIN SELECT RAISE(ABORT, 'investigations are immutable'); END;
 """
 
+AUTH_SCHEMA = """
+CREATE TABLE IF NOT EXISTS access_requests (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    status TEXT NOT NULL CHECK (status IN ('pending','approved','revoked')),
+    requested_at BIGINT NOT NULL,
+    decided_at BIGINT,
+    decided_by TEXT,
+    approval_token_hash TEXT UNIQUE,
+    approval_expires_at BIGINT,
+    owner_email_sent INTEGER NOT NULL DEFAULT 0,
+    applicant_email_sent INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS auth_rate_limits (
+    bucket TEXT PRIMARY KEY,
+    count INTEGER NOT NULL,
+    expires_at BIGINT NOT NULL
+);
+"""
+
 INTEGRITY_ERRORS = (sqlite3.IntegrityError, psycopg.IntegrityError)
 
 
@@ -237,9 +257,12 @@ def init_db(db_path: Path | None = None) -> None:
                     conn.raw.execute(sql.SQL("CREATE TRIGGER immutable_record BEFORE UPDATE OR DELETE ON {} "
                         "FOR EACH ROW EXECUTE FUNCTION civic_immutable()").format(sql.Identifier(table)))
                 conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (1,?)", (now_iso(),))
+            if not conn.execute("SELECT 1 FROM schema_migrations WHERE version=2").fetchone():
+                conn.raw.execute(AUTH_SCHEMA)
+                conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (2,?)", (now_iso(),))
         else:
             conn.execute("PRAGMA journal_mode = WAL")
-            conn.executescript(SCHEMA)
+            conn.executescript(SCHEMA + AUTH_SCHEMA)
 
 
 @contextmanager

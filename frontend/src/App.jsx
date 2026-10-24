@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { api } from "./api.js";
 import CaseDetail from "./CaseDetail.jsx";
+import Login, { ApprovalPage } from "./Login.jsx";
+import AccessRequests from "./AccessRequests.jsx";
 import CaseIntake from "./CaseIntake.jsx";
 import Insights from "./Insights.jsx";
 import { AuditView, FeedbackView, MubitView } from "./Panels.jsx";
@@ -20,6 +22,12 @@ export default function App() {
     try { localStorage.setItem("civic-theme", theme); } catch { /* Keep the preference for this session. */ }
   }, [theme]);
   const themeSwitch = <ThemeSwitch theme={theme} onToggle={() => setTheme(t => t === "dark" ? "light" : "dark")} />;
+  const [approvalToken, setApprovalToken] = useState(() => new URLSearchParams(window.location.hash.slice(1)).get("approve"));
+  useEffect(()=>{
+    if(approvalToken) window.history.replaceState(null,"",window.location.pathname+window.location.search);
+    const changed=()=>{const token=new URLSearchParams(window.location.hash.slice(1)).get("approve");if(token)setApprovalToken(token);};
+    window.addEventListener("hashchange",changed);return()=>window.removeEventListener("hashchange",changed);
+  },[approvalToken]);
   const [session, setSession] = useState(null);
   const [page, setPage] = useState("cases");
   const [adminTab, setAdminTab] = useState("feedback");
@@ -83,7 +91,8 @@ export default function App() {
     `${c.pcn_ref} ${c.location} ${c.claim}`.toLowerCase().includes(search.toLowerCase()));
   const due = open.filter(c => c.days_left !== null && c.days_left <= 7).length;
 
-  if (session && !session.authenticated) return <><div className="login-theme">{themeSwitch}</div><Login onLogin={setSession} /></>;
+  if (approvalToken) return <><div className="login-theme">{themeSwitch}</div><ApprovalPage token={approvalToken} onClose={()=>{setApprovalToken(null);api.session().then(setSession).catch(e=>setError(e.message));}}/></>;
+  if (session && !session.authenticated) return <><div className="login-theme">{themeSwitch}</div><Login onLogin={setSession} session={session} /></>;
   return <div className="app">
     <a className="skip-link" href="#main-content">Skip to case workspace</a>
     <header className="topbar">
@@ -120,7 +129,7 @@ export default function App() {
       </div>}
     </>}
     {page==="insights"&&<main id="main-content"><Insights revision={revision} onError={setError}/></main>}
-    {page==="admin"&&<main id="main-content" className="admin-page"><div className="section-heading"><div className="eyebrow">WORKSPACE ADMIN</div><h1>Behind the decisions<span className="blue">.</span></h1><p>Approved examples, model connections and the full audit trail.</p></div><div className="admin-tabs">{[["feedback","Learning & evaluation"],["mubit","Mubit connection"],["audit","Audit history"]].map(([id,label])=><button key={id} className={`btn ${adminTab===id?"primary":""}`} onClick={()=>setAdminTab(id)}>{label}</button>)}</div>{adminTab==="feedback"?<FeedbackView onError={setError}/>:adminTab==="mubit"?<MubitView health={health}/>:<AuditView/>}<details className="admin-import"><summary>Import synthetic cases</summary><p className="muted small">Choose an exported JSON array of cases.</p><input type="file" accept="application/json" aria-label="Import cases JSON" onChange={async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error("Choose a JSON array of cases.");const r=await api.importCases(data);await refresh();setToast(`Imported ${r.created.length} cases; skipped ${r.skipped_duplicates.length} duplicates.`);}catch(err){setError(err.message);}e.target.value="";}}/><button className="btn" disabled={seeding} onClick={seed}>Load sample appeals</button></details></main>}
+    {page==="admin"&&<main id="main-content" className="admin-page"><div className="section-heading"><div className="eyebrow">WORKSPACE ADMIN</div><h1>Behind the decisions<span className="blue">.</span></h1><p>Approved examples, model connections and the full audit trail.</p></div><div className="admin-tabs">{[["feedback","Learning & evaluation"],["mubit","Mubit connection"],["audit","Audit history"],...(session?.owner?[["access","Access requests"]]:[])].map(([id,label])=><button key={id} className={`btn ${adminTab===id?"primary":""}`} onClick={()=>setAdminTab(id)}>{label}</button>)}</div>{adminTab==="access"&&session?.owner?<AccessRequests/>:adminTab==="feedback"?<FeedbackView onError={setError}/>:adminTab==="mubit"?<MubitView health={health}/>:<AuditView/>}<details className="admin-import"><summary>Import synthetic cases</summary><p className="muted small">Choose an exported JSON array of cases.</p><input type="file" accept="application/json" aria-label="Import cases JSON" onChange={async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error("Choose a JSON array of cases.");const r=await api.importCases(data);await refresh();setToast(`Imported ${r.created.length} cases; skipped ${r.skipped_duplicates.length} duplicates.`);}catch(err){setError(err.message);}e.target.value="";}}/><button className="btn" disabled={seeding} onClick={seed}>Load sample appeals</button></details></main>}
     {intake&&<CaseIntake onClose={()=>setIntake(false)} onCreated={async id=>{await refresh();setSelected(id);setIntake(false);setPage("cases");setFilter("open");setSearch("");setToast("Appeal added to your queue.");}}/>}
   </div>;
 }
@@ -131,9 +140,4 @@ function ThemeSwitch({theme, onToggle}) {
     <span className={theme === "light" ? "theme-option active" : "theme-option"}><Icon name="sun" size={16}/></span>
     <span className={theme === "dark" ? "theme-option active" : "theme-option"}><Icon name="moon" size={16}/></span>
   </button>;
-}
-
-function Login({onLogin}) {
-  const [name,setName]=useState("");const [password,setPassword]=useState("");const [error,setError]=useState("");const [busy,setBusy]=useState(false);
-  return <main className="login-screen"><form className="login-card" onSubmit={async e=>{e.preventDefault();setBusy(true);try{await api.login({name,password});onLogin(await api.session());}catch(err){setError(err.message);}finally{setBusy(false);}}}><Mark/><div className="eyebrow">CIVIC / PRIVATE WORKSPACE</div><h1>Back to the desk.</h1><p>Sign in to review your council’s synthetic appeals.</p>{error&&<p role="alert" className="alert error">{error}</p>}<label>Reviewer name<input required autoComplete="name" value={name} onChange={e=>setName(e.target.value)}/></label><label>Workspace password<input required type="password" autoComplete="current-password" value={password} onChange={e=>setPassword(e.target.value)}/></label><button disabled={busy} className="btn primary large">{busy?"Signing in…":"Open workspace"}<Icon name="arrow"/></button></form></main>;
 }

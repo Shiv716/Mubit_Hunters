@@ -1,5 +1,7 @@
 # For a NEW service. Existing mubit-hunters service: apply these settings in its dashboard.
 # No credentials are stored here. The database is the user's existing Neon project.
+# Approval notifications: add RESEND_API_KEY and PCN_EMAIL_FROM in Environment.
+# Existing service: set the Auth URL and owner email together as described in docs/DEPLOYMENT.md.
 services:
   - type: web
     name: mubit-hunters
@@ -15,6 +17,12 @@ services:
         sync: false
       - key: PCN_COOKIE_SECURE
         value: 'true'
+      - key: NEON_AUTH_BASE_URL
+        value: https://ep-dry-cake-za1nvk8t.neonauth.c-2.eu-west-2.aws.neon.tech/neondb/auth
+      - key: PCN_ACCESS_REQUEST_EMAIL
+        sync: false
+      - key: PCN_ALLOW_PASSWORD_LOGIN
+        value: 'false'
       - key: DATABASE_URL
         sync: false
       - key: PCN_DB_SCHEMA

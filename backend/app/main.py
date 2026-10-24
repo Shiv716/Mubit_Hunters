@@ -6,7 +6,7 @@ import json
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, urlsplit
 from typing import Literal
 
 from fastapi import Depends, FastAPI, File, HTTPException, Query, UploadFile
@@ -14,8 +14,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Request
 from fastapi.responses import FileResponse, JSONResponse, Response
 from fastapi.staticfiles import StaticFiles
+from starlette.concurrency import run_in_threadpool
 from .workspace import router as workspace_router
-from .access import router as access_router, identity, secret
+from .access import router as access_router, identity, secret, required
+from .email_access import router as email_access_router
+from .neon_auth import auth_url, owner_email, public_origin
+from pydantic import EmailStr, TypeAdapter
 
 from .ai.adapters import get_adapter
 from .config import DATA_DIR, get_settings
@@ -35,6 +39,16 @@ async def lifespan(_: FastAPI):
         raise RuntimeError("Render requires DATABASE_URL so cases survive redeploys.")
     if os.getenv("RENDER") and get_settings().evidence_storage != "database":
         raise RuntimeError("Use PCN_EVIDENCE_STORAGE=database on Render so attachments survive redeploys.")
+    if auth_url():
+        if len(secret()) < 16 or not get_settings().database_url:
+            raise RuntimeError("Neon Auth requires DATABASE_URL and PCN_ACCESS_KEY of at least 16 characters.")
+        TypeAdapter(EmailStr).validate_python(owner_email())
+        parsed_auth = urlsplit(auth_url())
+        parsed_origin = urlsplit(public_origin())
+        if parsed_auth.scheme != "https" or not parsed_auth.hostname or parsed_auth.username or parsed_auth.query or parsed_auth.fragment:
+            raise RuntimeError("NEON_AUTH_BASE_URL must be the HTTPS Auth URL from Neon.")
+        if parsed_origin.scheme not in ("http", "https") or not parsed_origin.hostname or parsed_origin.path or parsed_origin.query or parsed_origin.fragment or parsed_origin.username:
+            raise RuntimeError("Set PCN_PUBLIC_ORIGIN to the application's origin, without a path.")
     init_db()
     yield
 
@@ -43,14 +57,19 @@ app = FastAPI(title="PCN Review Copilot", version="0.1.0", lifespan=lifespan)
 app.add_middleware(CORSMiddleware, allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
                    allow_methods=["*"], allow_headers=["*"])
 app.include_router(access_router)
+app.include_router(email_access_router)
 app.include_router(workspace_router)
 
 
 @app.middleware("http")
 async def access_gate(request: Request, call_next):
     path = request.url.path
-    if secret() and path.startswith("/api/") and path not in ("/api/session", "/api/health", "/api/ready"):
-        name = identity(request)
+    public_paths = {"/api/session", "/api/session/email/request", "/api/session/email/verify", "/api/health", "/api/ready"}
+    if path == "/api/access-requests" and request.method == "POST":
+        public_paths.add(path)
+    public_paths.update({"/api/access-requests/inspect", "/api/access-requests/approve"})
+    if required() and path.startswith("/api/") and path not in public_paths:
+        name = await run_in_threadpool(identity, request)
         if not name:
             return JSONResponse({"detail": "Sign in to the workspace."}, status_code=401)
         request.state.reviewer = name

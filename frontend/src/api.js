@@ -21,6 +21,13 @@ const post = (path, body) => request(path, { method: "POST", body: body === unde
 export const api = {
   session: () => request("/session"),
   login: (body) => post("/session", body),
+  requestEmailCode: (body) => post("/session/email/request", body),
+  verifyEmailCode: (body) => post("/session/email/verify", body),
+  requestAccess: body => post("/access-requests", body),
+  inspectApproval: body => post("/access-requests/inspect", body),
+  approveAccess: body => post("/access-requests/approve", body),
+  accessRequests: () => request("/access-requests"),
+  accessDecision: (id, body) => post(`/access-requests/${id}/decision`, body),
   logout: () => request("/session", { method: "DELETE" }),
   queue: () => request("/queue"),
   insights: () => request("/insights"),

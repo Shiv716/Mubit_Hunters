@@ -25,6 +25,10 @@ def _isolated_env(tmp_path, monkeypatch):
     monkeypatch.delenv("PCN_DB_SCHEMA", raising=False)
     monkeypatch.delenv("PCN_EVIDENCE_STORAGE", raising=False)
     monkeypatch.delenv("RENDER", raising=False)
+    monkeypatch.delenv("RESEND_API_KEY", raising=False)
+    monkeypatch.delenv("PCN_EMAIL_FROM", raising=False)
+    for name in ("NEON_AUTH_BASE_URL", "PCN_ACCESS_REQUEST_EMAIL", "PCN_ALLOW_PASSWORD_LOGIN", "PCN_PUBLIC_ORIGIN", "RENDER_EXTERNAL_URL"):
+        monkeypatch.delenv(name, raising=False)
     test_url = os.getenv("PCN_TEST_DATABASE_URL")
     schema = f"civic_test_{uuid4().hex}"
     if test_url:

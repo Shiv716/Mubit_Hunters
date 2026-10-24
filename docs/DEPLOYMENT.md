@@ -33,6 +33,34 @@ Choose **Manual Deploy → Deploy latest commit** if automatic deployment is dis
 
 `render.yaml` documents the same settings for a **new** service. Do not create a new Blueprint for this existing service: it can create a duplicate, and secret placeholders do not configure an existing service's environment. Apply the settings above to the current service instead.
 
+## Request access and Neon Auth
+
+Flow: **Request access → owner reviews → approve → applicant signs in with a Neon email code**. No workspace password is emailed. All email domains may request access; subscription/domain enforcement is not implemented.
+
+In the existing Render service, add these variables together and redeploy:
+
+| Variable | Value |
+|---|---|
+| `NEON_AUTH_BASE_URL` | `https://ep-dry-cake-za1nvk8t.neonauth.c-2.eu-west-2.aws.neon.tech/neondb/auth` |
+| `PCN_ACCESS_REQUEST_EMAIL` | Your email address; it receives requests and becomes the sole workspace owner |
+| `RESEND_API_KEY` | Your Resend API key, for request and approval notifications |
+| `PCN_EMAIL_FROM` | A sender on your verified Resend domain, e.g. `Civic <access@yourdomain.com>` |
+| `PCN_ALLOW_PASSWORD_LOGIN` | `false` (default with Neon Auth enabled) |
+
+Keep the existing `DATABASE_URL`, `PCN_ACCESS_KEY` (now the cookie signing secret), `PCN_COOKIE_SECURE=true` and public origin. Auth and database must point to the **same Neon branch**. The database role needs read access to `neon_auth.session` and `neon_auth.user`; Civic never writes those managed tables.
+
+In **Neon → Settings → Better Auth**, enable email sign-up/sign-in and add `https://mubit-hunters.onrender.com` as a trusted domain/origin. Enable email verification. The app uses Neon's Email OTP sign-in API, which verifies the mailbox and can create an account after approval. Sign in as `PCN_ACCESS_REQUEST_EMAIL` to bootstrap the owner; no manual user insert is needed. For local use, add your local origin too and set `PCN_COOKIE_SECURE=false`.
+
+Neon sends login codes through its configured email provider. Resend sends the custom owner/requester notifications; its sender domain must be verified to reach arbitrary recipients. This does not restrict the domains allowed to **request** access. Do not subscribe Neon email webhooks unless you also implement their delivery handler.
+
+Requests live in the `civic.access_requests` table, with an additive version-2 migration. **Workspace admin → Access requests** lets the owner approve, revoke, or retry a failed approval notification. If Resend is unconfigured or unavailable, the request still persists and this list is the fallback. A successful HTTP request means the request was saved, not that email delivery succeeded. The UI shows notification failures to the owner.
+
+The owner email contains a private review link that expires after 24 hours. Opening it does not change access: the owner presses **Approve access** on the page, preventing email scanners from approving requests. The link is single-use and stored only as a hash. Treat it as an approval credential. Approved users receive a link back to sign in; they must prove ownership of their email through Neon before seeing cases.
+
+Every authenticated request checks both the live Neon session and Civic approval. Unverified accounts, banned users, expired/revoked Neon sessions and revoked memberships are blocked. Civic uses a first-party HttpOnly cookie so this flow does not depend on Safari allowing third-party auth cookies. Signing out clears the Civic browser session; it does not sign the person out of other applications using Neon Auth. Shared-password sessions stop working once Neon Auth is enabled unless the owner explicitly enables `PCN_ALLOW_PASSWORD_LOGIN=true` for recovery. Keep that option off and rotate any previously shared workspace password.
+
+References: [Neon Email OTP](https://neon.com/docs/auth/guides/plugins/email-otp), [email configuration](https://neon.com/docs/auth/guides/customize-emails), [Resend sender domains](https://resend.com/docs/dashboard/domains/introduction).
+
 ## Local development
 
 Use Python 3.14 and Node 22.12 or newer:
@@ -109,6 +137,6 @@ npm run build --prefix frontend
 docker build -t civic-check .
 ```
 
-SQLite: 46 passed, two PostgreSQL-only skips. A separate PostgreSQL run covers 17 relevant API, workspace and persistence checks, including competing decisions and migration. CI provisions a disposable PostgreSQL service; tests use randomly named schemas and never use `DATABASE_URL` from `.env`. Set `PCN_TEST_DATABASE_URL` only to an expendable test database when running that suite yourself.
+The suite includes focused approval, verified-identity, revocation, mail-failure and migration checks alongside the existing case workflow checks. A separate PostgreSQL run covers concurrent approval and the managed-auth schema contract. CI provisions a disposable PostgreSQL service; tests use randomly named schemas and never use `DATABASE_URL` from `.env`. Set `PCN_TEST_DATABASE_URL` only to an expendable test database when running that suite yourself.
 
 Deployment configuration follows the [Render Blueprint specification](https://render.com/docs/blueprint-spec), [health-check guidance](https://render.com/docs/health-checks) and [Neon's Python connection guidance](https://neon.com/docs/guides/python). See [ARCHITECTURE.md](ARCHITECTURE.md) for the implemented product and its current limits.

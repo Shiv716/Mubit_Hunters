@@ -47,14 +47,23 @@ No live Mubit credential was needed for implementation or the offline tests. Aut
 
 ## Access and data
 
-For private demos, `PCN_ACCESS_KEY` enables a 12-hour signed, HTTP-only session. Reviewer names are self-declared. Everyone with the shared password has the same capabilities; Admin is navigation separation, not a permission boundary. Production mode and Render require a password of at least 16 characters. Render defaults to secure cookies and accepts its supplied external URL as the application origin. `/api/health` reports configuration; `/api/ready` checks database connectivity without exposing credentials.
+Neon Better Auth email verification and owner-approved membership protect the hosted workspace (see below). `PCN_ACCESS_KEY` signs the first-party cookie and must be at least 16 characters in production. Without Neon Auth configured, the older shared-password flow remains available for local/bootstrap use; its reviewer names are self-declared. Access management is owner-only; the other Admin panels remain shared reviewer tools. Render defaults to secure cookies and accepts its supplied external URL as the application origin. `/api/health` reports configuration; `/api/ready` checks database connectivity without exposing credentials.
 
 Only synthetic cases are accepted by intake. This flag is an assertion, not a personal-data detector. Upload only synthetic attachments. Mubit calls can contain appeal text, evidence descriptions and rule findings; masking an explicit registration field does not guarantee anonymisation of free text. `MUBIT_RECORD=full` permits provider-side recording, subject to the provider account settings.
 
 ## Before a real council rollout
 
-This MVP deliberately stays one web service plus Neon. A live pilot would first require approved council policies, validated statutory-stage/deadline logic, SSO and roles, independent security/privacy review, retention and backup policies, OCR/image handling if needed, and authorised case-system integrations. Move large or numerous files to object storage and add a background job queue when workloads justify them. Database attachments count toward Neon storage and backup usage; replaced blobs are retained, with no automatic retention cleanup.
+This MVP deliberately stays one web service plus Neon. A live pilot would first require approved council policies, validated statutory-stage/deadline logic, enterprise SSO and detailed council roles, independent security/privacy review, retention and backup policies, OCR/image handling if needed, and authorised case-system integrations. Move large or numerous files to object storage and add a background job queue when workloads justify them. Database attachments count toward Neon storage and backup usage; replaced blobs are retained, with no automatic retention cleanup.
 
 ## Design
 
 Warm cream surfaces and ticket-like case files give the work a familiar structure. Electric blue identifies actions; lime highlights copilot information. Small monospace labels and a pixel-style mark supply the retro character. The main screen contains queue, evidence and decision; technical provider details, feedback curation and evaluation remain in Admin. Responsive layouts stack the panels on smaller screens. Keyboard focus, labelled controls and reduced-motion styles are included.
+
+
+## Approved workspace membership
+
+React offers Request access and email-code sign-in. FastAPI stores pending requests, expiry-limited hashed approval links and decisions in the Civic schema in Neon. Resend delivers custom request/approval notifications; the owner review list is the fallback when notifications fail. The configured owner email is the only identity allowed to administer membership. All other approved members can review the shared synthetic case workspace.
+
+Neon's managed Better Auth issues and verifies sign-in codes. FastAPI calls the fixed Auth Base URL server-side, obtains the authenticated session token, and resolves it against the same branch's read-only managed `neon_auth` tables. The raw token is neither returned to the browser nor saved by Civic. A signed, first-party HttpOnly cookie references the Neon session/user IDs for up to 12 hours, bounded by the Neon session expiry. Every API request rechecks the live session, email verification, ban status and Civic approval, so revoked access is enforced immediately. No custom OTP generator or email-password provisioning remains.
+
+Owner email links carry a single-use approval credential in the fragment (removed from browser history when opened). Reading a link has no approval side effect; an explicit POST approves it. Approval and Neon mailbox verification are distinct gates. The app still has one shared workspace; multi-tenant subscriptions and verified organization domains remain future work.

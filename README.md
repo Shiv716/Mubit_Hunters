@@ -24,7 +24,7 @@ Open <http://127.0.0.1:5173>, then choose **Explore sample appeals**. No key is 
 - Explicit officer choices, editable response drafts, save-and-next, response downloads and a persistent case history.
 - Evidence attachments, JSON import, feedback approval, example retrieval and evaluation tools under Admin.
 - Insights calculated from saved decisions; no invented accuracy or savings claims.
-- Shared-password demo access, Neon/PostgreSQL persistence on Render, and SQLite for offline use.
+- Owner-approved access requests with Neon Better Auth email sign-in, Neon/PostgreSQL persistence on Render, and SQLite for offline use.
 
 ```mermaid
 flowchart LR
@@ -65,7 +65,7 @@ The 40 original tests and four workspace tests are retained. Four focused persis
 
 ## Scope
 
-This is a **synthetic-data MVP**, not a live council system. The agent reads supplied records and evidence descriptions; it does not fetch council records, interpret uploaded image/PDF contents, send letters or cancel PCNs. Response dates are imported or entered, not calculated as legal advice. The shared password is not SSO or role-based access. Audit rows are append-only in the application, not independently tamper-proof.
+This is a **synthetic-data MVP**, not a live council system. The agent reads supplied records and evidence descriptions; it does not fetch council records, interpret uploaded image/PDF contents, send letters or cancel PCNs. Response dates are imported or entered, not calculated as legal advice. Membership approval has an owner boundary; detailed council roles and enterprise SSO are not implemented. Audit rows are append-only in the application, not independently tamper-proof.
 
 Approved examples already inform later reviews. Mubit model training, deployment and measured model improvement remain unverified until exercised with account credentials. The older [design notes](docs/03-architecture.md) describe future scope; `docs/ARCHITECTURE.md` is the implementation reference.
 

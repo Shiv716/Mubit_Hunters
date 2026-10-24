@@ -58,6 +58,22 @@ The documents live in `backend/data/consumer-demo/`; regenerate them with `pytho
 
 ## Honest product boundaries
 
+### Homepage figures
+
+The homepage presents dated industry context instead of zero-valued product success counters. `frontend/src/MarketingImpact.jsx` keeps each figure, its scope, method and source together. It must never describe industry activity as Civic customers, wins or savings. Live parking-location and guidance-source counts remain visible; the backend's real assessment/outcome counts are unchanged.
+
+Checked 24 October 2026:
+
+- **16.9 million** private-parking DVLA keeper lookups in 2025/26, as reported in [RAC's analysis](https://www.rac.co.uk/drive/news/motoring-news/record-17-million-private-parking-tickets-issued/). Approximately **46,300/day** = rounded annual figure / 365, rounded to the nearest 100. Lookups are a proxy for enforcement activity, not unique motorists or a complete ticket count. Broader UK context, not an England-only total.
+- **5,171,275** London parking PCNs in 2024/25, rounded to **5.17m**. [London Councils](https://www.londoncouncils.gov.uk/services/parking-services/enforcement-and-appeals-statistics), Annual Penalty Charge Notice Statistics 2024–25, TOTAL row / Total Parking PCNs column. Includes boroughs and TfL; excludes bus lanes, moving traffic and lorry control. Do not use the 9,462,185 all-contraventions total as a parking-only number.
+- **50.5%** of appeals completing the POPLA process ended in cancellation: **54,100 / 107,202**, including **39,522** uncontested appeals and **14,578** allowed appeals. [POPLA 2025 report](https://tag-craft.files.svdcdn.com/production/assets/assets/POPLA/Annual-Reports/POPLA-Report-2025.pdf?dm=1777455861), page 5. This selected second-stage appeal population does not establish the probability of any individual appeal succeeding, nor Civic's success rate. Cancellations are not necessarily refunds.
+- **£29.791m** Westminster PCN enforcement revenue, 2024/25, rounded to **£29.8m**. [Council annual report](https://www.westminster.gov.uk/media/document/wcc-parking-annual-report-2024-25), page 23, Enforcement – Penalty Charge Notices, 2024/25 Actual, in £000. Includes parking and traffic PCNs, not just parking tickets. Revenue is not profit; parking surplus spending is described on page 6. This is one borough's reported revenue, not a nationwide/private-sector revenue estimate.
+- **£60** is explicitly an illustration: if £60 would otherwise be paid and an unpaid charge is cancelled in full, £60 of payment is avoided. It is not an observed saving, refund, prediction or claim that every charge is £60. Use the actual payable amount including any available discount; losing a discount can increase the cost of an unsuccessful challenge.
+
+These populations and periods are distinct and must not be added. No verified national figure for unique people affected or total money actually collected by private parking firms is asserted. No backend changes or extra environment variables are needed.
+
+### Product scope
+
 - Initial challenge preparation for England council parking PCNs and private parking charges. Rejections, debt collection, court papers and uncertain stages are routed to specialist help without an initial-challenge draft.
 - Seven dated primary-source summaries are bundled, including government procedure, England enforcement guidance and conditional private keeper liability. This is a focused starting library, not complete legal knowledge, a live legal search engine or every council's policy. Maintain and revalidate it before expanding coverage.
 - The October 2026 private parking code publication must not be treated as commencement. Its parliamentary and transition conditions are preserved in the source summaries.

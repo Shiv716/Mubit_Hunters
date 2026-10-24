@@ -34,6 +34,7 @@ from .service import (WorkflowError, case_detail, create_case, curate_feedback, 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    load_policy()  # Reject an unavailable configured policy before serving requests.
     if (os.getenv("PCN_ENV") == "production" or os.getenv("RENDER")) and len(secret()) < 16:
         raise RuntimeError("Production requires PCN_ACCESS_KEY with at least 16 characters.")
     if os.getenv("RENDER") and not get_settings().database_url:

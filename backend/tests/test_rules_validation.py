@@ -1,8 +1,14 @@
 import json
+from copy import deepcopy
 
+import pytest
+
+from app.ai.adapters import StubAdapter
 from app.config import DATA_DIR
 from app.models import CaseIn
+from app.policy import load_policy
 from app.rules import deterministic_indicator, run_rules
+from app.service import review_core
 from app.validation import validate_case
 
 
@@ -79,7 +85,7 @@ def test_vrm_mismatch_is_validation_error():
     assert _indicator(CASES["vrm_mismatch"]) == "needs_review"
 
 
-def test_duplicates_and_missing_evidence():
+def test_duplicate_evidence():
     case = CASES["paid_covered"].model_copy(deep=True)
     dup = case.evidence[1].model_copy(update={"id": "E9"})
     case.evidence.append(dup)
@@ -87,10 +93,44 @@ def test_duplicates_and_missing_evidence():
     codes = {i.code for i in validate_case(case)}
     assert {"duplicate_evidence_file", "duplicate_evidence_id"} <= codes
 
-    bare = CASES["paid_covered"].model_copy(deep=True)
-    bare.evidence = []
-    codes = {i.code for i in validate_case(bare)}
-    assert "missing_required_evidence" in codes
+
+@pytest.mark.parametrize("code", ["01", "05", "11", "12", "40"])
+def test_default_policy_does_not_require_ceo_photos(code):
+    case = next(c for c in CASES.values() if c.contravention_code == code).model_copy(deep=True)
+    case.evidence = [e for e in case.evidence if e.type != "ceo_photo"]
+    core = review_core(case, StubAdapter())
+    assert core.bundle["required_evidence"] == []
+    assert not any(i.code == "missing_required_evidence" for i in core.issues)
+
+
+def test_selected_council_policy_requires_photos_only_for_configured_code(monkeypatch, tmp_path):
+    from app import policy as policy_module
+
+    policy = deepcopy(load_policy())
+    policy["policy_version"] = "test-council-photo-policy-v1"
+    policy["contraventions"]["11"]["required_evidence"] = ["ceo_photo"]
+    policy["contraventions"]["12"].pop("required_evidence")  # Omission also means optional.
+    filename = "council-photo-required.json"
+    (tmp_path / filename).write_text(json.dumps(policy))
+    monkeypatch.setattr(policy_module, "POLICY_DIR", tmp_path)
+    monkeypatch.setenv("PCN_POLICY_FILE", filename)
+
+    case = CASES["paid_covered"].model_copy(deep=True)
+    original = case.evidence
+    case.evidence = [e for e in original if e.type != "ceo_photo"]
+    core = review_core(case, StubAdapter())
+    assert core.bundle["policy_version"] == policy["policy_version"]
+    assert core.bundle["required_evidence"] == ["ceo_photo"]
+    assert any(i.code == "missing_required_evidence" and i.severity == "error" for i in core.issues)
+    assert core.safety.effective_recommendation == "needs_review"
+    case.evidence = original
+    assert review_core(case, StubAdapter()).safety.effective_recommendation == "accept"
+
+    other = CASES["permit_valid"].model_copy(deep=True)
+    other.evidence = [e for e in other.evidence if e.type != "ceo_photo"]
+    core = review_core(other, StubAdapter())
+    assert core.bundle["required_evidence"] == []
+    assert core.safety.effective_recommendation == "accept"
 
 
 def test_inconsistent_dates():

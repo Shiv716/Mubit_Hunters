@@ -24,6 +24,7 @@ Before the first import, configure the server:
 | `PCN_COUNCIL_ID` | Stable ID; default `northgate-sandbox` |
 | `PCN_COUNCIL_NAME` | Officer-facing name; default `Northgate Borough` |
 | `PCN_CASE_SYSTEM` | Stable source-system name; default `generic` |
+| `PCN_POLICY_FILE` | JSON filename in `backend/policy`; default `policy_v2.json` |
 | `PCN_INTEGRATION_KEY` | Dedicated random secret of at least 32 characters, shared only with the connector |
 | `AI_PROVIDER` | `mubit` |
 | `MUBIT_API_KEY` | Mubit inference credential, stored server-side |
@@ -32,6 +33,12 @@ Before the first import, configure the server:
 The first successful import binds the database to its council ID and source system. Changing those settings afterward is refused; do not repurpose a populated workspace for another council. A display name can change. Existing Render services need these values set through Environment; changing `render.yaml` alone does not change their environment.
 
 Hosted AI reviews fail with a clear setup error when Mubit is unavailable or `AI_PROVIDER=stub`. The stub remains usable for local development on ordinary synthetic cases and automated tests. Connected cases always require Mubit, including local development. Setting credentials does not prove successful inference; inspect a completed review's provider and request ID.
+
+### Evidence requirements
+
+CEO (Civil Enforcement Officer) photos are optional in the default policy. For a council that explicitly requires one for a particular contravention, package a versioned policy JSON in `backend/policy`, add `"ceo_photo"` to that contravention's `required_evidence` list, and select the filename with `PCN_POLICY_FILE` before redeploying. An empty or omitted list imposes no mandatory evidence types. Other record checks, claim-support checks and officer judgement still apply.
+
+The same selected policy drives validation and the evidence requirements sent to Mubit. Give each changed policy a new `policy_version`. Existing checks and reviews retain their original versions; choose **Review again** to apply the new policy to an open case. The original `policy_v1.json` is retained for historical reference and is no longer the default. Council-specific files remain subject to the current synthetic-data limitation.
 
 ## Exchange contract v1
 

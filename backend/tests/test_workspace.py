@@ -52,6 +52,28 @@ def test_correction_requires_reason_and_stale_review_is_rejected(client):
     assert client.get("/api/feedback").json()[0]["curation_status"] == "pending"
 
 
+def test_review_again_applies_optional_photo_policy_and_preserves_history(client, demo_cases, monkeypatch):
+    monkeypatch.setenv("PCN_POLICY_FILE", "policy_v1.json")
+    case = dict(demo_cases[0], evidence=[])
+    created = client.post("/api/cases", json=case).json()
+    cid = created["id"]
+    assert any(i["code"] == "missing_required_evidence" for i in created["checks"]["validation"])
+    old_review = client.post(f"/api/cases/{cid}/review").json()["ai_reviews"][0]
+    assert old_review["effective_recommendation"] == "needs_review"
+
+    monkeypatch.delenv("PCN_POLICY_FILE")
+    detail = client.post(f"/api/cases/{cid}/review").json()
+    assert detail["checks"]["policy_version"] == "demo-council-policy-2026.10-v2"
+    assert not any(i["code"] == "missing_required_evidence" for i in detail["checks"]["validation"])
+    assert detail["ai_reviews"][1] == old_review
+    review = detail["ai_reviews"][0]
+    assert review["effective_recommendation"] == "accept"
+    assert client.post(f"/api/cases/{cid}/resolve", json={
+        "outcome": "accept", "review_id": review["id"], "response": "Payment was verified.",
+        "reviewer": "Test officer",
+    }).status_code == 200
+
+
 def test_investigator_rejects_unknown_tools_and_vulnerability_is_flagged(client, demo_cases):
     class BadPlanner(StubAdapter):
         def complete(self, system, user, schema):

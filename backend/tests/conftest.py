@@ -24,6 +24,7 @@ def _isolated_env(tmp_path, monkeypatch):
     monkeypatch.delenv("DATABASE_URL", raising=False)
     monkeypatch.delenv("PCN_DB_SCHEMA", raising=False)
     monkeypatch.delenv("PCN_EVIDENCE_STORAGE", raising=False)
+    monkeypatch.delenv("PCN_POLICY_FILE", raising=False)
     monkeypatch.delenv("RENDER", raising=False)
     monkeypatch.delenv("RESEND_API_KEY", raising=False)
     monkeypatch.delenv("PCN_EMAIL_FROM", raising=False)

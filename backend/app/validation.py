@@ -47,11 +47,11 @@ def validate_case(case: CaseIn, policy: dict | None = None) -> list[ValidationIs
             add("duplicate_evidence_file", "warning",
                 f"Evidence items {', '.join(ids)} have identical file content.", "evidence")
 
-    # Evidence: required for the contravention
+    # Only the selected council policy can make an evidence type mandatory.
     present_types = {e.type for e in case.evidence}
     spec = contraventions.get(case.contravention_code)
     if spec:
-        for req in spec["required_evidence"]:
+        for req in spec.get("required_evidence", []):
             if req not in present_types:
                 add("missing_required_evidence", "error",
                     f"Required evidence '{req}' for code {case.contravention_code} is missing.", "evidence")

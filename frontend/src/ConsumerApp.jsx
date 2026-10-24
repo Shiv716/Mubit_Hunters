@@ -1,6 +1,7 @@
 import {lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {Icon, Mark} from "./Icons.jsx";
 import {driverApi} from "./driverApi.js";
+import {daysUntilNoticeDate} from "./driverDates.js";
 import DriverCase from "./DriverCase.jsx";
 import "./consumer.css";
 const ParkingMap = lazy(() => import("./ParkingMap.jsx"));
@@ -27,7 +28,7 @@ export default function ConsumerApp() {
   async function signOut() {try {await driverApi.logout(); setSession({authenticated:false, configured:session.configured}); setRows(null); go("home");} catch(e) {setError(e.message);}}
   const needsAccount = page.startsWith("appeal") && !session?.authenticated;
   return <div className="driver-app">
-    <a className="skip-link" href="#driver-main">Skip to content</a>
+    <a className="skip-link" href="#driver-main" onClick={event=>{event.preventDefault();const main=document.getElementById("driver-main");if(main){main.tabIndex=-1;main.focus();main.scrollIntoView();}}}>Skip to content</a>
     <header className="topbar driver-topbar">
       <a className="brand" href="#home"><Mark/><span>civic<span className="brand-dot">.</span><small>ON YOUR SIDE. ON YOUR WAY.</small></span></a>
       <nav className="main-nav" aria-label="Main navigation">{[["home","Overview"],["parking","Find parking"],["appeals","My appeals"]].map(([id,label]) => <a key={id} className={`nav-item ${page === id || id === "appeals" && page.startsWith("appeal/") ? "active" : ""}`} href={`#${id}`}>{label}</a>)}</nav>
@@ -68,6 +69,6 @@ function Guide({info,onStart,busy}) {return <main id="driver-main" className="dr
 function Privacy(){return <main id="driver-main" className="driver-main driver-privacy"><div className="eyebrow">YOUR DATA, EXPLAINED</div><h1>Your case stays yours<span className="blue">.</span></h1><section><h2>Accounts and evidence</h2><p>Neon Auth verifies your email. Your cases, photos and drafts are stored in Neon and served by the application on Render. Each driver can access only their own cases. A driver account does not grant access to the council workspace.</p><h2>When Mubit reads your case</h2><p>Ticket reading and assessments send the facts and attached photos to Mubit and its configured model provider only after you allow AI processing for that case. Remove unrelated personal information before uploading. This app requests metadata-only recording at Mubit; your uploads are not automatically submitted as training examples. Provider processing and retention still follow their terms.</p><h2>Keeping and removing your work</h2><p>Cases remain until you delete them. Deleting an appeal removes its facts, photos, reviews and history from the active application database. Backups and provider records may remain under the hosting providers’ retention policies. Signing out removes your local sign-in cookie; it does not delete your account.</p><h2>Parking and public statistics</h2><p>Map tiles are supplied by OpenFreeMap; submitted place searches use Photon. Location access is optional. These providers and normal server logs may receive queries or coordinates. Public statistics count completed assessments and separately verified outcomes. They never show your ticket, name or photos.</p></section></main>;}
 
 export function Deadline({date:value}) {
-  const days = Math.ceil((Date.parse(value+"T23:59:59Z")-Date.now())/86400000);
+  const days = daysUntilNoticeDate(value);
   return <span className={days<=7?"driver-due":""}><Icon name="clock" size={14}/>{days<0?"Deadline passed":days===0?"Due today":`${days} days left`} · {new Date(value+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"short"})}</span>;
 }

@@ -54,6 +54,8 @@ async function mutate(path, options) {
 const post = (path, body) => mutate(path, { method: "POST", body: body === undefined ? undefined : JSON.stringify(body) });
 
 export const api = {
+  parkingNearby: ({lat, lon}, options) => request(`/parking/nearby?${new URLSearchParams({lat, lon})}`, options),
+  parkingSearch: q => request(`/parking/search?${new URLSearchParams({q})}`),
   session: () => request("/session"),
   login: (body) => post("/session", body),
   requestEmailCode: (body) => post("/session/email/request", body),
@@ -91,6 +93,9 @@ export const api = {
     return mutate(`/cases/${id}/evidence/${evidenceId}/file`, { method: "POST", body: fd });
   },
   feedback: () => cachedGet("/feedback"),
+  learningExamples: () => request("/learning/examples"),
+  saveCorrection: (id, body) => post(`/learning/examples/${id}/correction`, body),
+  exportCorrections: () => request("/learning/export"),
   curate: (id, body) => post(`/feedback/${id}/curate`, body),
   audit: () => cachedGet("/audit"),
   evaluations: () => cachedGet("/evaluations"),

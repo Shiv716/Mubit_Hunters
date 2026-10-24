@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "./api.js";
 import { Card, Chip, RecChip, fmt } from "./ui.jsx";
+import { LearningCorrections } from "./Learning.jsx";
 
-export function FeedbackView({ onError }) {
+export function FeedbackView({ onError, canManage }) {
   const [items, setItems] = useState([]);
   const [evals, setEvals] = useState([]);
   const load = () => {
@@ -22,6 +23,7 @@ export function FeedbackView({ onError }) {
 
   return (
     <div className="page">
+      <LearningCorrections canManage={canManage} onError={onError}/>
       <div className="banner info">
         <strong>Precedent retrieval is not model training.</strong> Curated officer decisions are retrieved for similar
         cases and passed to the model as guidance. Mubit adapter training is managed in the Mubit console and is

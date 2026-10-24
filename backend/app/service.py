@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from dataclasses import dataclass
 
 from .ai.adapters import ProviderResult
@@ -27,6 +28,7 @@ class CoreReview:
     bundle: dict
     result: ProviderResult
     safety: SafetyOutcome
+    input_snapshot: dict
 
 
 def review_core(case: CaseIn, adapter, precedents: list[dict] | None = None, policy: dict | None = None) -> CoreReview:
@@ -36,9 +38,19 @@ def review_core(case: CaseIn, adapter, precedents: list[dict] | None = None, pol
     rules = run_rules(case, policy)
     indicator = deterministic_indicator(rules, issues)
     bundle = build_bundle(case, issues, rules, policy, precedents)
-    result = adapter.complete(SYSTEM_PROMPT, build_user_message(bundle), OUTPUT_JSON_SCHEMA)
+    user_message = build_user_message(bundle)
+    # Capture at inference time, never reconstruct historical requests from current policy.
+    snapshot = {"messages": [{"role": "system", "content": SYSTEM_PROMPT},
+                             {"role": "user", "content": user_message}],
+                "output_schema": deepcopy(OUTPUT_JSON_SCHEMA), "bundle": deepcopy(bundle)}
+    settings = getattr(adapter, "settings", None)
+    if settings:
+        snapshot["gateway"] = {"route": settings.mubit_route, "requested_model": settings.mubit_model,
+                               "record": settings.mubit_record, "max_tokens": settings.mubit_max_tokens}
+    result = adapter.complete(SYSTEM_PROMPT, user_message, OUTPUT_JSON_SCHEMA)
+    snapshot["response_format"] = result.meta.get("response_format")
     safety = assess(result, bundle, indicator)
-    return CoreReview(issues, rules, indicator, bundle, result, safety)
+    return CoreReview(issues, rules, indicator, bundle, result, safety, snapshot)
 
 
 # ---------------------------------------------------------------- intake & checks
@@ -133,6 +145,8 @@ def persist_review(conn, case_id, check_id, core, mode, precedents):
          r.latency_ms, json.dumps(r.usage) if r.usage else None, now_iso()),
     )
     review_id = cur.fetchone()[0]
+    conn.execute("INSERT INTO review_inputs (ai_review_id,input_json,created_at) VALUES (?,?,?)",
+                 (review_id, json.dumps(core.input_snapshot, ensure_ascii=False), now_iso()))
     _set_status(conn, case_id, "ai_failed" if s.status == "failed" else "ai_reviewed",
                 only_from=("new", "validated", "ai_reviewed", "ai_failed", "escalated"))
     audit(conn, case_id, "ai_review_failed" if s.status == "failed" else "ai_review_completed", "system", {

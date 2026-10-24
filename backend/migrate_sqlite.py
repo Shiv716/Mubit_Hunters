@@ -16,7 +16,7 @@ from app.db import PostgresConnection, init_db, transaction
 
 TABLES = ("cases", "checks", "ai_reviews", "decisions", "feedback_examples", "audit_events",
           "evaluation_runs", "investigations", "evidence_files", "evidence_blobs",
-          "integration_identity", "integration_cases", "integration_receipts")
+          "integration_identity", "integration_cases", "integration_receipts", "review_inputs", "model_corrections")
 
 
 def migrate(source_db: Path, evidence_dir: Path, apply: bool = False):
@@ -67,7 +67,7 @@ def migrate(source_db: Path, evidence_dir: Path, apply: bool = False):
                         sql.Identifier(table), sql.SQL(",").join(map(sql.Identifier, row)),
                         sql.SQL(",").join(sql.Placeholder() for _ in row))
                     target.raw.execute(statement, tuple(row.values()))
-                if table not in ("evidence_blobs", "integration_identity", "integration_cases", "integration_receipts"):
+                if table not in ("evidence_blobs", "integration_identity", "integration_cases", "integration_receipts", "review_inputs"):
                     qualified = f"{get_settings().db_schema}.{table}"
                     target.execute("SELECT setval(pg_get_serial_sequence(?, 'id'), "
                                    f"COALESCE((SELECT MAX(id) FROM {table}),1), "

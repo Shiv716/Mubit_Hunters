@@ -1,5 +1,8 @@
 # Running and deploying Civic
 
+The default route now serves the driver product. See [consumer deployment](CONSUMER.md#deployment-and-configuration) for public Neon email signup, private driver data and Mubit vision. Existing council approvals remain at `/#workspace`; Resend is not required for consumer signup. Migration 5 adds driver tables without copying or exposing council records.
+
+
 ## Existing Render service + Neon
 
 Use the existing [mubit-hunters service](https://mubit-hunters.onrender.com). Render runs the Docker image and provides HTTPS. Neon stores the cases, decisions, audit history and small evidence attachments. Render's filesystem can be replaced during a deployment without losing those records. No separate file bucket or Render disk is required in this setup.

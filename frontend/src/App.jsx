@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useLayoutEffect, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { api } from "./api.js";
 import CaseDetail from "./CaseDetail.jsx";
 import Login, { ApprovalPage } from "./Login.jsx";
@@ -8,6 +8,7 @@ import Insights from "./Insights.jsx";
 import CouncilConnection from "./CouncilConnection.jsx";
 import { AuditView, FeedbackView, MubitView } from "./Panels.jsx";
 import { Icon, Mark } from "./Icons.jsx";
+const ParkingMap = lazy(() => import("./ParkingMap.jsx"));
 
 export default function App() {
   const [theme, setTheme] = useState(() => {
@@ -30,7 +31,13 @@ export default function App() {
     window.addEventListener("hashchange",changed);return()=>window.removeEventListener("hashchange",changed);
   },[approvalToken]);
   const [session, setSession] = useState(null);
-  const [page, setPage] = useState("cases");
+  const [page, updatePage] = useState(() => window.location.hash === "#workspace" ? "cases" : "parking");
+  useEffect(() => {document.title = page === "parking" ? "Civic · Find parking" : "Civic · Review Copilot";}, [page]);
+  const setPage = useCallback(next => {
+    if (next === "parking") {window.location.hash = "parking"; return;}
+    updatePage(next);
+    window.history.replaceState(null, "", `${window.location.pathname}${window.location.search}${next === "parking" ? "#parking" : "#workspace"}`);
+  }, []);
   const [adminTab, setAdminTab] = useState("feedback");
   const [health, setHealth] = useState(null);
   const [policy, setPolicy] = useState(null);
@@ -55,12 +62,12 @@ export default function App() {
     return rows;
   }, []);
   useEffect(() => {
-    if (!session?.authenticated) return;
+    if (!session?.authenticated || page === "parking" || health) return;
     if (session.reviewer) setReviewer(session.reviewer);
     Promise.all([api.health(), api.policy(), api.queue()]).then(([h, p, rows]) => {
       setHealth(h); setPolicy(p); setCases(rows); setSelected(rows.find(r => r.lane !== "done")?.id ?? rows[0]?.id ?? null);
     }).catch(e => setError(e.message)).finally(() => setLoading(false));
-  }, [session]);
+  }, [session, page, health]);
   useEffect(() => {
     if (!toast) return;
     const t = setTimeout(() => setToast(""), 6000); return () => clearTimeout(t);
@@ -92,26 +99,32 @@ export default function App() {
     `${c.pcn_ref} ${c.location} ${c.claim}`.toLowerCase().includes(search.toLowerCase()));
   const due = open.filter(c => c.days_left !== null && c.days_left <= 7).length;
 
-  if (approvalToken) return <><div className="login-theme">{themeSwitch}</div><ApprovalPage token={approvalToken} onClose={()=>{setApprovalToken(null);api.session().then(setSession).catch(e=>setError(e.message));}}/></>;
-  if (session && !session.authenticated) return <><div className="login-theme">{themeSwitch}</div><Login onLogin={setSession} session={session} /></>;
-  return <div className="app">
-    <a className="skip-link" href="#main-content">Skip to case workspace</a>
+  if (approvalToken) return <><div className="login-theme">{themeSwitch}</div><ApprovalPage token={approvalToken} onClose={()=>{setApprovalToken(null);window.location.hash="workspace";api.session().then(setSession).catch(e=>setError(e.message));}}/></>;
+  if (page !== "parking" && session && !session.authenticated) return <><div className="login-theme">{themeSwitch}</div><Login onLogin={setSession} session={session} onBrowseParking={()=>setPage("parking")} /></>;
+  return <div className={`app ${page === "parking" ? "parking-active" : ""}`}>
+    <a className="skip-link" href="#main-content">Skip to main content</a>
     <header className="topbar">
-      <a className="brand" href="#" onClick={e=>{e.preventDefault();setPage("cases");}}><Mark/><span>civic<span className="brand-dot">.</span><small>REVIEW COPILOT</small></span></a>
+      <a className="brand" href="#parking" onClick={e=>{e.preventDefault();setPage("parking");}}><Mark/><span>civic<span className="brand-dot">.</span><small>{page === "parking" ? "PARK WITH PERSPECTIVE" : "REVIEW COPILOT"}</small></span></a>
       <nav className="main-nav" aria-label="Main navigation">
+        <button className={page==="parking"?"nav-item active":"nav-item"} onClick={()=>setPage("parking")}><Icon name="map"/>Find parking</button>
+        {session?.authenticated && <>
         <button className={page==="cases"?"nav-item active":"nav-item"} onClick={()=>setPage("cases")}><Icon name="inbox"/>Cases <span className="nav-count">{open.length}</span></button>
         <button className={page==="insights"?"nav-item active":"nav-item"} onClick={()=>setPage("insights")}><Icon name="chart"/>Insights</button>
         <button className={page==="connection"?"nav-item active":"nav-item"} onClick={()=>setPage("connection")}><Icon name="arrow"/>Council connection</button>
+        </>}
       </nav>
       <div className="top-right">
         {themeSwitch}
+        {!session?.authenticated ? <button className="btn" onClick={()=>setPage("cases")}>Sign in<Icon name="arrow" size={15}/></button> : <>
         <button className={`icon-btn ${page==="admin"?"selected":""}`} title="Workspace admin" aria-label="Workspace admin" onClick={()=>setPage("admin")}><Icon name="settings"/></button>
         <div className="profile-wrap"><button className="avatar" title="Reviewer profile" aria-label="Reviewer profile" onClick={()=>setProfile(!profile)}>{reviewer.split(" ").map(n=>n[0]).slice(0,2).join("")}</button>
         {profile && <div className="profile-popover"><label>Your reviewer name<input value={reviewer} disabled={session?.required} onChange={e=>{setReviewer(e.target.value);localStorage.setItem("reviewer",e.target.value);}}/></label><button className="btn" onClick={()=>setProfile(false)}>Done</button>{session?.required && <button className="btn" onClick={async()=>{await api.logout();setSession(await api.session());}}>Sign out</button>}</div>}</div>
+        </>}
       </div>
     </header>
     {error && <div className="alert error global-alert" role="alert"><span>{error}</span><button className="icon-btn" aria-label="Dismiss error" onClick={()=>setError("")}><Icon name="close"/></button></div>}
     {toast && <div className="toast" role="status"><Icon name="check"/>{toast}<button className="icon-btn" aria-label="Dismiss notification" onClick={()=>setToast("")}><Icon name="close" size={15}/></button></div>}
+    {page==="parking" && <Suspense fallback={<main id="main-content" className="empty-state" role="status"><span className="spinner"/>Opening parking explorer…</main>}><ParkingMap theme={theme}/></Suspense>}
     {page==="cases" && <>
       <div className="workspace-heading"><div><div className="eyebrow">{health?.council_name||"Council workspace"} / PARKING SERVICES</div><h1>Your review desk<span className="blue">.</span></h1><p>The facts together. The final call, yours.</p><button className="text-btn small connection-indicator" onClick={()=>setPage("connection")}>Council connection · Sandbox setup <Icon name="arrow" size={13}/></button></div>
         <div className="desk-summary"><span><b>{open.length.toString().padStart(2,"0")}</b> in your queue</span><span className={due?"attention":""}><Icon name="clock" size={16}/>{due} due within 7 days</span><button className="btn primary" onClick={()=>setIntake(true)}><Icon name="plus" size={16}/>New appeal</button></div>
@@ -132,7 +145,7 @@ export default function App() {
     </>}
     {page==="insights"&&<main id="main-content"><Insights revision={revision} onError={setError}/></main>}
     {page==="connection"&&<main id="main-content"><CouncilConnection canImport={session?.owner||!session?.required} onImported={refresh} onOpenCase={id=>{setSelected(id);setFilter("open");setSearch("");setPage("cases");}}/></main>}
-    {page==="admin"&&<main id="main-content" className="admin-page"><div className="section-heading"><div className="eyebrow">WORKSPACE ADMIN</div><h1>Behind the decisions<span className="blue">.</span></h1><p>Approved examples, model connections and the full audit trail.</p></div><div className="admin-tabs">{[["feedback","Learning & evaluation"],["mubit","Mubit connection"],["audit","Audit history"],...(session?.owner?[["access","Access requests"]]:[])].map(([id,label])=><button key={id} className={`btn ${adminTab===id?"primary":""}`} onClick={()=>setAdminTab(id)}>{label}</button>)}</div>{adminTab==="access"&&session?.owner?<AccessRequests/>:adminTab==="feedback"?<FeedbackView onError={setError}/>:adminTab==="mubit"?<MubitView health={health}/>:<AuditView/>}<details className="admin-import"><summary>Import synthetic cases</summary><p className="muted small">Choose an exported JSON array of cases.</p><input type="file" accept="application/json" aria-label="Import cases JSON" onChange={async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error("Choose a JSON array of cases.");const r=await api.importCases(data);await refresh();setToast(`Imported ${r.created.length} cases; skipped ${r.skipped_duplicates.length} duplicates.`);}catch(err){setError(err.message);}e.target.value="";}}/><button className="btn" disabled={seeding} onClick={seed}>Load sample appeals</button></details></main>}
+    {page==="admin"&&<main id="main-content" className="admin-page"><div className="section-heading"><div className="eyebrow">WORKSPACE ADMIN</div><h1>Behind the decisions<span className="blue">.</span></h1><p>Approved examples, model connections and the full audit trail.</p></div><div className="admin-tabs">{[["feedback","Learning & evaluation"],["mubit","Mubit connection"],["audit","Audit history"],...(session?.owner?[["access","Access requests"]]:[])].map(([id,label])=><button key={id} className={`btn ${adminTab===id?"primary":""}`} onClick={()=>setAdminTab(id)}>{label}</button>)}</div>{adminTab==="access"&&session?.owner?<AccessRequests/>:adminTab==="feedback"?<FeedbackView onError={setError} canManage={!!session && (!session.required || session.owner)}/>:adminTab==="mubit"?<MubitView health={health}/>:<AuditView/>}<details className="admin-import"><summary>Import synthetic cases</summary><p className="muted small">Choose an exported JSON array of cases.</p><input type="file" accept="application/json" aria-label="Import cases JSON" onChange={async e=>{const f=e.target.files[0];if(!f)return;try{const data=JSON.parse(await f.text());if(!Array.isArray(data))throw new Error("Choose a JSON array of cases.");const r=await api.importCases(data);await refresh();setToast(`Imported ${r.created.length} cases; skipped ${r.skipped_duplicates.length} duplicates.`);}catch(err){setError(err.message);}e.target.value="";}}/><button className="btn" disabled={seeding} onClick={seed}>Load sample appeals</button></details></main>}
     {intake&&<CaseIntake onClose={()=>setIntake(false)} onCreated={async id=>{await refresh();setSelected(id);setIntake(false);setPage("cases");setFilter("open");setSearch("");setToast("Appeal added to your queue.");}}/>}
   </div>;
 }

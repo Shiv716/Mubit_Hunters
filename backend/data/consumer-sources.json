@@ -1,0 +1,71 @@
+{
+  "version": "england-driver-guidance-2026-10-24",
+  "checked_at": "2026-10-24",
+  "coverage": "England council parking PCNs and private parking charges; initial challenge preparation. Court proceedings and other notice types need specialist help.",
+  "sources": [
+    {
+      "id": "gov-challenge",
+      "title": "GOV.UK \u2014 challenging a parking ticket",
+      "url": "https://www.gov.uk/parking-tickets/challenging-a-ticket",
+      "kinds": [
+        "council",
+        "private"
+      ],
+      "guidance": "Identify the notice type and follow the issuer's stated process. Council PCNs and private contractual charges have different appeal routes. Check the ticket's deadlines and any discount terms. Do not assume a challenge preserves the discount. For private parking, challenge the operator first; after rejection, BPA operators use POPLA and IPC operators use IAS. Check the operator's current membership and rejection letter."
+    },
+    {
+      "id": "london-tribunals",
+      "title": "London Tribunals \u2014 when an appeal is available",
+      "url": "https://www.londontribunals.gov.uk/eat/appeals-process-explained",
+      "kinds": [
+        "council"
+      ],
+      "guidance": "For London council parking PCNs, a tribunal appeal follows formal representations and a Notice of Rejection. An initial challenge is not an appeal straight to the tribunal. The rejection notice explains the next steps. Do not send an initial challenge to the tribunal."
+    },
+    {
+      "id": "popla-guide",
+      "title": "POPLA \u2014 preparing a private parking appeal",
+      "url": "https://www.popla.co.uk/how-to-appeal",
+      "kinds": [
+        "private"
+      ],
+      "guidance": "POPLA publishes guidance on the evidence and information needed for private parking appeals. Follow the operator's rejection notice and check eligibility before starting. Preserve the notice, payment/permit records, relevant signage and other evidence that supports the actual events."
+    },
+    {
+      "id": "code-transition",
+      "title": "Government response \u2014 2026 private parking code transition",
+      "url": "https://www.gov.uk/government/consultations/private-parking-code-of-practice/outcome/private-parking-code-of-practice-government-response",
+      "kinds": [
+        "private"
+      ],
+      "guidance": "Checked 24 October 2026: the new code has been laid before Parliament, not brought into force. The response anticipates issue on 30 November 2026 if there are no objections, followed by 21 calendar days before commencement. Do not use the new appeals charter or new concessions as existing rights. Verify commencement and transitional arrangements from an updated official source for later events; otherwise state that applicability is unverified."
+    },
+    {
+      "id": "code-memorandum",
+      "title": "2026 code \u2014 explanatory memorandum",
+      "url": "https://www.gov.uk/government/publications/private-parking-code-of-practice-2026-explanatory-memorandum/private-parking-code-of-practice-2026-explanatory-memorandum",
+      "kinds": [
+        "private"
+      ],
+      "guidance": "The code was laid on 20 October 2026 for a 40-day Parliamentary scrutiny period. It comes into force 21 days from issue, not 21 days from publication. Transitional enforcement arrangements are to be published when it comes into force. Publication alone does not establish that a rule applied to a ticket."
+    },
+    {
+      "id": "dft-enforcement",
+      "title": "Department for Transport \u2014 England parking enforcement guidance",
+      "url": "https://www.gov.uk/government/publications/civil-enforcement-of-parking-contraventions/guidance-for-local-authorities-on-enforcing-parking-restrictions",
+      "kinds": [
+        "council"
+      ],
+      "guidance": "The statutory guidance describes a ten-minute grace period after permitted parking ends in designated on-street or off-street parking places provided under traffic orders. It does not apply to parking that was unlawful from the outset, such as failing to pay where required, or to yellow-line restrictions. Establish the location, applicable order, payment and timings before suggesting this ground. Authorities should consider challenges fairly and impartially; local policy and the exact notice stage still matter."
+    },
+    {
+      "id": "pofa-keeper",
+      "title": "Protection of Freedoms Act 2012 \u2014 Schedule 4, paragraph 4",
+      "url": "https://www.legislation.gov.uk/ukpga/2012/9/schedule/4/paragraph/4",
+      "kinds": [
+        "private"
+      ],
+      "guidance": "A creditor can recover unpaid parking charges from the keeper under Schedule 4 only where its applicable conditions are met. Paragraph 4 refers to conditions in paragraphs 5, 6, 11 and 12, with special provisions for hire vehicles. Keeper status alone does not establish that the person drove. This excerpt does not establish whether a particular notice complies: obtain the full notice, service facts and applicable Schedule 4 provisions. Do not invent a keeper-liability defect or treat its absence as extinguishing every possible claim."
+    }
+  ]
+}

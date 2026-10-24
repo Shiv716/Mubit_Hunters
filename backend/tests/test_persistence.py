@@ -1,4 +1,5 @@
 import hashlib
+import json
 from concurrent.futures import ThreadPoolExecutor
 from threading import Barrier
 
@@ -8,6 +9,9 @@ from app.config import get_settings
 from app.db import claim_review, release_review, init_db, now_iso, transaction
 from app.models import CaseIn, DecisionIn
 from app.service import create_case, record_decision, WorkflowError
+from app.service import run_ai_review
+from app.ai.adapters import StubAdapter
+from app.learning import CorrectionIn, save_correction
 from app.storage import put_evidence
 from migrate_sqlite import migrate
 
@@ -88,6 +92,11 @@ def test_sqlite_import_preserves_records_files_and_id_sequences(client, demo_cas
     digest = hashlib.sha256(content).hexdigest()
     with transaction(source) as conn:
         cid = create_case(conn, CaseIn.model_validate(demo_cases[0]), "source-officer")
+        review_id = run_ai_review(conn, cid, StubAdapter(), "baseline", "source-officer")
+        record_decision(conn, cid, DecisionIn(ai_review_id=review_id, action="accept", reviewer="source-officer"))
+        feedback_id = conn.execute("SELECT id FROM feedback_examples WHERE case_id=?", (cid,)).fetchone()[0]
+        target = json.loads(conn.execute("SELECT parsed_json FROM ai_reviews WHERE id=?", (review_id,)).fetchone()[0])
+        correction = save_correction(feedback_id, CorrectionIn(target=target, note="Source approval"), "source-owner", conn)
         folder = evidence_dir / str(cid)
         folder.mkdir(parents=True)
         (folder / digest).write_bytes(content)
@@ -98,6 +107,11 @@ def test_sqlite_import_preserves_records_files_and_id_sequences(client, demo_cas
     migrate(source, evidence_dir, apply=True)
     assert client.get(f"/api/cases/{cid}/evidence/E1/file").content == content
     assert client.get(f"/api/cases/{cid}").json()["audit"][0]["actor"] == "source-officer"
+    imported = client.get("/api/learning/examples").json()["items"][0]
+    assert imported["target"] == target and imported["policy_version"]
+    revised = client.post(f"/api/learning/examples/{feedback_id}/correction", json={
+        "target": target, "note": "Rechecked after migration", "previous_revision": imported["correction_id"]})
+    assert revised.status_code == 200 and revised.json()["correction_id"] > correction["correction_id"]
     next_id = client.post("/api/cases", json=demo_cases[1]).json()["id"]
     assert next_id > cid
     with pytest.raises(ValueError, match="Destination contains data"):

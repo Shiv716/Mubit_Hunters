@@ -104,3 +104,21 @@
 .case-connection { margin: 14px 20px; font-size: 11px; line-height: 1.7; }
 @media (max-width: 1100px) { .connection-summary { grid-template-columns: repeat(2,minmax(0,1fr)); } .connection-flow { grid-template-columns: repeat(3,minmax(0,1fr)); } }
 @media (max-width: 680px) { .connection-page { padding: 0 15px 30px; } .connection-flow { grid-template-columns: 1fr; } .topbar { flex-wrap: wrap; height: auto; padding-top: 12px; } .main-nav { order: 3; width: 100%; justify-content: space-between; } .nav-item { min-height: 45px; } .top-right { margin-left: auto; } }
+/* Correction review uses the existing palette in both themes. */
+.correction-toolbar{display:flex;align-items:end;justify-content:space-between;gap:16px;margin:20px 0}
+.correction-toolbar label{min-width:220px;max-width:100%}
+.correction-comparison{display:grid;grid-template-columns:1fr 1.2fr;gap:16px;margin:16px 0}
+.correction-panel{padding:20px;border:1px solid var(--line);border-radius:8px;min-width:0;background:var(--bg)}
+.correction-target{background:var(--surface);border-color:var(--blue)}
+.correction-panel h4,.correction-pending h4{font-size:17px;margin:10px 0 16px}
+.correction-panel p{font-size:12px;line-height:1.65;margin:14px 0}
+.correction-text{white-space:pre-wrap}
+.correction-panel fieldset{border:0;margin:0;padding:0;min-width:0}
+.correction-details{margin-top:18px;font-size:11px}
+.correction-details summary{cursor:pointer}
+.correction-details pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:10px}
+.correction-details .mono{overflow-wrap:anywhere}
+.correction-actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.correction-pending{grid-column:1/-1;padding:20px;border:1px dashed var(--line);border-radius:8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.correction-pending h4{margin-bottom:0}.correction-pending p{flex-basis:100%;margin:0;font-size:12px;color:var(--muted)}
+@media(max-width:800px){.correction-comparison{grid-template-columns:1fr}.correction-toolbar{align-items:stretch;flex-direction:column}}

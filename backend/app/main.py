@@ -19,6 +19,10 @@ from .workspace import router as workspace_router
 from .access import router as access_router, identity, secret, required
 from .email_access import router as email_access_router
 from .integration import router as integration_router, check_machine_key, configuration, verify_identity
+from .learning import router as learning_router
+from .parking import router as parking_router
+from . import consumer_auth
+from .consumer import router as consumer_router
 from .neon_auth import auth_url, auth_url_error, owner_email, public_origin
 from pydantic import EmailStr, TypeAdapter
 
@@ -70,16 +74,29 @@ app.include_router(access_router)
 app.include_router(email_access_router)
 app.include_router(workspace_router)
 app.include_router(integration_router)
+app.include_router(learning_router)
+app.include_router(parking_router)
+app.include_router(consumer_auth.router)
+app.include_router(consumer_router)
 
 
 @app.middleware("http")
 async def access_gate(request: Request, call_next):
     path = request.url.path
     public_paths = {"/api/session", "/api/session/email/request", "/api/session/email/verify", "/api/health", "/api/ready"}
+    driver_public = {"/api/consumer/session", "/api/consumer/session/request", "/api/consumer/session/verify"}
+    if request.method == "GET":
+        driver_public.add("/api/consumer/public")
+    if request.method == "GET":
+        public_paths.update({"/api/parking/nearby", "/api/parking/search", "/api/parking/dataset"})
     if path == "/api/access-requests" and request.method == "POST":
         public_paths.add(path)
     public_paths.update({"/api/access-requests/inspect", "/api/access-requests/approve"})
-    if path.startswith("/api/integration/v1/"):
+    if path.startswith("/api/consumer/"):
+        if path not in driver_public and not await run_in_threadpool(consumer_auth.profile, request):
+            return JSONResponse({"detail": "Sign in to your personal account to continue."}, status_code=401,
+                                headers={"Cache-Control": "no-store"})
+    elif path.startswith("/api/integration/v1/"):
         try:
             check_machine_key(request)
         except HTTPException as exc:
@@ -100,6 +117,8 @@ async def access_gate(request: Request, call_next):
         if origin and origin not in allowed:
             return JSONResponse({"detail": "Origin is not allowed."}, status_code=403)
     response = await call_next(request)
+    if path.startswith("/api/consumer/") and path != "/api/consumer/public":
+        response.headers["Cache-Control"] = "private, no-store"
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["X-Frame-Options"] = "DENY"
     response.headers["Referrer-Policy"] = "same-origin"

@@ -9,6 +9,10 @@ import pytest
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+# Load .env once before fixtures clear it. Otherwise a focused test's first app
+# import can reload the developer's database URL after isolation has run.
+import app.config  # noqa: E402, F401
+
 
 @pytest.fixture(autouse=True)
 def _isolated_env(tmp_path, monkeypatch):

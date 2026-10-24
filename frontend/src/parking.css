@@ -1,0 +1,167 @@
+.parking-active .topbar { gap: 36px; }
+.parking-active .main-nav { gap: 22px; }
+.parking-page { padding: 0 30px 18px; }
+.parking-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 27px 0 25px; }
+.parking-heading h1 { font-size: clamp(30px, 3vw, 42px); letter-spacing: -1.8px; margin: 7px 0; }
+.parking-heading p { color: var(--muted); font-size: 13px; }
+.parking-city-stamp { display: flex; align-items: center; gap: 9px; font: 10px var(--mono); letter-spacing: 1px; padding: 12px 15px; border: 1px solid var(--ink); border-radius: 6px; transform: rotate(2deg); background: var(--lime); color: #283024; box-shadow: 3px 3px 0 #20221f; }
+.parking-city-stamp .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #375737; }
+.parking-explorer { position: relative; display: grid; grid-template-columns: 360px minmax(0, 1fr); height: calc(100dvh - 278px); min-height: 560px; max-height: 1050px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; box-shadow: 0 4px 0 #20221f09; }
+.parking-sidebar { display: flex; flex-direction: column; min-height: 0; z-index: 2; border-right: 1px solid var(--line); background: var(--surface); }
+.parking-controls { flex-shrink: 0; }
+.parking-search-panel { position: relative; padding: 21px 20px 16px; }
+.parking-label { display: block; font-size: 12px; font-weight: 650; margin-bottom: 9px; }
+.parking-search-form { display: flex; align-items: center; gap: 9px; padding: 5px 6px 5px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.parking-search-form:focus-within { outline: 2px solid var(--blue); outline-offset: 2px; }
+.parking-search-form > svg { color: var(--muted); }
+.parking-search-form input { min-width: 0; flex: 1; padding: 7px 0; border: 0; outline: none; background: transparent; color: var(--ink); font-size: 12px; }
+.parking-search-form input:focus { outline: none; }
+.parking-search-form button { width: 33px; height: 33px; flex-shrink: 0; display: grid; place-items: center; border: 0; border-radius: 5px; color: white; background: #345bff; }
+.parking-search-form .spinner { width: 16px; height: 16px; border-top-color: white; }
+.parking-shortcuts { display: flex; align-items: center; gap: 7px; margin-top: 11px; }
+.parking-shortcuts button { padding: 4px 7px; border: 1px solid var(--line); border-radius: 4px; background: transparent; color: var(--muted); font-size: 10px; }
+.parking-shortcuts button:hover { background: var(--info-bg); color: var(--ink); }
+.parking-shortcuts .parking-locate { margin-left: auto; display: flex; align-items: center; gap: 4px; border-color: transparent; color: var(--blue); padding-right: 0; }
+.parking-search-results { position: absolute; top: 104px; left: 20px; right: 20px; z-index: 5; border: 1px solid var(--ink); border-radius: 8px; background: var(--surface); box-shadow: 4px 5px 0 #20221f20; overflow: auto; max-height: 285px; }
+.parking-search-results button { display: flex; width: 100%; gap: 10px; align-items: center; text-align: left; padding: 12px; background: none; border: 0; border-bottom: 1px solid var(--line); color: var(--ink); }
+.parking-search-results button:last-child { border-bottom: 0; }
+.parking-search-results button:hover { background: var(--info-bg); }
+.parking-search-results button > span { flex: 1; min-width: 0; }
+.parking-search-results strong, .parking-search-results small { display: block; overflow-wrap: anywhere; }
+.parking-search-results strong { font-size: 12px; font-weight: 600; }
+.parking-search-results small { color: var(--muted); font-size: 10px; margin-top: 3px; }
+.parking-inline-error { margin-top: 10px; color: var(--warn); font-size: 11px; }
+.parking-filter-bar { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 20px 17px; border-bottom: 1px solid var(--line); }
+.parking-filter-bar button { white-space: nowrap; border: 1px solid var(--line); border-radius: 20px; padding: 6px 10px; font-size: 10px; background: transparent; color: var(--ink-2); }
+.parking-filter-bar button.active { background: var(--ink); border-color: var(--ink); color: var(--surface); }
+.parking-results-heading { display: flex; justify-content: space-between; gap: 8px; align-items: center; padding: 18px 20px 12px; }
+.parking-results-heading h2 { font-size: 15px; letter-spacing: -.3px; }
+.parking-results-heading p { color: var(--muted); font-size: 10px; margin-top: 4px; }
+.parking-sort { color: var(--muted); display: inline-flex; align-items: center; gap: 4px; font-size: 10px; }
+.parking-results { flex: 1; overflow: auto; padding: 0 12px 12px; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
+.parking-result { width: 100%; display: block; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); padding: 14px; margin-bottom: 9px; text-align: left; transition: border-color .15s, background .15s, box-shadow .15s; }
+.parking-result:hover { border-color: var(--blue); background: var(--info-bg); }
+.parking-result.selected { border-color: var(--blue); box-shadow: inset 3px 0 0 var(--blue); background: var(--info-bg); }
+.parking-result-top { display: flex; align-items: center; gap: 11px; }
+.parking-result-top > div { flex: 1; min-width: 0; }
+.parking-result-top > svg { color: var(--muted); }
+.parking-type-symbol { position: relative; display: grid; place-items: center; width: 37px; height: 40px; border: 1px solid #cbd1bd; border-radius: 6px; background: #eff3e1; color: #45532e; font: 600 22px 'Space Grotesk', sans-serif; }
+.parking-type-symbol small { position: absolute; bottom: -3px; right: -4px; font: 8px var(--mono); padding: 0 3px; background: var(--surface); border: 1px solid var(--line); border-radius: 3px; color: var(--muted); }
+.parking-type { display: block; font: 9px var(--mono); letter-spacing: .25px; color: var(--muted); }
+.parking-result h3 { font-size: 14px; line-height: 1.4; margin-top: 3px; letter-spacing: -.3px; overflow-wrap: anywhere; }
+.parking-result-meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 13px; color: var(--muted); font-size: 10px; }
+.parking-result-meta > span:first-child { display: flex; align-items: center; gap: 3px; }
+.parking-access-note { color: var(--warn); }
+.parking-result-bottom { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 11px; padding-top: 10px; border-top: 1px dashed var(--line); font-size: 10px; }
+.parking-result-bottom strong { font-size: 11px; font-weight: 600; overflow-wrap: anywhere; }
+.parking-result-bottom > span { display: flex; align-items: center; gap: 4px; flex-shrink: 0; color: var(--muted); font-size: 9px; }
+.parking-sidebar-footer { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 12px 14px; color: var(--muted); font-size: 9px; border-top: 1px solid var(--line); }
+.parking-map-panel { position: relative; min-width: 0; min-height: 0; overflow: hidden; background: #e4e7df; }
+.parking-map-canvas { position: absolute; inset: 0; }
+.parking-map-canvas .maplibregl-canvas:focus-visible { outline-offset: -4px; }
+.parking-map-canvas .maplibregl-ctrl-top-right { top: 65px; right: 8px; }
+.parking-map-canvas .maplibregl-ctrl-group { border-radius: 8px; overflow: hidden; box-shadow: 0 1px 6px #20221f25; }
+.parking-map-canvas .maplibregl-ctrl-group button { width: 34px; height: 34px; }
+.parking-map-canvas .maplibregl-ctrl-attrib { font: 9px/19px 'DM Sans', sans-serif; border-radius: 6px; background: #fffdf8eb; color: #333; }
+.parking-map-canvas .maplibregl-ctrl-attrib a { color: #333; }
+.parking-map-top { position: absolute; top: 18px; left: 20px; right: 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; pointer-events: none; }
+.parking-map-label { display: inline-flex; align-items: center; gap: 8px; border: 1px solid var(--line); border-radius: 7px; padding: 10px 12px; max-width: 80%; background: var(--surface); color: var(--ink); font-size: 11px; box-shadow: 0 2px 6px #20221f10; }
+.destination-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #df632c; flex-shrink: 0; }
+.parking-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3158e8; }
+.parking-search-area { pointer-events: auto; display: inline-flex; gap: 7px; align-items: center; border: 1px solid #203bb6; border-radius: 7px; color: white; background: #345bff; font-size: 11px; padding: 10px 13px; box-shadow: 2px 2px 0 #20221f; }
+.parking-map-legend { position: absolute; right: 18px; top: 163px; display: flex; flex-direction: column; gap: 7px; padding: 10px; border: 1px solid var(--line); border-radius: 7px; background: var(--surface); font-size: 9px; color: var(--muted); pointer-events: none; }
+.parking-map-legend span { display: flex; align-items: center; gap: 6px; }
+.parking-map-bottom { position: absolute; left: 22px; right: 22px; bottom: 30px; pointer-events: none; }
+.parking-map-bottom { z-index: 3; }
+.parking-map-top { z-index: 2; }
+.parking-map-loading, .parking-map-error { z-index: 4; }
+.parking-map-tip { display: flex; align-items: center; gap: 13px; padding: 17px 19px; border: 1px solid var(--ink); border-radius: 9px; background: var(--surface); box-shadow: 3px 3px 0 #20221f20; }
+.parking-tip-icon { display: grid; place-items: center; width: 40px; height: 40px; flex-shrink: 0; background: var(--lime); border-radius: 7px; color: #334424; transform: rotate(-6deg); }
+.parking-map-tip strong { font-family: 'Space Grotesk', sans-serif; font-weight: 600; font-size: 14px; letter-spacing: -.3px; }
+.parking-map-tip p { font-size: 11px; color: var(--muted); margin-top: 3px; }
+.parking-tip-squiggle { font-size: 36px; margin-left: auto; color: var(--blue); line-height: 1; }
+.parking-availability { display: flex; align-items: center; justify-content: center; gap: 6px; width: fit-content; max-width: 100%; margin: 10px auto 0; padding: 5px 9px; border-radius: 5px; background: var(--surface); color: var(--muted); font-size: 10px; }
+.parking-availability > span { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); flex-shrink: 0; }
+.parking-detail { pointer-events: auto; max-height: min(400px, 65dvh); overflow: auto; padding: 18px 20px 13px; border: 1px solid var(--ink); border-radius: 10px; background: var(--surface); box-shadow: 4px 4px 0 #20221f20; }
+.parking-detail-heading { display: flex; gap: 12px; justify-content: space-between; align-items: flex-start; }
+.parking-detail-heading h2 { font-size: 21px; margin-top: 5px; }
+.parking-detail-heading p { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.parking-detail-heading .icon-btn { width: 27px; height: 27px; flex-shrink: 0; }
+.parking-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 20px; margin: 17px 0; padding-top: 14px; border-top: 1px dashed var(--line); }
+.parking-facts dt { color: var(--muted); font-size: 10px; margin-bottom: 3px; }
+.parking-facts dd { margin: 0; font-size: 12px; font-weight: 500; overflow-wrap: anywhere; }
+.parking-conditions { font-size: 11px; color: var(--warn); margin-bottom: 12px; }
+.parking-detail-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.parking-detail-actions .text-btn { margin-left: auto; font-size: 10px; }
+.parking-detail-note { color: var(--muted); font-size: 9px; margin-top: 11px; }
+.parking-provenance { display: flex; justify-content: space-between; gap: 16px; padding-top: 13px; color: var(--muted); font-size: 9px; }
+.parking-provenance a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.parking-map-loading { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; gap: 9px; padding: 14px; border-radius: 8px; background: var(--surface); font-size: 12px; }
+.parking-map-error { position: absolute; left: 50%; top: 42%; transform: translate(-50%, -50%); display: grid; justify-items: center; gap: 12px; width: min(300px, 80%); padding: 22px; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); text-align: center; font-size: 12px; }
+.parking-empty { display: grid; justify-items: center; gap: 12px; text-align: center; padding: 30px 20px; }
+.parking-empty > svg { color: var(--muted); }
+.parking-empty h3 { font-size: 17px; }
+.parking-empty p { font-size: 12px; color: var(--muted); }
+.parking-list-note { font-size: 11px; color: var(--muted); padding: 10px; }
+.parking-skeleton { height: 143px; padding: 20px; margin-bottom: 9px; border: 1px solid var(--line); border-radius: 8px; display: grid; align-content: center; gap: 13px; }
+.parking-skeleton span { height: 12px; width: 75%; border-radius: 3px; background: var(--line); animation: parking-pulse 1.5s infinite alternate; }
+.parking-skeleton span:first-child { width: 50%; height: 18px; }.parking-skeleton span:last-child { width: 90%; }
+@keyframes parking-pulse { to { opacity: .35; } }
+.parking-mobile-toggle { display: none; }
+[data-theme="dark"] .parking-map-panel { background: #202a2f; }
+[data-theme="dark"] .parking-type-symbol { color: #d6f766; border-color: #4b5741; background: #323d2b; }
+[data-theme="dark"] .parking-map-tip, [data-theme="dark"] .parking-detail { border-color: #4d5e53; }
+[data-theme="dark"] .parking-map-canvas .maplibregl-ctrl-group { background: #21262b; }
+[data-theme="dark"] .parking-map-canvas .maplibregl-ctrl-icon { filter: invert(1); }
+[data-theme="dark"] .parking-map-canvas .maplibregl-ctrl-group button + button { border-color: var(--line); }
+[data-theme="dark"] .parking-map-canvas .maplibregl-ctrl-group button:hover { background: #354049; }
+@media (min-width: 1600px) { .parking-explorer { grid-template-columns: 410px minmax(0, 1fr); } .parking-map-bottom { max-width: 640px; } .parking-result h3 { font-size: 15px; } }
+@media (max-width: 1100px) { .parking-page { padding-inline: 20px; } .parking-explorer { grid-template-columns: 320px minmax(0, 1fr); } .parking-active .topbar { gap: 20px; } .parking-active .main-nav { gap: 15px; } .parking-active .nav-item { font-size: 12px; } .parking-map-tip { padding: 15px; } .parking-tip-squiggle { display: none; } .parking-filter-bar { gap: 4px; padding-inline: 14px; } .parking-filter-bar button { padding-inline: 8px; } .parking-map-bottom { left: 15px; right: 15px; } .parking-shortcuts { gap: 4px; } }
+@media (max-width: 760px) {
+  .parking-page { padding: 0 12px 12px; }
+  .parking-heading { padding: 22px 4px 20px; }
+  .parking-heading .eyebrow { font-size: 8px; letter-spacing: .9px; }
+  .parking-heading h1 { font-size: 32px; }
+  .parking-heading p { font-size: 11px; }
+  .parking-city-stamp { padding: 9px; font-size: 8px; letter-spacing: .5px; gap: 5px; }
+  .parking-city-stamp > svg { display: none; }
+  .parking-explorer { display: block; min-height: 620px; height: calc(100dvh - 255px); max-height: none; }
+  .parking-sidebar { position: absolute; inset: 0; border-right: 0; background: transparent; pointer-events: none; }
+  .parking-search-panel, .parking-filter-bar { pointer-events: auto; background: var(--surface); }
+  .parking-search-panel { padding: 16px 15px 12px; }
+  .parking-search-results { top: 98px; left: 15px; right: 15px; }
+  .parking-filter-bar { padding: 0 15px 12px; gap: 7px; }
+  .parking-filter-bar button { font-size: 11px; padding: 6px 11px; }
+  .parking-label { font-size: 11px; }
+  .parking-search-form input { font-size: 16px; }
+  .parking-shortcuts button { font-size: 10px; }
+  .parking-map-panel { position: absolute; inset: var(--parking-controls-height, 177px) 0 0; }
+  .parking-results-heading, .parking-results, .parking-sidebar-footer { visibility: hidden; pointer-events: none; }
+  .view-list .parking-sidebar { background: var(--surface); padding-bottom: 62px; }
+  .view-list .parking-results-heading, .view-list .parking-results { visibility: visible; pointer-events: auto; }
+  .view-list .parking-map-panel { visibility: hidden; }
+  .parking-map-top { left: 12px; right: 12px; top: 13px; }
+  .parking-map-label { font-size: 10px; max-width: 70%; padding: 8px 9px; }
+  .parking-map-legend { display: none; }
+  .parking-map-canvas .maplibregl-ctrl-top-right { top: 51px; right: 3px; }
+  .parking-map-bottom { bottom: 76px; left: 12px; right: 12px; }
+  .parking-map-tip { gap: 10px; padding: 13px; }
+  .parking-map-tip strong { font-size: 12px; }
+  .parking-map-tip p { font-size: 10px; }
+  .parking-tip-icon { width: 32px; height: 32px; }
+  .parking-availability { font-size: 8px; margin-top: 7px; }
+  .parking-detail { padding: 14px; max-height: 250px; }
+  .parking-detail h2 { font-size: 18px; }
+  .parking-detail .parking-type { font-size: 8px; }
+  .parking-facts { gap: 9px 12px; margin: 12px 0; padding-top: 10px; }
+  .parking-facts dd { font-size: 11px; }
+  .parking-detail-actions { gap: 7px; }
+  .parking-detail-actions .btn { font-size: 10px; min-height: 34px; padding: 7px 10px; }
+  .parking-mobile-toggle { display: flex; position: absolute; z-index: 4; bottom: 27px; left: 50%; transform: translateX(-50%); border: 1px solid var(--ink); border-radius: 25px; padding: 4px; background: var(--surface); box-shadow: 2px 3px 0 #20221f25; }
+  .parking-mobile-toggle button { display: flex; align-items: center; justify-content: center; gap: 7px; border: 0; padding: 9px 17px; border-radius: 20px; font-size: 12px; background: transparent; color: var(--ink); }
+  .parking-mobile-toggle button[aria-pressed="true"] { color: #253124; background: var(--lime); }
+  .parking-mobile-toggle span { font: 9px var(--mono); }
+  .parking-provenance { flex-direction: column; gap: 5px; padding-inline: 3px; font-size: 8px; }
+}
+@media (max-width: 400px) { .parking-city-stamp { display: none; } .parking-filter-bar { gap: 5px; } .parking-filter-bar button { font-size: 10px; padding-inline: 9px; } .parking-heading h1 { font-size: 30px; } .parking-mobile-toggle { bottom: 43px; } .parking-map-bottom { bottom: 91px; } }
+@media (max-width: 340px) { .parking-mobile-toggle { bottom: 60px; } .parking-map-bottom { bottom: 108px; } }

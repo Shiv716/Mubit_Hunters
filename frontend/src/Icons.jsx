@@ -1,4 +1,11 @@
 const paths = {
+  map: <><path d="m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2ZM9 3v16M15 5v16"/></>,
+  locate: <><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></>,
+  garage: <><path d="m3 9 9-6 9 6v12H3ZM6 21V11h12v10M6 15h12M6 18h12"/></>,
+  navigate: <path d="m3 10 18-7-7 18-3-8z"/>,
+  sort: <><path d="M5 4v16m-3-3 3 3 3-3M12 6h9M12 12h6M12 18h3"/></>,
+  external: <><path d="M14 3h7v7m0-7-11 11M11 3H3v18h18v-8"/></>,
+  info: <><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7v.1"/></>,
   sun: <><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/></>,
   moon: <path d="M20.5 13.1A8.5 8.5 0 0 1 10.9 3.5a8.5 8.5 0 1 0 9.6 9.6Z"/>,
   inbox: <><path d="M4 4h16v16H4zM4 14h5l2 3h2l2-3h5"/></>,

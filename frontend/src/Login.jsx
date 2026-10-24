@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { api } from "./api.js";
 import { Icon, Mark } from "./Icons.jsx";
 
-export default function Login({onLogin, session}) {
+export default function Login({onLogin, session, onBrowseParking}) {
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
@@ -58,6 +58,7 @@ export default function Login({onLogin, session}) {
       <div className="email-access-entry"><p>New here? Ask to join the workspace.</p>
         <button type="button" className="btn large" disabled={busy} onClick={()=>setRequestAccess(true)}>Request access<Icon name="arrow" size={16}/></button>
       </div>
+      {onBrowseParking && <button type="button" className="text-btn" onClick={onBrowseParking}><Icon name="map" size={16}/>Explore parking without signing in</button>}
     </form>
     {requestAccess&&<RequestAccess onClose={()=>setRequestAccess(false)} onRequested={address=>{setEmail(address);setConfirmation("");setHasCode(false);setCode("");setError("");if(session.email_signin)setUsePassword(false);}}/>}
   </main>;

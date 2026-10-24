@@ -1,5 +1,9 @@
 # Implemented architecture
 
+The default product is now the **driver application**: public accounts, private ticket/evidence records, Mubit vision and appeal preparation, approved downloads, reminders, outcomes and parking discovery. Its current architecture, access boundaries and deployment are specified in [CONSUMER.md](CONSUMER.md).
+
+The sections below describe the **retained council workspace** at `/#workspace`. Its synthetic-only intake, officer approval and description-only evidence handling do not describe the separate consumer API. Both run on the same Render service, with separate tables and session audiences.
+
 ## Product and user flow
 
 The daily user is a council representations / notice processing officer. The officer opens a case, checks the evidence, asks the copilot to investigate, explicitly chooses an outcome, edits the response and saves. The next case opens automatically. Civic does not send a letter or cancel a PCN. The council exchange API can provide an officer-approved result to an authorised connector; its receipt is tracked separately.

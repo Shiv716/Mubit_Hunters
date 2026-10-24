@@ -28,7 +28,8 @@ CAPABILITIES = {
             "status": "not_documented",
             "detail": "No public endpoint for feedback, labels or outcomes. Mubit records calls; adapters train on "
                       "'kept examples' and are tested against the provider model's own answers, not against officer "
-                      "decisions. Reviewer corrections are therefore stored locally and used for precedent retrieval.",
+                      "decisions. Civic captures original inputs and owner-approved corrections for export. "
+                      "Export is not Mubit submission or training; precedent retrieval remains separate.",
         },
         {
             "capability": "Training / calibrating an adapter and job status",

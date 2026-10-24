@@ -12,6 +12,7 @@ Reviewed against the implementation on **24 October 2026**. Start with the [proj
 | Parking map, provenance and refresh | [Map](PARKING-MAP.md) |
 | Retained officer workflow | [Council workspace](COUNCIL-WORKSPACE.md) |
 | Synthetic council import/result contract | [Council exchange](COUNCIL-INTEGRATION.md) |
+| Optional consumer training recording | [Consent and recording](CONSUMER.md#optional-training-recording) |
 | Gateway and actual model configuration | [Mubit integration](04-mubit-integration.md) |
 | Before/target correction export and training gap | [Feedback](MUBIT-FEEDBACK.md) |
 | Business reasoning and measurement | [Business case](01-business-case.md), [metrics](05-metrics.md) |

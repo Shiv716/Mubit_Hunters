@@ -53,3 +53,9 @@ CREATE TABLE IF NOT EXISTS driver_jobs (
     expires_at BIGINT NOT NULL
 );
 """
+
+# Additive migration: existing cases never opt into training implicitly.
+RECORDING_SCHEMA = """
+ALTER TABLE driver_cases ADD COLUMN training_consent INTEGER NOT NULL DEFAULT 0 CHECK (training_consent IN (0,1));
+ALTER TABLE driver_reviews ADD COLUMN recording_requested TEXT NOT NULL DEFAULT 'metadata';
+"""

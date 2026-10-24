@@ -1,6 +1,6 @@
 # Officer corrections and model updates
 
-Reviewed **24 October 2026**. The deployed council workspace captures corrections in Civic and exports approved targets. **It does not submit corrections to Mubit, train an adapter, or change the model used for live reviews.** This is separate from [consumer AI](04-mubit-integration.md), whose real driver uploads are not automatically training examples.
+Reviewed **24 October 2026**. The deployed council workspace captures corrections in Civic and exports approved targets. **It does not submit corrections to Mubit, train an adapter, or change the model used for live reviews.** This is separate from [consumer AI](04-mubit-integration.md), which now supports a separate, optional driver training-recording choice and full recording for the fictional demo. Recorded inference examples are not officer-corrected training labels.
 
 ## Before and after
 
@@ -61,7 +61,7 @@ configuration for rollback. Do not manufacture calls to reach the 25-example thr
 Run `python -m pytest backend/tests/test_learning.py -q` in the project virtual environment.
 The tests use simulated model replies and isolated databases. For PostgreSQL migration verification,
 set `PCN_TEST_DATABASE_URL` to a **disposable local database**, never the deployed Neon workspace.
-Correction tables were added in migration 4; the current app also applies consumer migration 5. Existing records are not rewritten.
+Correction tables were added in migration 4; the current app also applies consumer migrations 5–6. Existing records are not rewritten.
 
 Build the UI with `npm run build --prefix frontend`. Preview the original answer, approved target
 and explicit pending state in Admin. No deployment environment variable changes are needed for

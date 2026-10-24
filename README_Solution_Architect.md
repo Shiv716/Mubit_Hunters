@@ -20,7 +20,7 @@ A driver scans or enters a parking notice, confirms the facts, adds evidence and
 
 One web worker, a database pool of up to eight connections and 200 consumer AI requests/hour are the current configuration. There is no account cap or measured concurrent-user capacity. Uploaded photos consume PostgreSQL storage. See [capacity and scaling](docs/CAPACITY.md).
 
-The app does not submit appeals automatically, cancel tickets, verify wins, guarantee fraud prevention or orchestrate adapter training. Council supplier connectors, subscriptions, multi-council tenancy, nationwide/live parking availability and enterprise identity controls are future work. Real driver AI requires consent and requests metadata-only provider recording.
+The app does not submit appeals automatically, cancel tickets, verify wins, guarantee fraud prevention or orchestrate adapter training. Council supplier connectors, subscriptions, multi-council tenancy, nationwide/live parking availability and enterprise identity controls are future work. Real driver AI requires processing consent. Recording defaults to metadata; a separate training opt-in permits full recording, subject to operator/provider settings.
 
 ## Detailed references
 

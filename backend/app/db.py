@@ -14,7 +14,7 @@ from pathlib import Path
 from typing import Any, Iterator
 
 from .config import get_settings
-from .consumer_schema import SCHEMA as CONSUMER_SCHEMA
+from .consumer_schema import SCHEMA as CONSUMER_SCHEMA, RECORDING_SCHEMA
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS cases (
@@ -353,9 +353,19 @@ def init_db(db_path: Path | None = None) -> None:
             if not conn.execute("SELECT 1 FROM schema_migrations WHERE version=5").fetchone():
                 conn.raw.execute(CONSUMER_SCHEMA.replace("content BLOB", "content BYTEA"))
                 conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (5,?)", (now_iso(),))
+            if not conn.execute("SELECT 1 FROM schema_migrations WHERE version=6").fetchone():
+                conn.raw.execute(RECORDING_SCHEMA)
+                conn.execute("INSERT INTO schema_migrations (version, applied_at) VALUES (6,?)", (now_iso(),))
         else:
             conn.execute("PRAGMA journal_mode = WAL")
             conn.executescript(SCHEMA + AUTH_SCHEMA + INTEGRATION_SCHEMA + LEARNING_SCHEMA + CONSUMER_SCHEMA)
+            for statement in RECORDING_SCHEMA.strip().split(";"):
+                if not statement.strip():
+                    continue
+                parts = statement.split()
+                table, column = parts[2], parts[5]
+                if column not in {row[1] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}:
+                    conn.execute(statement)
             for table in ("review_inputs", "model_corrections"):
                 for action in ("UPDATE", "DELETE"):
                     conn.executescript(f"""CREATE TRIGGER IF NOT EXISTS {table}_{action.lower()}_immutable

@@ -30,7 +30,7 @@ The adapter prefers structured JSON output, with compatible format fallbacks whe
 
 ## Data handling
 
-Driver calls require case-level consent and force `x-middleware-record: metadata`, regardless of the global `MUBIT_RECORD` setting. Facts/photos still pass through Mubit and the selected provider; this header is not a claim that no personal data is processed or that all upstream retention is disabled.
+Driver calls require AI processing consent and default to `x-middleware-record: metadata`. A separate, default-off case-level training choice permits `full` recording. The fixed fictional demo also permits full recording. `MUBIT_RECORD=metadata|off` can lower this globally; Mubit account settings can lower it further. Facts/photos still pass through Mubit and the selected provider. See [consent, history and withdrawal limits](CONSUMER.md#optional-training-recording).
 
 Council requests use configured `MUBIT_RECORD=full|metadata|off`; keep that workspace synthetic. The app records provider/model/request IDs, usage and latency when returned. Secrets and request authentication headers are not part of correction snapshots. [Privacy boundaries](07-compliance-and-risks.md).
 
@@ -38,7 +38,7 @@ Council requests use configured `MUBIT_RECORD=full|metadata|off`; keep that work
 
 Civic supports approved council precedents in later prompts, and separate owner-approved before/target correction exports. It does **not** submit those corrections to a training endpoint, monitor training jobs, select a trained version or prove a before/after improvement. A Mubit console task or learning entry is not proof of these actions.
 
-The supported correction-submission and version-selection contract is still needed from Mubit. Do not assume one adapter per council or one adapter for all tasks; the task prompts/output shapes differ and the provider determines grouping. Do not use real driver uploads as training examples without a separate agreed consent/data workflow. [Feedback workflow and completion criteria](MUBIT-FEEDBACK.md).
+The supported correction-submission and version-selection contract is still needed from Mubit. Do not assume one adapter per council or one adapter for all tasks; the task prompts/output shapes differ and the provider determines grouping. Real drivers now have a separate recording/training opt-in; this does not establish photo-based adapter eligibility, accepted examples or a trained version. Original inference recordings and corrected-answer submission remain different workflows. [Feedback workflow and completion criteria](MUBIT-FEEDBACK.md).
 
 ## Verification
 

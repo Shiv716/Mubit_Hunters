@@ -11,7 +11,7 @@ from PIL import Image
 
 from app import consumer, consumer_ai, consumer_auth
 from app.ai.adapters import MubitAdapter, ProviderResult
-from app.db import transaction
+from app.db import init_db, PostgresConnection, transaction
 
 
 @pytest.fixture
@@ -36,7 +36,7 @@ def saved(client, *, consent=True):
     return response.json()
 
 
-def assessment(facts, images):
+def assessment(facts, images, *, allow_training=False):
     sources = consumer_ai.knowledge()["sources"][:1]
     output = {"verdict": "grounds_to_explore", "summary": "Check the receipt against the notice.", "grounds": [],
         "missing_evidence": [], "risks": ["Check the discount terms on the notice."], "next_steps": ["Check all facts before submitting."],
@@ -94,6 +94,55 @@ def test_consent_confirmation_and_provider_failure_never_produce_fake_advice(cli
     assert client.post(path+"/evidence", files={"file": ("fake.png", b"not-an-image", "image/png")}).status_code == 422
 
 
+def test_training_opt_in_is_separate_owner_scoped_and_revocable(client, driver, monkeypatch):
+    monkeypatch.setenv("MUBIT_RECORD", "full")
+    row = saved(client)
+    path = f"/api/consumer/cases/{row['id']}"
+    assert row["training_consent"] == 0
+    choices = []
+    def record(facts, images, *, allow_training=False):
+        choices.append(allow_training)
+        return assessment(facts, images)
+    monkeypatch.setattr(consumer_ai, "assess", record)
+    assert client.post(path+"/assess").json()["assessment"]["recording_requested"] == "metadata"
+    payload = {"facts": row["facts"], "version": row["version"], "confirmed": True,
+               "ai_consent": False, "training_consent": True}
+    assert client.put(path, json=payload).status_code == 422
+    payload["ai_consent"] = True
+    driver["user_id"] = "other-driver"
+    assert client.put(path, json=payload).status_code == 404
+    driver["user_id"] = "driver-one"
+    row = client.put(path, json=payload).json()
+    assert client.get(path).json()["training_consent"] == 1
+    assert client.post(path+"/assess").json()["assessment"]["recording_requested"] == "full"
+    payload.update(version=row["version"], training_consent=False)
+    row = client.put(path, json=payload).json()
+    assert row["training_consent"] == 0
+    assert client.post(path+"/assess").json()["assessment"]["recording_requested"] == "metadata"
+    assert choices == [False, True, False]
+    events = client.get(path).json()["events"]
+    assert sorted(e["detail"]["allowed"] for e in events if e["event"] == "training_consent_changed") == [False, True]
+    assert sum(e["event"] == "ai_recording_requested" and e["detail"]["recording"] == "full" for e in events) == 1
+
+
+def test_recording_migration_preserves_existing_cases_without_opt_in(client, driver, monkeypatch):
+    row = saved(client)
+    monkeypatch.setattr(consumer_ai, "assess", assessment)
+    assert client.post(f"/api/consumer/cases/{row['id']}/assess").status_code == 200
+    # Recreate the immediately preceding schema, with existing private work.
+    with transaction() as conn:
+        conn.execute("ALTER TABLE driver_cases DROP COLUMN training_consent")
+        conn.execute("ALTER TABLE driver_reviews DROP COLUMN recording_requested")
+        if isinstance(conn, PostgresConnection):
+            conn.execute("DELETE FROM schema_migrations WHERE version=6")
+    init_db()
+    init_db()  # Restarting must not re-apply the ALTER statements.
+    migrated = client.get(f"/api/consumer/cases/{row['id']}").json()
+    assert migrated["training_consent"] == 0
+    assert migrated["facts"] == row["facts"]
+    assert migrated["assessment"]["recording_requested"] == "metadata"
+
+
 def test_assess_edit_approve_export_track_and_delete(client, driver, monkeypatch):
     row = saved(client)
     path = f"/api/consumer/cases/{row['id']}"
@@ -134,7 +183,7 @@ def test_changes_invalidate_draft_and_inflight_assessment(client, driver, monkey
     assert changed["assessment"]["stale"] and not changed["draft_approved"]
     assert client.get(path+"/pack").status_code == 409
     assert client.put(path,json={"facts":row["facts"],"version":row["version"],"confirmed":True}).status_code == 409
-    def changed_during_call(facts,images):
+    def changed_during_call(facts,images, *, allow_training=False):
         with transaction() as conn:
             conn.execute("UPDATE driver_cases SET version=version+1 WHERE id=?",(row["id"],))
         return assessment(facts,images)
@@ -145,10 +194,13 @@ def test_changes_invalidate_draft_and_inflight_assessment(client, driver, monkey
 
 
 @pytest.mark.parametrize("route", ["anthropic", "openai"])
-def test_vision_uses_mubit_without_training_bodies_and_rejects_invented_sources(monkeypatch, route):
+@pytest.mark.parametrize("consent,configured,expected", [(False,"full","metadata"), (True,"full","full"),
+    (True,"metadata","metadata"), (True,"off","off")])
+def test_vision_recording_honours_training_consent_and_operator_limit(monkeypatch, route, consent, configured, expected):
     monkeypatch.setenv("AI_PROVIDER","mubit")
     monkeypatch.setenv("MUBIT_API_KEY","synthetic-test-key")
     monkeypatch.setenv("MUBIT_ROUTE",route)
+    monkeypatch.setenv("MUBIT_RECORD",configured)
     output,_ = assessment({},[])
     output.pop("sources");output.pop("knowledge_version")
     calls=[]
@@ -158,10 +210,11 @@ def test_vision_uses_mubit_without_training_bodies_and_rejects_invented_sources(
         return httpx.Response(200,json={**body,"model":"test-model"})
     monkeypatch.setattr(consumer_ai,"MubitAdapter",lambda settings:MubitAdapter(settings,httpx.Client(transport=httpx.MockTransport(transport))))
     evidence=[{"id":"photo-1","kind":"ticket","content":consumer_ai.image_bytes(photo())}]
-    result,_=consumer_ai.assess({"issuer_kind":"private","notice_stage":"initial"},evidence)
+    result,provider=consumer_ai.assess({"issuer_kind":"private","notice_stage":"initial"},evidence, allow_training=consent)
     assert result["summary"]
     body=json.loads(calls[0].content)
-    assert calls[0].headers["x-middleware-record"] == "metadata"
+    assert calls[0].headers["x-middleware-record"] == expected
+    assert provider.meta["recording_requested"] == expected
     if route == "anthropic":
         assert body["messages"][0]["content"][-1]["source"]["media_type"] == "image/jpeg"
     else:

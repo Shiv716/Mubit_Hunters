@@ -19,6 +19,7 @@ def test_public_sample_is_labelled_and_does_not_open_private_endpoints(client):
     assert response.status_code == 200
     data = response.json()
     assert data["fictional"] and data["walkthrough_provider"] == "prewritten-example"
+    assert data["recording_requested"] == "full"
     assert not data["live_available"]
     for name in ("ticket", "receipt"):
         response = client.get(f"/api/consumer/demo/{name}")
@@ -37,11 +38,13 @@ def test_live_scan_flows_to_confirmed_assessment_without_cases_or_fake_metrics(c
     result = ProviderResult(provider="mubit", model="test-transport", request_id="test-request")
     extraction = copy.deepcopy(demo.sample()["extracted"])
     extraction["issuer"] = "Willow Yard Parking"  # Distinguishable from the reference fixture.
-    def scan(images):
+    def scan(images, *, allow_training=False):
+        assert allow_training
         assert [image["id"] for image in images] == ["demo-ticket"]
         calls.append("scan")
         return extraction, result
-    def assess(facts, images):
+    def assess(facts, images, *, allow_training=False):
+        assert allow_training
         assert facts["issuer"] == extraction["issuer"]
         assert facts["amount_pounds"] == 100
         assert facts["date_received"] is None
@@ -52,6 +55,7 @@ def test_live_scan_flows_to_confirmed_assessment_without_cases_or_fake_metrics(c
     monkeypatch.setattr(demo.consumer_ai, "assess", assess)
     first = client.post("/api/consumer/demo/scan", json={}).json()
     assert first["mode"] == "live" and first["request_id"] == "test-request"
+    assert first["recording_requested"] == "full"
     path = "/api/consumer/demo/assess"
     assert client.post(path, json={"run_id":first["run_id"],"confirmed":False}).status_code == 422
     response = client.post(path, json={"run_id":first["run_id"],"confirmed":True})
@@ -70,7 +74,7 @@ def test_live_scan_flows_to_confirmed_assessment_without_cases_or_fake_metrics(c
 
 def test_model_failure_and_quota_remain_errors_and_release_the_demo_slot(client, monkeypatch):
     monkeypatch.setattr(demo, "live_available", lambda: True)
-    def unavailable(*args):
+    def unavailable(*args, **kwargs):
         raise HTTPException(503, "Provider unavailable")
     monkeypatch.setattr(demo.consumer_ai, "scan", unavailable)
     response = client.post("/api/consumer/demo/scan",json={})

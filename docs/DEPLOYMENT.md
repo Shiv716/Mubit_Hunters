@@ -48,6 +48,12 @@ Enter only that URL as the variable's value—no quotes, Markdown or `NEON_AUTH_
 
 For the current live service, OpenAI-compatible `gpt-6-luna` inference was verified on 24 October 2026. The examples/Blueprint default to `anthropic`, whose adapter default is `claude-haiku-4-5`. Preserve the existing environment unless intentionally changing models. A model must support images for ticket scanning. [Mubit configuration](04-mubit-integration.md).
 
+## Consumer recording and adapter examples
+
+No new secret is required. Keep `MUBIT_RECORD=full` to permit full recording for the fixed fictional demo and real cases whose drivers separately opt into training use. Without that case opt-in, real driver calls request metadata only. Set `MUBIT_RECORD=metadata` or `off` to reduce recording for all consumer calls, including opted-in/demo calls. Mubit account settings may reduce it further.
+
+Startup migration 6 adds default-off training consent and per-review recording metadata without opting in existing cases. Confirm the public demo’s requested mode and the real-case unchecked choice after deployment. Full recording does not guarantee kept examples, image-training eligibility or a deployed adapter; inspect the task in Mubit. Do not run a batch of duplicate demo requests to manufacture a training threshold. [Recording behaviour](CONSUMER.md#optional-training-recording).
+
 ## Public driver signup
 
 In Neon Auth, enable Email OTP, email verification and **new user signup**, and trust `https://mubit-hunters.onrender.com`. Auth and application data must use the same branch. The application's database role needs read access to managed `neon_auth.session` and `neon_auth.user`; Civic never writes those tables directly.

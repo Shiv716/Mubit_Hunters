@@ -61,7 +61,7 @@
   <rect x="834" y="390" width="330" height="170" rx="14" fill="#e8f2d1" stroke="#94a972" stroke-width="1.5"/>
   <text x="857" y="427" class="label">Mubit → model provider</text>
   <text x="857" y="460" class="text">Vision extraction + appeal guidance</text>
-  <text x="857" y="489" class="text">Consumer recording: metadata</text>
+  <text x="857" y="489" class="text">Training recording: separate opt-in</text>
   <text x="857" y="529" class="small">No automatic correction training</text>
 
   <text x="36" y="590" class="small">* Parking records and Photon search use the API; map tiles load in the browser.</text>

@@ -16,6 +16,7 @@ Reviewed **24 October 2026**. This supersedes the original officer-only proposal
 | CEO photos optional by default | Required only when selected council policy says so; missing evidence is assessed in context |
 | London snapshot for discovery | Fast map/list browsing without a paid map key; no live occupancy or guaranteed permissions |
 | Self-reports separate from verified wins | No invented product success or savings; industry figures have explicit sources/denominators |
+| Separate driver training opt-in | Full recording requires a saved optional choice; existing cases stay metadata-only. Fictional demo calls may be fully recorded; Mubit determines eligibility |
 | Correction export before training integration | Preserve original inputs and approved targets without inventing unsupported provider APIs |
 | One worker and explicit quotas | Current shared-state/capacity limits are documented; no unsupported concurrent-user claim |
 | Focused tests and deploy checks | Verify changed behaviour and known boundaries; do not repeatedly run broad checks for documentation-only edits |

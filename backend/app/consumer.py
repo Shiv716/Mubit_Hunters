@@ -59,6 +59,7 @@ class Update(BaseModel):
     version: int = Field(ge=0)
     confirmed: bool
     ai_consent: bool = False
+    training_consent: bool = False
 
 
 class Draft(BaseModel):
@@ -144,15 +145,20 @@ def read(case_id: str, owner=Depends(require_driver)):
 
 @router.put("/cases/{case_id}")
 def update(case_id: str, body: Update, owner=Depends(require_driver)):
+    if body.training_consent and not body.ai_consent:
+        raise HTTPException(422, "Allow AI processing before choosing optional training use.")
     if body.confirmed and (not body.facts.issuer or not body.facts.ticket_ref):
         raise HTTPException(422, "Confirm the issuer and ticket reference from your notice.")
     with transaction() as conn:
         row = own(conn, case_id, owner, lock=True)
         if row["version"] != body.version:
             raise HTTPException(409, "This appeal changed in another tab. Reload it before saving.")
-        conn.execute("""UPDATE driver_cases SET facts_json=?,version=version+1,confirmed=?,ai_consent=?,draft_approved=0,
+        conn.execute("""UPDATE driver_cases SET facts_json=?,version=version+1,confirmed=?,ai_consent=?,training_consent=?,draft_approved=0,
             status=CASE WHEN status='assessed' THEN 'preparing' ELSE status END,updated_at=? WHERE id=? AND owner_id=?""",
-            (body.facts.model_dump_json(), int(body.confirmed), int(body.ai_consent), now_iso(), case_id, owner))
+            (body.facts.model_dump_json(), int(body.confirmed), int(body.ai_consent), int(body.training_consent), now_iso(), case_id, owner))
+        if bool(row["training_consent"]) != body.training_consent:
+            event(conn, case_id, "training_consent_changed", {"allowed": body.training_consent,
+                "notice_version": "consumer-training-v1", "case_version": row["version"] + 1})
         event(conn, case_id, "details_saved", {"confirmed": body.confirmed})
         return detail(conn, own(conn, case_id, owner))
 
@@ -233,15 +239,20 @@ def run(case_id: str, action: Literal["scan", "assess"], owner=Depends(require_d
             WHERE driver_jobs.expires_at<? RETURNING token""", (case_id, token, int(time.time())+180, int(time.time()))).fetchone()
         if not claimed:
             raise HTTPException(409, "This appeal is already being read. Wait for the current request to finish.")
+        allow_training = bool(row["training_consent"])
+        recording = consumer_ai.recording_mode(allow_training)
+        event(conn, case_id, "ai_recording_requested", {"action": action, "recording": recording,
+            "training_consent": allow_training, "case_version": row["version"]})
     try:
-        output, result = consumer_ai.scan(images) if action == "scan" else consumer_ai.assess(facts, images)
+        output, result = (consumer_ai.scan(images, allow_training=allow_training) if action == "scan"
+            else consumer_ai.assess(facts, images, allow_training=allow_training))
         with transaction() as conn:
             current = own(conn, case_id, owner, lock=True)
             if current["version"] != row["version"]:
                 raise HTTPException(409, "The evidence changed while Mubit was working. Run it again using the latest details.")
             review_id = uuid4().hex
-            conn.execute("INSERT INTO driver_reviews (id,case_id,input_version,kind,output_json,provider,model,request_id,created_at) VALUES (?,?,?,?,?,?,?,?,?)",
-                (review_id, case_id, row["version"], "scan" if action == "scan" else "assessment", json.dumps(output), result.provider, result.model, result.request_id, now_iso()))
+            conn.execute("INSERT INTO driver_reviews (id,case_id,input_version,kind,output_json,provider,model,request_id,recording_requested,created_at) VALUES (?,?,?,?,?,?,?,?,?,?)",
+                (review_id, case_id, row["version"], "scan" if action == "scan" else "assessment", json.dumps(output), result.provider, result.model, result.request_id, recording, now_iso()))
             if action == "assess":
                 conn.execute("UPDATE driver_cases SET draft_text=?,draft_review_id=?,draft_approved=0,status=CASE WHEN status='preparing' THEN 'assessed' ELSE status END,updated_at=? WHERE id=?",
                     (output["draft_letter"], review_id, now_iso(), case_id))

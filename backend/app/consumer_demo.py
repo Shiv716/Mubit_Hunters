@@ -58,6 +58,7 @@ def information():
     data["assessment"]["sources"] = [s for s in guide["sources"] if s["id"] in data["assessment"]["source_ids"]]
     data["assessment"]["knowledge_version"] = guide["version"]
     return {**data, "fictional": True, "live_available": live_available(),
+            "recording_requested": consumer_ai.recording_mode(True),
             "ticket_url": "/api/consumer/demo/ticket", "receipt_url": "/api/consumer/demo/receipt",
             "walkthrough_provider": "prewritten-example"}
 
@@ -89,7 +90,8 @@ def take_live_slot():
 
 def metadata(result):
     return {"mode": "live", "provider": result.provider, "model": result.model,
-            "request_id": result.request_id, "processed_at": now_iso()}
+            "request_id": result.request_id, "processed_at": now_iso(),
+            "recording_requested": result.meta.get("recording_requested", consumer_ai.recording_mode(True))}
 
 
 def confirmed_facts(extracted):
@@ -108,7 +110,7 @@ def confirmed_facts(extracted):
 def scan(_: ScanRequest):
     take_live_slot()
     try:
-        output, result = consumer_ai.scan(images()[:1])
+        output, result = consumer_ai.scan(images()[:1], allow_training=True)
         try:
             facts = confirmed_facts(output)
         except (ValueError, TypeError, KeyError):
@@ -146,7 +148,7 @@ def assess(body: AssessmentRequest):
         with _state_lock:
             if run["assessment"]:
                 return {**run["assessment"], "reused": True}
-        output, result = consumer_ai.assess(facts, images())
+        output, result = consumer_ai.assess(facts, images(), allow_training=True)
         response = {**metadata(result), "run_id": body.run_id, "assessment": output, "reused": False}
         with _state_lock:
             run["assessment"] = response

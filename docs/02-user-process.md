@@ -9,7 +9,7 @@ Reviewed **24 October 2026**. [Open Civic](https://mubit-hunters.onrender.com/).
 1. The driver receives a notice through the issuer's normal process. Civic does not assume it arrived by post: the user can photograph a paper notice, use a screenshot or type the facts.
 2. Sign up/sign in with a Neon email code. Driver access does not need council-owner approval.
 3. Create a private case. Upload a JPEG/PNG/WebP or enter the notice manually; PDF pages currently need screenshots.
-4. Consent to AI processing before scanning or assessment. Check the extracted issuer, reference, vehicle, dates, amount, stage and portal link. Correct omissions or mistakes; do not assume extraction authenticates the ticket.
+4. Consent to AI processing before scanning or assessment. Separately, optionally allow Mubit to retain future calls for possible training; this is not needed to use Civic and starts unchecked. Check the extracted issuer, reference, vehicle, dates, amount, stage and portal link. Correct omissions or mistakes; do not assume extraction authenticates the ticket.
 5. Explain what happened and attach relevant evidence. Mubit assesses the supplied information with a dated source library, identifying potential grounds, missing evidence and risks. Weak cases can receive limited grounds; later/uncertain stages receive specialist help without an initial-challenge draft.
 6. Edit the draft and explicitly approve it. Changed facts/evidence invalidate approval and require a current assessment before export.
 7. Download the ZIP containing the draft, guidance/read-me and evidence images. **The driver submits it through the issuer's own website or postal route.** Civic does not submit or cancel the notice.

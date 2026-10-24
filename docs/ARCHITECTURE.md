@@ -8,7 +8,7 @@ Reviewed against the implementation on **24 October 2026**. [Hosted Civic](https
 
 Civic is a modular monolith: one non-root Docker container on Render serves the compiled React frontend and FastAPI API over one origin. `backend/start.py` starts one Uvicorn worker. Render supplies HTTPS and `PORT`; the application does not require a separate frontend service.
 
-Neon PostgreSQL stores application records and image bytes. Managed Neon Auth (Better Auth) owns users and sessions in the same database branch. Civic stores its tables in the `civic` schema by default; startup applies migrations 1–5 under a PostgreSQL advisory lock. Offline development can use SQLite. The database pool is 1–8 connections per web worker; external AI requests are synchronous, with no durable job queue.
+Neon PostgreSQL stores application records and image bytes. Managed Neon Auth (Better Auth) owns users and sessions in the same database branch. Civic stores its tables in the `civic` schema by default; startup applies migrations 1–6 under a PostgreSQL advisory lock. Offline development can use SQLite. The database pool is 1–8 connections per web worker; external AI requests are synchronous, with no durable job queue.
 
 ## Responsibilities and code
 
@@ -42,7 +42,7 @@ Neon PostgreSQL stores application records and image bytes. Managed Neon Auth (B
 | Driver | Separate session audience/cookie and `driver_*` tables; every private case operation checks ownership |
 | Council | Separate session, owner-approved membership and shared synthetic officer workspace; driver signup does not grant access |
 | Connector | Dedicated machine key for versioned council exchange; cannot approve cases or administer membership |
-| Provider | Server-side Mubit key; consumer calls send consented facts/images and request metadata-only recording |
+| Provider | Server-side Mubit key; consumer calls default to metadata; separate per-case consent permits full recording, subject to lower operator/provider settings |
 | Outcomes | User reports are stored but never marked independently verified by the current UI |
 
 Deleting a driver case deletes its active case records and images, not its Neon Auth account, provider records or database backups. Council audit/review/decision history has different append-only rules. There is no general automatic retention purge or multi-council tenant model.
@@ -53,7 +53,7 @@ Mubit handles consumer image reading and assessment. The retained council agent 
 
 Live consumer demo inference was verified on 24 October 2026 using `gpt-6-luna` through Mubit's OpenAI-compatible route. Examples/Blueprint default to the Anthropic-compatible route; the existing service's environment determines its actual route. Configured credentials, successful inference, retrieved precedents and trained adapters are different states. [Mubit integration](04-mubit-integration.md) and [feedback status](MUBIT-FEEDBACK.md) document them.
 
-The demo stores temporary runs in bounded process memory; regular cases persist in Neon. Map discovery uses a bundled London snapshot, with external tiles and geocoding. Neither map pins nor public sample outputs are proof of live occupancy or product success.
+The demo stores temporary runs in bounded process memory; regular cases persist in Neon. The fixed fictional demo requests full recording. Migration 6 adds default-off driver training consent and each review’s requested recording mode; consent changes and outgoing recording requests are logged in case history. Map discovery uses a bundled London snapshot, with external tiles and geocoding. Neither map pins nor public sample outputs are proof of live occupancy or product success.
 
 ## Deployment boundaries
 

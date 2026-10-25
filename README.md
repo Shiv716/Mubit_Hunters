@@ -2,7 +2,7 @@
 
 **Understand your parking ticket. Build a clearer appeal. Find parking for your next trip.**
 
-Civic, submitted by team **Oz16**, helps drivers in England turn a parking notice and supporting evidence into a reviewed appeal pack. Mubit powers ticket reading and appeal guidance; the driver stays in control of what gets submitted.
+Civic, submitted by team **Oz16** (**Mubit Hunters** in the demo), helps drivers in England turn a parking notice and supporting evidence into a reviewed appeal pack. Mubit powers ticket reading and appeal guidance; the driver stays in control of what gets submitted.
 
 **Intended hackathon track: [Recurring tasks](https://luma.com/nightshift-london)** — repeated ticket extraction and appeal guidance.
 
@@ -42,7 +42,7 @@ The home page uses sourced industry context: 5.17m London parking PCNs in 2024/2
 
 One Docker image serves the frontend and API on the same HTTPS origin. Schema migrations run at startup. Live demo inference was verified on **24 October 2026** through Mubit's OpenAI-compatible route using **`gpt-6-luna`**; the model remains configurable. [Architecture and source map](docs/ARCHITECTURE.md) · [Mubit integration](docs/04-mubit-integration.md).
 
-**Mubit usage lookup:** submitted team **Oz16**, account email **cshivang2002@gmail.com**, model **`gpt-6-luna`**. Reference live demo request in Mubit's **Requests** view: `mreq_01a16fcb1c677e91b653a855a6fa319b` (24 October 2026).
+**Mubit usage lookup:** submitted team **Oz16** (**Mubit Hunters** in the demo), account email **cshivang2002@gmail.com**, model **`gpt-6-luna`**. Reference live demo request in Mubit's **Requests** view: `mreq_01a16fcb1c677e91b653a855a6fa319b` (24 October 2026).
 
 **Committed routing evidence for judges:** [config.py](backend/app/config.py) defines `https://api.mubit.ai/openai/v1` as the OpenAI-route default and `https://api.mubit.ai/anthropic` for Anthropic. [adapters.py](backend/app/ai/adapters.py) sends requests to the configured Mubit base URL, authenticating with `MUBIT_API_KEY` from the environment (`Authorization: Bearer` for OpenAI, `x-api-key` for Anthropic). [render.yaml](render.yaml) sets `AI_PROVIDER=mubit` and declares the key as a runtime secret (`sync: false`). The actual key stays in Render or an ignored local `.env`; it must not be committed.
 

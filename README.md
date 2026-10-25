@@ -4,6 +4,8 @@
 
 Civic, submitted by team **Oz16**, helps drivers in England turn a parking notice and supporting evidence into a reviewed appeal pack. Mubit powers ticket reading and appeal guidance; the driver stays in control of what gets submitted.
 
+**Intended hackathon track: [Recurring tasks](https://luma.com/nightshift-london)** — repeated ticket extraction and appeal guidance.
+
 **[Open Civic](https://mubit-hunters.onrender.com/) · [Demo video (MP4)](docs/demo/civic-demo.mp4) · [Try the sample ticket](https://mubit-hunters.onrender.com/#demo) · [Explore the London map](https://mubit-hunters.onrender.com/#parking)**
 
 ## The walkthrough

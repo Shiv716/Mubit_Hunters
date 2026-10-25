@@ -25,4 +25,4 @@ The separate council workspace demonstrates synthetic review, officer decisions,
 
 Live consumer demo inference was verified on 24 October 2026 using `gpt-6-luna` through Mubit. Recheck a changed provider configuration before a presentation; do not manufacture calls to reach a provider training threshold. Record only non-sensitive demo data and keep credentials/approval links off screen.
 
-Event track, judging criteria and submission deadlines must be confirmed against the organiser's current instructions; this document makes no claim of eligibility or award alignment.
+Civic's intended hackathon track is **[Recurring tasks](https://luma.com/nightshift-london)**: ticket extraction and appeal guidance are repeated workflows. A demonstration of a correction becoming a model update and changing a later review remains pending, as described above. Follow the organiser's latest judging and submission-deadline instructions.

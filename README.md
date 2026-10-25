@@ -8,9 +8,9 @@ Civic helps drivers in England turn a parking notice and supporting evidence int
 
 **[Hackathon tracks](https://luma.com/nightshift-london), in priority order:**
 
-1. **Recurring tasks — primary:** repeated ticket extraction and appeal guidance; correction-to-model-update proof remains pending.
-2. **Own your intelligence layer — secondary:** a task-adapted open model for PCN reviews; adapter training and quality, cost and latency comparisons remain pending.
-3. **Fast refresh — future fit:** model updates as council policies and case patterns change; rapid retraining has not yet been demonstrated.
+1. Recurring tasks
+2. Own your intelligence layer
+3. Fast refresh
 
 **[Open Civic](https://mubit-hunters.onrender.com/) · [Demo video (MP4)](docs/demo/civic-demo.mp4) · [Try the sample ticket](https://mubit-hunters.onrender.com/#demo) · [Explore the London map](https://mubit-hunters.onrender.com/#parking)**
 
